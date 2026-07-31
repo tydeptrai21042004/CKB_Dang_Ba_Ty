@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CKBuilder Screenshot Evidence Guide</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="guide-page">
+    <a class="text-link" href="/#learning">← Back to Learning Hub</a>
+    <article class="panel guide-card">
+      <p class="eyebrow">Proof of participation</p>
+      <h1>Screenshot evidence guide</h1>
+      <p>Capture evidence while completing each tutorial. Keep the result visible and all secrets hidden.</p>
+
+      <h2>Minimum evidence per tutorial</h2>
+      <ol>
+        <li><strong>Setup:</strong> Devnet/Testnet, terminal command, or running tutorial app.</li>
+        <li><strong>Success:</strong> transaction hash, committed status, successful build, or script result.</li>
+        <li><strong>Verification:</strong> changed balance, decoded Cell data, issued token, created DOB, or successful unlock.</li>
+      </ol>
+
+      <h2>Windows</h2>
+      <ol>
+        <li>Press <code>Win + Shift + S</code>.</li>
+        <li>Select <strong>Rectangular Snip</strong>.</li>
+        <li>Capture only the relevant terminal or app area.</li>
+        <li>Review and redact secrets before saving the PNG.</li>
+      </ol>
+
+      <h2>Safe filenames</h2>
+      <pre><code>screenshots/learning/transfer-ckb-01-setup.png
+screenshots/learning/transfer-ckb-02-success.png
+screenshots/learning/transfer-ckb-03-verification.png</code></pre>
+
+      <div class="policy-block blocked">
+        <h3>Never capture</h3>
+        <ul>
+          <li>Private keys from <code>offckb accounts</code></li>
+          <li>Seed phrases, passwords, tokens, or <code>.env</code> values</li>
+          <li>Personal tabs, email, chat, account names, or notifications</li>
+        </ul>
+      </div>
+
+      <h2>Finish the evidence record</h2>
+      <p>Copy the tutorial's <code>EVIDENCE_TEMPLATE.md</code> to <code>completion.md</code>, fill every field, add the screenshots to your weekly dev log, then run:</p>
+      <pre><code>npm run learning:check</code></pre>
+    </article>
+  </main>
+</body>
+</html>

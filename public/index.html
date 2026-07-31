@@ -3,114 +3,338 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Read-only CKB credential verification, Cell-data decoding, and proof validation.">
-  <title>CKB Degree Proof — Public Inspector</title>
+  <meta name="description" content="Read-only CKB credential verification, Cell-data decoding, proof validation, and learning evidence tracking.">
+  <title>CKBuilder Console</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <main class="shell">
-    <header>
-      <p class="eyebrow">CKB Degree Proof</p>
-      <h1>Public Credential Inspector</h1>
-      <p class="lead">Read-only credential, Cell-state, document-integrity, and revocation-history inspection. No wallet or issuer private key is required.</p>
-      <ul class="capabilities" aria-label="Capabilities">
-        <li>Credential verifier</li>
-        <li>75-byte Cell decoder</li>
-        <li>Proof integrity checker</li>
-      </ul>
-    </header>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <a class="brand" href="#overview" aria-label="CKBuilder Console home">
+        <span class="brand-mark" aria-hidden="true">CK</span>
+        <span><strong>CKBuilder</strong><small>Degree Proof Console</small></span>
+      </a>
 
-    <section class="panel" aria-labelledby="credential-heading">
-      <h2 id="credential-heading">1. Inspect a credential</h2>
-      <form id="inspect-form">
-        <label>
-          Credential ID
-          <input id="credential-id" name="credentialId" autocomplete="off" maxlength="256" required placeholder="CKB-DEGREE-2026-0001">
-        </label>
-        <label>
-          Certificate document <span>(optional, used only for SHA-256 comparison)</span>
-          <input id="document" name="document" type="file">
-        </label>
-        <label class="check-row">
-          <input id="offline" type="checkbox">
-          Skip live CKB RPC check
-        </label>
-        <button type="submit">Inspect credential</button>
-      </form>
-      <p id="status" role="status" aria-live="polite"></p>
-    </section>
+      <nav class="nav-list">
+        <button class="nav-item active" type="button" data-view="overview" aria-current="page">
+          <span class="nav-icon" aria-hidden="true">◇</span><span>Overview</span>
+        </button>
+        <button class="nav-item" type="button" data-view="inspector">
+          <span class="nav-icon" aria-hidden="true">✓</span><span>Credential inspector</span>
+        </button>
+        <button class="nav-item" type="button" data-view="decoder">
+          <span class="nav-icon" aria-hidden="true">{ }</span><span>Cell decoder</span>
+        </button>
+        <button class="nav-item" type="button" data-view="proof">
+          <span class="nav-icon" aria-hidden="true">#</span><span>Proof verifier</span>
+        </button>
+        <button class="nav-item" type="button" data-view="learning">
+          <span class="nav-icon" aria-hidden="true">↗</span><span>Learning hub</span>
+        </button>
+      </nav>
 
-    <section id="result" class="panel hidden" aria-live="polite">
-      <div class="result-head">
-        <div>
-          <p class="eyebrow">Verification outcome</p>
-          <h2 id="outcome"></h2>
-        </div>
-        <button id="download" type="button" class="secondary">Export proof JSON</button>
+      <div class="sidebar-learning-card">
+        <div><span>Learning path</span><strong id="sidebar-learning-label">Loading…</strong></div>
+        <div class="sidebar-progress"><span id="sidebar-learning-progress"></span></div>
       </div>
+      <div class="sidebar-card">
+        <span class="status-dot" id="sidebar-status-dot" aria-hidden="true"></span>
+        <div><strong id="sidebar-status">Checking service</strong><small>Read-only local console</small></div>
+      </div>
+      <p class="sidebar-foot">No issuer private key is loaded by this interface.</p>
+    </aside>
 
-      <dl class="summary-grid">
-        <div><dt>Off-chain</dt><dd id="offchain"></dd></div>
-        <div><dt>On-chain</dt><dd id="onchain"></dd></div>
-        <div><dt>Document</dt><dd id="document-result"></dd></div>
-        <div><dt>Consistency</dt><dd id="consistency"></dd></div>
-      </dl>
-
-      <h3>ACTIVE → REVOKED history</h3>
-      <ol id="history" class="history"></ol>
-
-      <h3>Verification checks</h3>
-      <div id="checks" class="checks"></div>
-
-      <details>
-        <summary>Raw public proof</summary>
-        <pre id="raw"></pre>
-      </details>
-    </section>
-
-    <section class="panel" aria-labelledby="decoder-heading">
-      <h2 id="decoder-heading">2. Decode credential Cell data</h2>
-      <p class="section-note">Paste the raw 0x-prefixed 75-byte output data. This decoder is independent of issuer keys and RPC access.</p>
-      <form id="decode-form">
-        <label>
-          Cell data
-          <textarea id="cell-data" required spellcheck="false" placeholder="0x0100..."></textarea>
-        </label>
-        <div class="two-column">
-          <label>
-            Expected credential hash <span>(optional)</span>
-            <input id="expected-credential-hash" autocomplete="off" placeholder="0x…">
-          </label>
-          <label>
-            Expected issuer Lock Script hash <span>(optional)</span>
-            <input id="expected-issuer-hash" autocomplete="off" placeholder="0x…">
-          </label>
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">CKB credential infrastructure</p>
+          <h1 id="page-title">Project overview</h1>
         </div>
-        <button type="submit">Decode Cell data</button>
-      </form>
-      <p id="decode-status" role="status" aria-live="polite"></p>
-      <pre id="decode-result" class="hidden"></pre>
-    </section>
+        <div class="topbar-meta">
+          <span class="pill" id="network-pill">Network —</span>
+          <span class="pill success">Read only</span>
+          <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch color theme" title="Switch color theme"><span aria-hidden="true">◐</span></button>
+        </div>
+      </header>
 
-    <section class="panel" aria-labelledby="proof-heading">
-      <h2 id="proof-heading">3. Verify an exported proof</h2>
-      <p class="section-note">This recomputes the canonical proof digest and checks for unsupported schemas or obvious privacy leakage.</p>
-      <form id="proof-form">
-        <label>
-          Verification proof JSON
-          <input id="proof-file" type="file" accept="application/json,.json" required>
-        </label>
-        <button type="submit">Verify proof</button>
-      </form>
-      <p id="proof-status" role="status" aria-live="polite"></p>
-      <div id="proof-checks" class="checks"></div>
-    </section>
+      <section class="view active" id="view-overview" data-title="Project overview">
+        <div class="hero-card">
+          <div class="hero-copy">
+            <span class="hero-kicker">CKB Degree Proof v<span id="hero-version">2.4.0</span></span>
+            <h2>Issue, verify, and revoke academic credentials with transparent Cell state.</h2>
+            <p>The console combines public credential inspection, canonical 75-byte Cell decoding, proof-integrity checks, and an honest learning-evidence dashboard.</p>
+            <div class="hero-actions">
+              <button class="button primary" type="button" data-go="inspector">Inspect a credential</button>
+              <button class="button ghost" type="button" data-go="learning">Review learning progress</button>
+            </div>
+          </div>
+          <div class="hero-visual" aria-label="Credential lifecycle diagram">
+            <div class="chain-node">
+              <span>01</span><strong>Issue</strong><small>Signed off-chain credential</small>
+            </div>
+            <div class="chain-line"></div>
+            <div class="chain-node active-state">
+              <span>02</span><strong>ACTIVE</strong><small>Canonical CKB Cell</small>
+            </div>
+            <div class="chain-line"></div>
+            <div class="chain-node revoked-state">
+              <span>03</span><strong>REVOKED</strong><small>Irreversible lineage state</small>
+            </div>
+          </div>
+        </div>
 
-    <footer>
-      <p><strong>Protocol boundary:</strong> the current Type Script enforces an irreversible transition for one Cell lineage. It does not yet guarantee global uniqueness for newly created Cells with the same credential hash.</p>
-      <p>The binary format, standalone decoder, and deterministic test vectors are published under <code>community/</code> for reuse by CKB tooling.</p>
-    </footer>
-  </main>
+        <div class="metric-grid">
+          <article class="metric-card">
+            <p>Service</p><strong id="metric-service">Checking</strong><small id="metric-service-note">Connecting to local inspector</small>
+          </article>
+          <article class="metric-card">
+            <p>Network</p><strong id="metric-network">—</strong><small>Configured CKB environment</small>
+          </article>
+          <article class="metric-card">
+            <p>Learning evidence</p><strong id="metric-learning">—</strong><small id="metric-learning-note">Loading tracked work</small>
+          </article>
+          <article class="metric-card">
+            <p>Protocol formats</p><strong id="metric-formats">2</strong><small>Cell data and public proof</small>
+          </article>
+        </div>
+
+        <div class="content-grid overview-grid">
+          <article class="panel">
+            <div class="panel-head">
+              <div><p class="eyebrow">Verification workflow</p><h2>Four independent checks</h2></div>
+            </div>
+            <div class="feature-list">
+              <div class="feature-row"><span>01</span><div><strong>Issuer authenticity</strong><p>Validate the trusted issuer, Ed25519 key binding, and credential signature.</p></div></div>
+              <div class="feature-row"><span>02</span><div><strong>Document integrity</strong><p>Compare an uploaded certificate with the signed SHA-256 document hash.</p></div></div>
+              <div class="feature-row"><span>03</span><div><strong>Live Cell state</strong><p>Read the matching `ACTIVE` or `REVOKED` record without signing a transaction.</p></div></div>
+              <div class="feature-row"><span>04</span><div><strong>State consistency</strong><p>Reject duplicate, malformed, or conflicting off-chain and on-chain evidence.</p></div></div>
+            </div>
+          </article>
+
+          <article class="panel compact-panel">
+            <div class="panel-head">
+              <div><p class="eyebrow">Quick tools</p><h2>Open a workspace</h2></div>
+            </div>
+            <button class="tool-link" type="button" data-go="inspector"><span><strong>Credential inspector</strong><small>Public verification by credential ID</small></span><b>→</b></button>
+            <button class="tool-link" type="button" data-go="decoder"><span><strong>Cell decoder</strong><small>Interpret canonical 75-byte output data</small></span><b>→</b></button>
+            <button class="tool-link" type="button" data-go="proof"><span><strong>Proof verifier</strong><small>Recompute digest and privacy checks</small></span><b>→</b></button>
+          </article>
+        </div>
+
+        <article class="boundary-card">
+          <strong>Protocol boundary</strong>
+          <p>The Type Script enforces irreversibility for one Cell lineage. It does not guarantee global uniqueness against an independently created Cell with the same credential hash; the inspector reports multiple live matches as a conflict.</p>
+        </article>
+      </section>
+
+      <section class="view" id="view-inspector" data-title="Credential inspector">
+        <div class="section-intro">
+          <div><p class="eyebrow">Public verification</p><h2>Inspect credential evidence</h2><p>Verify signatures, document integrity, live Cell state, and `ACTIVE → REVOKED` history. No wallet is required.</p></div>
+          <span class="privacy-badge">Private key not loaded</span>
+        </div>
+
+        <div class="content-grid form-grid">
+          <article class="panel sticky-panel">
+            <form id="inspect-form">
+              <label for="credential-id">Credential ID</label>
+              <input id="credential-id" name="credentialId" autocomplete="off" maxlength="256" required placeholder="CKB-DEGREE-2026-0001">
+
+              <label for="document">Certificate document <span>Optional SHA-256 comparison</span></label>
+              <input id="document" name="document" type="file">
+
+              <label class="check-row" for="offline">
+                <input id="offline" type="checkbox">
+                <span><strong>Offline inspection</strong><small>Skip the live CKB RPC query</small></span>
+              </label>
+
+              <button class="button primary full" type="submit">Run public inspection</button>
+              <p class="form-status" id="status" role="status" aria-live="polite">Ready for a credential ID.</p>
+            </form>
+          </article>
+
+          <article id="result-placeholder" class="empty-state">
+            <span class="empty-icon" aria-hidden="true">✓</span>
+            <h3>Verification results appear here</h3>
+            <p>The inspector separates off-chain, on-chain, document, and consistency outcomes.</p>
+          </article>
+
+          <article id="result" class="panel hidden result-panel" aria-live="polite">
+            <div class="result-head">
+              <div><p class="eyebrow">Verification outcome</p><h2 id="outcome">—</h2></div>
+              <button id="download" type="button" class="button ghost small">Export proof JSON</button>
+            </div>
+
+            <dl class="summary-grid">
+              <div><dt>Off-chain</dt><dd id="offchain">—</dd></div>
+              <div><dt>On-chain</dt><dd id="onchain">—</dd></div>
+              <div><dt>Document</dt><dd id="document-result">—</dd></div>
+              <div><dt>Consistency</dt><dd id="consistency">—</dd></div>
+            </dl>
+
+            <div class="result-section"><h3>ACTIVE → REVOKED history</h3><ol id="history" class="history"></ol></div>
+            <div class="result-section"><h3>Verification checks</h3><div id="checks" class="checks"></div></div>
+            <details><summary>Raw public proof</summary><pre id="raw"></pre></details>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" id="view-decoder" data-title="Cell decoder">
+        <div class="section-intro">
+          <div><p class="eyebrow">Canonical binary format</p><h2>Decode credential Cell data</h2><p>Paste a `0x`-prefixed 75-byte output. The decoder requires no wallet, private key, or RPC connection.</p></div>
+          <span class="format-badge">ckb-degree-credential-cell/v1</span>
+        </div>
+
+        <article class="panel">
+          <form id="decode-form">
+            <label for="cell-data">Cell data</label>
+            <textarea id="cell-data" required spellcheck="false" placeholder="0x0100..."></textarea>
+            <div class="two-column">
+              <div><label for="expected-credential-hash">Expected credential hash <span>Optional</span></label><input id="expected-credential-hash" autocomplete="off" placeholder="0x…"></div>
+              <div><label for="expected-issuer-hash">Expected issuer Lock Script hash <span>Optional</span></label><input id="expected-issuer-hash" autocomplete="off" placeholder="0x…"></div>
+            </div>
+            <button class="button primary" type="submit">Decode Cell data</button>
+          </form>
+          <p class="form-status" id="decode-status" role="status" aria-live="polite">Waiting for canonical Cell data.</p>
+          <pre id="decode-result" class="hidden"></pre>
+        </article>
+
+        <div class="field-grid" aria-label="Cell data layout">
+          <div><span>Bytes 0–1</span><strong>Version + status</strong></div>
+          <div><span>Bytes 2–33</span><strong>Credential hash</strong></div>
+          <div><span>Bytes 34–65</span><strong>Issuer Lock hash</strong></div>
+          <div><span>Bytes 66–74</span><strong>Reason + timestamp</strong></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-proof" data-title="Proof verifier">
+        <div class="section-intro">
+          <div><p class="eyebrow">Independent integrity check</p><h2>Verify an exported proof</h2><p>Recompute the canonical proof digest, validate the supported schema, and detect obvious sensitive-field or local-path leakage.</p></div>
+          <span class="format-badge">ckb-degree-public-verification-proof/v2</span>
+        </div>
+
+        <article class="panel upload-panel">
+          <form id="proof-form">
+            <label class="drop-zone" for="proof-file">
+              <span class="empty-icon" aria-hidden="true">#</span>
+              <strong>Select a verification proof JSON</strong>
+              <small>The file is processed by the local read-only inspector.</small>
+              <input id="proof-file" type="file" accept="application/json,.json" required>
+            </label>
+            <button class="button primary" type="submit">Verify proof integrity</button>
+          </form>
+          <p class="form-status" id="proof-status" role="status" aria-live="polite">No proof selected.</p>
+          <div id="proof-checks" class="checks"></div>
+        </article>
+      </section>
+
+      <section class="view" id="view-learning" data-title="Learning hub">
+        <div class="learning-hero">
+          <div class="learning-hero-copy">
+            <p class="eyebrow">CKBuilder learning workspace</p>
+            <h2>Build CKB knowledge in a clear, evidence-backed sequence.</h2>
+            <p>Study the concept, run the local lab, pass the knowledge check, then retain real screenshots when an official tutorial or on-chain action is completed.</p>
+            <div class="learning-hero-actions">
+              <button class="button primary" id="next-module-button" type="button">Open next module</button>
+              <button class="button ghost" type="button" data-scroll="curriculum-section">Browse curriculum</button>
+            </div>
+            <div class="learning-path-meta">
+              <span><b id="curriculum-module-count">—</b> modules</span>
+              <span><b id="curriculum-hours">—</b> guided hours</span>
+              <span><b>Evidence-safe</b> completion</span>
+            </div>
+          </div>
+          <div class="learning-score-card">
+            <div class="score-ring large" id="learning-ring"><strong id="learning-percent">—</strong><small>tracked work</small></div>
+            <div><span>Repository evidence</span><strong id="learning-score-label">Loading progress…</strong><small id="learning-score-detail">Only real source and completion records count.</small></div>
+          </div>
+        </div>
+
+        <div class="learning-stat-grid">
+          <article><span>Next recommended</span><strong id="next-module-title">Loading…</strong><small id="next-module-meta">Curriculum guidance</small></article>
+          <article><span>Curriculum evidence</span><strong id="curriculum-progress">—</strong><small>Completed module records</small></article>
+          <article><span>Runnable quizzes</span><strong id="quiz-count">—</strong><small>Local knowledge checks</small></article>
+          <article><span>Official tutorials</span><strong id="tutorial-progress">0/5</strong><small>Real Devnet/Testnet evidence</small></article>
+        </div>
+
+        <section class="learning-section" id="curriculum-section">
+          <div class="curriculum-heading">
+            <div><p class="eyebrow">Structured roadmap</p><h2>Fourteen-module CKB curriculum</h2><p>Use search and category filters to find a lesson. Module cards remain readable even when prerequisites are still planned.</p></div>
+            <div class="curriculum-controls">
+              <label class="search-field" for="curriculum-search"><span aria-hidden="true">⌕</span><input id="curriculum-search" type="search" placeholder="Search modules, outcomes, or tools" autocomplete="off"></label>
+              <div class="filter-row" id="curriculum-filters" aria-label="Curriculum categories"></div>
+            </div>
+          </div>
+          <div id="curriculum-empty" class="empty-filter hidden">No modules match this search.</div>
+          <div id="curriculum-grid" class="curriculum-grid" aria-live="polite"></div>
+        </section>
+
+        <section class="learning-section compact-section">
+          <div class="panel-head learning-section-head"><div><p class="eyebrow">Evidence dashboard</p><h2>Tracked learning areas</h2><p>These totals are calculated from repository files, not from clicks in the interface.</p></div><span class="count-badge" id="track-count">—</span></div>
+          <div id="learning-tracks" class="learning-grid" aria-live="polite"><article class="panel loading-card">Loading learning evidence…</article></div>
+        </section>
+
+        <section class="learning-section">
+          <div class="panel-head learning-section-head"><div><p class="eyebrow">Official beginner pathway</p><h2>Five practical CKB tutorials</h2><p>Local practice prepares you, but only real Devnet or Testnet execution plus a completed evidence record marks these tutorials complete.</p></div><span class="count-badge">5 tutorials</span></div>
+          <div id="tutorial-list" class="tutorial-grid" aria-live="polite"></div>
+        </section>
+
+        <div class="content-grid learning-detail-grid">
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Technical application</p><h2>Capstone milestones</h2></div><span class="count-badge" id="milestone-count">—</span></div>
+            <div id="milestones" class="milestone-list"></div>
+          </article>
+          <article class="panel warning-panel">
+            <div class="panel-head"><div><p class="eyebrow">Evidence still required</p><h2>Next learning actions</h2></div></div>
+            <ul id="learning-pending" class="pending-list"><li>Loading pending evidence…</li></ul>
+            <p id="accuracy-note" class="accuracy-note"></p>
+          </article>
+        </div>
+
+        <div class="content-grid learning-detail-grid">
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Reference library</p><h2>SDKs, tools, and payment channels</h2></div></div>
+            <div id="resource-groups" class="resource-groups"></div>
+          </article>
+          <article class="panel safety-panel">
+            <div class="panel-head"><div><p class="eyebrow">Proof of participation</p><h2>Screenshot checklist</h2></div><span class="count-badge" id="screenshot-minimum">—</span></div>
+            <div id="screenshot-policy"></div>
+            <a class="text-link" href="/screenshot-guide.html" target="_blank" rel="noopener">Open the full screenshot guide</a>
+          </article>
+        </div>
+
+        <article class="panel command-panel upgraded-command-panel">
+          <div><p class="eyebrow">Learning commands</p><h2>Run the full learning workspace</h2><p>Quizzes are local knowledge checks. They do not create completion evidence or claim official on-chain participation.</p></div>
+          <div class="command-stack">
+            <div><code>npm run learning:quiz:list</code><button type="button" data-copy="npm run learning:quiz:list">Copy</button></div>
+            <div><code>npm run learning:check</code><button type="button" data-copy="npm run learning:check">Copy</button></div>
+            <div><code>npm run exercises:run</code><button type="button" data-copy="npm run exercises:run">Copy</button></div>
+            <div><code>npm run ci:local</code><button type="button" data-copy="npm run ci:local">Copy</button></div>
+          </div>
+        </article>
+
+        <dialog id="lesson-dialog" class="lesson-dialog" aria-labelledby="lesson-dialog-title">
+          <form method="dialog" class="dialog-close-row"><button class="icon-button" value="close" aria-label="Close lesson details">×</button></form>
+          <div class="dialog-scroll">
+            <div class="lesson-dialog-head"><span id="lesson-dialog-sequence">—</span><div><p class="eyebrow" id="lesson-dialog-category">Module</p><h2 id="lesson-dialog-title">Lesson details</h2><p id="lesson-dialog-summary"></p></div></div>
+            <div class="lesson-dialog-meta" id="lesson-dialog-meta"></div>
+            <div class="dialog-columns">
+              <section><h3>Learning outcomes</h3><ul id="lesson-dialog-outcomes"></ul></section>
+              <section><h3>Practical checkpoints</h3><ul id="lesson-dialog-checkpoints"></ul></section>
+            </div>
+            <section><h3>Guided lab</h3><ol id="lesson-dialog-lab"></ol></section>
+            <section><h3>Commands</h3><div id="lesson-dialog-commands" class="dialog-command-list"></div></section>
+            <section><h3>Official references</h3><div id="lesson-dialog-references" class="dialog-reference-list"></div></section>
+            <div class="lesson-evidence-path"><span>Completion evidence</span><code id="lesson-dialog-evidence">—</code></div>
+          </div>
+        </dialog>
+      </section>
+
+      <footer class="footer">
+        <p>CKBuilder Degree Proof Console v2.4.0 · Local read-only verification interface</p>
+        <p>Community formats are reference artifacts, not an official CKB standard.</p>
+      </footer>
+    </main>
+  </div>
   <script type="module" src="/app.js"></script>
 </body>
 </html>

@@ -28,6 +28,9 @@ for required in \
   screenshots/04-automatic-end-to-end-success.png \
   screenshots/05-local-offckb-lifecycle-success.png \
   screenshots/06-final-revoked-cell.png \
+  screenshots/07-v2.2-dashboard.png \
+  screenshots/08-v2.2-learning-hub.png \
+  screenshots/09-v2.3-learning-hub.png \
   screenshots/SECURITY_REVIEW.md \
   evidence/run-summary.json \
   evidence/local-offckb-run-sanitized.log \
@@ -44,6 +47,21 @@ for required in \
   docs/CREDENTIAL_CELL_DATA_FORMAT.md \
   community/decoder/credential-cell-decoder.js \
   community/test-vectors/credential-cell-v1.json \
+  learning/progress.json \
+  learning/catalog.json \
+  learning/basic-exercises/README.md \
+  learning/basic-exercises/transfer-ckb/EVIDENCE_TEMPLATE.md \
+  learning/basic-exercises/store-data-on-cell/EVIDENCE_TEMPLATE.md \
+  learning/basic-exercises/create-fungible-token/EVIDENCE_TEMPLATE.md \
+  learning/basic-exercises/create-dob/EVIDENCE_TEMPLATE.md \
+  learning/basic-exercises/build-simple-lock/EVIDENCE_TEMPLATE.md \
+  learning/README.md \
+  learning/cell-model/concepts.md \
+  docs/SCREENSHOT_EVIDENCE_GUIDE.md \
+  src/lib/basic-exercises.js \
+  scripts/run-basic-exercises.js \
+  public/screenshot-guide.html \
+  V2.3_UPDATE_SUMMARY.md \
   HANDBOOK_PROGRESS.md \
   CONTRIBUTING.md \
   LICENSE; do
@@ -66,7 +84,11 @@ python3 -m json.tool data/offckb-chain-state.json >/dev/null
 python3 -m json.tool data/automatic-public-verification-proof.json >/dev/null
 python3 -m json.tool deployment/scripts.json >/dev/null
 python3 -m json.tool community/test-vectors/credential-cell-v1.json >/dev/null
+python3 -m json.tool learning/progress.json >/dev/null
+python3 -m json.tool learning/catalog.json >/dev/null
 node scripts/verify-test-vectors.js >/dev/null
+node scripts/check-learning.js >/dev/null
+node scripts/run-basic-exercises.js >/dev/null
 
 pass 'No generated .env, secrets directory, private account listing, or stale PID file is present.'
 pass 'No unapproved private-key, seed-phrase, or mnemonic assignment pattern was found.'
