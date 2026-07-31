@@ -1,9 +1,9 @@
 {
   "name": "ckb-degree-proof",
-  "version": "2.1.2",
+  "version": "2.4.0",
   "private": true,
   "type": "module",
-  "description": "CKB Degree Proof v2.1.2: automatic end-to-end local deployment, reliable public inspector readiness checks, reusable Cell-data decoding, and a hardened CKB revocation Type Script.",
+  "description": "CKB Degree Proof v2.4.0: polished read-only console, searchable CKB curriculum, runnable quizzes, beginner exercise models, and hardened credential verification.",
   "engines": {
     "node": ">=20"
   },
@@ -16,7 +16,7 @@
     "ledger:reset": "node src/cli/reset-ledger.js",
     "demo": "node src/cli/demo.js",
     "test": "node --test --test-reporter=spec",
-    "check": "npm run env:check && npm test",
+    "check": "npm run env:check && npm run learning:check && npm run exercises:run && npm run learning:test && npm test",
     "run:all": "bash scripts/auto-run.sh",
     "project:start": "bash run-full-project.sh",
     "project:fast": "bash run-full-project.sh --fast",
@@ -37,10 +37,18 @@
     "proof:verify": "node src/cli/verify-public-proof.js",
     "syntax:check": "bash -c 'while IFS= read -r -d \"\" file; do node --check \"$file\"; done < <(find src test public scripts community -name \"*.js\" -print0)'",
     "community:check": "npm run test:vectors && node --test test/community-vectors.test.js",
-    "ci:local": "npm run syntax:check && npm test && npm run community:check && bash scripts/audit-release.sh",
+    "ci:local": "npm run syntax:check && npm run learning:check && npm run exercises:run && npm run learning:test && npm test && npm run community:check && bash scripts/audit-release.sh",
     "test:rust": "cd digital-credentials-workspace && make test",
     "manifest:export": "node src/cli/export-decoder-manifest.js",
-    "inspector:health": "bash scripts/check-inspector-health.sh"
+    "inspector:health": "bash scripts/check-inspector-health.sh",
+    "learning:check": "node scripts/check-learning.js",
+    "learning:check:rust": "node scripts/check-learning.js --require-rust",
+    "exercises:run": "node scripts/run-basic-exercises.js",
+    "exercises:evidence": "node scripts/run-basic-exercises.js --write-evidence",
+    "exercises:test": "node --test --test-reporter=spec test/basic-exercises.test.js test/learning-catalog.test.js",
+    "learning:quiz": "node scripts/run-learning-quiz.js",
+    "learning:quiz:list": "node scripts/run-learning-quiz.js --list",
+    "learning:test": "node --test --test-reporter=spec test/learning-catalog.test.js test/learning-progress.test.js test/learning-quiz.test.js"
   },
   "dependencies": {
     "@ckb-ccc/core": "1.16.1"

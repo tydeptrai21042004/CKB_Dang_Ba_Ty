@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { AppError, formatError } from "./errors.js";
 import { inspectPublicCredential } from "./public-inspector.js";
+import { buildLearningOverview } from "./learning-progress.js";
 import { verifyPublicProof } from "./proof-verifier.js";
 import { decodeRevocationRecordJson } from "./revocation-binary.js";
 
@@ -136,7 +137,8 @@ export function createInspectorServer(options) {
     inspectCredential = inspectPublicCredential,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
     maxDocumentBytes = Math.min(maxBodyBytes, 8 * 1024 * 1024),
-    logger = console
+    logger = console,
+    learningOverview = () => buildLearningOverview(config.ROOT_DIR ?? path.resolve(publicDir, ".."))
   } = options;
   if (!config || !publicDir) throw new Error("config and publicDir are required.");
 
@@ -149,12 +151,17 @@ export function createInspectorServer(options) {
         sendJson(response, 200, {
           ok: true,
           service: "CKB Degree Proof Public Credential Inspector",
-          version: "2.1.2",
+          version: "2.4.0",
           network: config.APP_NETWORK,
           readOnly: true,
           privateKeyRequired: false,
           communityFormats: ["ckb-degree-credential-cell/v1", "ckb-degree-public-verification-proof/v2"]
         }, requestId);
+        return;
+      }
+
+      if (request.method === "GET" && url.pathname === "/api/learning") {
+        sendJson(response, 200, learningOverview(), requestId);
         return;
       }
 

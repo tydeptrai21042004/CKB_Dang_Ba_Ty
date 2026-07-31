@@ -34,3 +34,20 @@ The first run requires internet access. On Linux/WSL, the operating system may a
 - [Week 2 run summary](evidence/week-02-run-summary.json)
 - [Sanitized end-to-end log](evidence/automatic-end-to-end-run-2026-07-22-sanitized.log)
 
+
+## Run the guided learning workspace
+
+Open the Learning Hub at `http://127.0.0.1:4173/#learning`, or use the terminal tools:
+
+```bash
+npm run learning:check
+npm run learning:quiz:list
+npm run learning:quiz -- ckb-foundations
+npm run learning:test
+npm run exercises:run
+npm run exercises:test
+```
+
+Start with `learning/STUDY_PLAN.md`. Every curriculum module under `learning/curriculum/` includes a lesson, a three-question quiz, checkpoints, a practical activity, and an evidence template.
+
+To create a local machine-readable exercise record, run `npm run exercises:evidence`. Local quiz/exercise success does not count as official Devnet/Testnet completion; real screenshots and a filled `completion.md` are still required. See `docs/SCREENSHOT_EVIDENCE_GUIDE.md`.

@@ -42,6 +42,15 @@
 
 See `HANDBOOK_PROGRESS.md`. Do not mark missing course work as completed based only on capstone code.
 
+## v2.2 learning and interface additions
+
+| Addition | Implementation | Verification |
+|---|---|---|
+| Commercial-style browser console | Five responsive workspaces under `public/` | UI asset tests and browser preview screenshots |
+| Honest learning progress | Evidence-derived `GET /api/learning` | learning overview and HTTP endpoint tests |
+| Corrected included Rust exercises | 22 normalized source solutions | `npm run learning:check` and optional Rust compiler mode |
+| Evidence templates | Academy and CCC Playground templates | missing work stays pending until actual evidence exists |
+
 ## Test inventory after v2.1 changes
 
 - JavaScript: **74 passed, 0 failed, 0 skipped** in the recorded WSL run.

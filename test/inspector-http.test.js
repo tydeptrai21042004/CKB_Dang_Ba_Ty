@@ -72,6 +72,19 @@ test("health endpoint advertises read-only community formats and security header
   });
 });
 
+test("learning endpoint exposes accurate read-only progress", async () => {
+  const learning = {
+    schema: "ckbuilder-learning-progress/v1",
+    summary: { completed: 22, total: 40, percent: 55 },
+    tracks: []
+  };
+  await withServer({ learningOverview: () => learning }, async (base) => {
+    const response = await fetch(`${base}/api/learning`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), learning);
+  });
+});
+
 test("inspect endpoint accepts canonical JSON and handles an uploaded document", async () => {
   await withServer({}, async (base) => {
     const response = await fetch(`${base}/api/inspect`, {

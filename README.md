@@ -1,6 +1,6 @@
-# CKB Degree Proof v2.1.2
+# CKB Degree Proof v2.4.0
 
-## Automatic End-to-End Public Credential Inspector
+## Automatic End-to-End Credential and Learning Console
 
 CKB Degree Proof is a CKBuilder capstone that demonstrates signed academic credentials, document-integrity verification, on-chain credential status, and a public read-only inspector on a local CKB development network.
 
@@ -18,10 +18,49 @@ The project retains its original application, Rust contract, tests, and evidence
 
 > **Network boundary:** all transaction evidence in this repository belongs to an ephemeral local OffCKB devnet. No testnet or mainnet wallet, funds, or public explorer transaction was used.
 
+## v2.4 guided learning workspace
+
+Version 2.4 turns the Learning Hub into a guided, evidence-aware curriculum rather than a static resource list. It keeps the five runnable beginner exercises from v2.3 and adds 14 structured modules, 42 quiz questions, prerequisite-aware recommendations, searchable categories, lesson dialogs, copyable commands, and a persisted light/dark theme.
+
+The new curriculum covers:
+
+- CKB fundamentals, Cell capacity, transaction anatomy, Locks and Type Scripts;
+- addresses, hashes, RPC, Indexer, CCC, and transaction construction;
+- Molecule serialization, CKB-VM/RISC-V, Rust scripts, testing, and debugging;
+- Fiber/Perun payment channels and capstone planning.
+
+Current evidence-derived status is intentionally conservative:
+
+| Track | Recorded result |
+|---|---:|
+| Included Rustlings foundation exercises | **22/22 corrected** |
+| Guided curriculum modules | **0/14 completion records** |
+| Official beginner tutorial evidence | **0/5 pending** |
+| CKB Academy module evidence | **0/8 pending** |
+| CCC learning evidence | **0/4 pending** |
+| Total tracked learning evidence | **22/61 (36%)** |
+
+Run the expanded learning system with:
+
+```bash
+npm run learning:check
+npm run learning:quiz:list
+npm run learning:quiz -- ckb-foundations
+npm run learning:test
+npm run exercises:run
+```
+
+Supporting learner files include [the eight-week study plan](learning/STUDY_PLAN.md), [the glossary](learning/GLOSSARY.md), [the dev-log template](learning/DEV_LOG_TEMPLATE.md), [the capstone brief](learning/CAPSTONE_BRIEF_TEMPLATE.md), and [the screenshot evidence guide](docs/SCREENSHOT_EVIDENCE_GUIDE.md).
+
+![CKBuilder v2.4 Learning Hub](screenshots/09-v2.4-learning-hub.png)
+
+![CKBuilder v2.4 lesson dialog](screenshots/10-v2.4-lesson-dialog.png)
+
 ## CKBuilder weekly reports
 
 - [Week 1 — Initial credential application and Rust revocation contract](reports/week-01-report.md)
 - [Week 2 — Public Credential Inspector and automatic end-to-end workflow](reports/week-02-report.md)
+- [Week 3 — Structured CKB learning and FiberGuard community testing](reports/week-03-report.md)
 - [Handbook progress tracker](HANDBOOK_PROGRESS.md)
 
 The weekly reports distinguish formal handbook learning from capstone engineering and link to the corresponding screenshots, logs, test output, and machine-readable evidence.
@@ -71,7 +110,7 @@ On Linux or WSL, `sudo` may be requested once if operating-system build packages
 
 ## Latest verified end-to-end run
 
-A complete v2.1.2 workflow was recorded on **22 July 2026**.
+The original complete on-chain v2.1.2 workflow was recorded on **22 July 2026**. The v2.4 learning/UI release was additionally validated on **31 July 2026** with 126 Node.js tests (125 passed, 0 failed, 1 optional dependency test skipped).
 
 | Check | Result |
 |---|---:|
@@ -198,6 +237,7 @@ The public HTTP service also exposes:
 
 ```text
 GET  /api/health
+GET  /api/learning
 POST /api/inspect
 POST /api/decode-cell
 POST /api/verify-proof
