@@ -1,4 +1,4 @@
-# CKB Degree Proof v2.1 — Public Credential Inspector
+# CKB Degree Proof v2.2 — Public Credential and Learning Console
 
 ## Purpose
 
@@ -50,6 +50,7 @@ Open `http://127.0.0.1:4173`.
 | Endpoint | Operation |
 |---|---|
 | `GET /api/health` | service/network/format discovery |
+| `GET /api/learning` | evidence-derived learning progress |
 | `POST /api/inspect` | credential and optional document inspection |
 | `POST /api/decode-cell` | 75-byte raw Cell-data decoding |
 | `POST /api/verify-proof` | exported-proof verification |
@@ -92,3 +93,14 @@ The binary format and no-dependency decoder are published under `docs/CREDENTIAL
 ## Honest protocol boundary
 
 The Type Script enforces issuer ownership and irreversible `ACTIVE → REVOKED` state for one lineage. It does not prevent another independent lineage from being created with the same credential hash. Duplicate live records are reported as a conflict rather than silently choosing one.
+
+## Learning dashboard
+
+The browser console includes a separate learning hub. Its values are generated from `learning/progress.json` and the actual repository files. Included Rust source solutions are counted only when no unresolved markers remain. Academy, CCC Playground, and Cell Model tracks remain pending until their dedicated evidence files are added.
+
+```bash
+npm run learning:check
+npm run learning:check:rust
+```
+
+The second command requires `rustc`; the first still performs deterministic source and manifest checks when Rust is unavailable.

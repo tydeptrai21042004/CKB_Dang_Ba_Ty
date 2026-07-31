@@ -1,0 +1,148 @@
+CKBuilder v2.3.0 learning validation
+Date: 2026-07-31
+
+
+> ckb-degree-proof@2.3.0 syntax:check
+> bash -c 'while IFS= read -r -d "" file; do node --check "$file"; done < <(find src test public scripts community -name "*.js" -print0)'
+
+
+> ckb-degree-proof@2.3.0 learning:check
+> node scripts/check-learning.js
+
+Learning evidence: 22/47 tracked items (47%).
+- Rustlings foundations: 22/22 [complete]
+- CKB Academy modules: 0/8 [pending]
+- Official basic CKB tutorials: 0/5 [pending]
+- CCC learning path: 0/4 [pending]
+- Cell Model explanations: 0/8 [pending]
+Rust validation: rustc unavailable; deterministic source checks passed.
+
+> ckb-degree-proof@2.3.0 exercises:run
+> node scripts/run-basic-exercises.js
+
+Basic exercise suite: 5/5 passed.
+- transfer-ckb: PASS
+- store-data-on-cell: PASS
+- create-fungible-token: PASS
+- create-dob: PASS
+- build-simple-lock: PASS
+
+> ckb-degree-proof@2.3.0 test
+> node --test --test-reporter=spec
+
+✔ root one-command launcher and stop wrapper are executable (0.882853ms)
+✔ launcher help promises only local automatic account setup (6.925733ms)
+✔ status mode is read-only and succeeds before setup (90.988342ms)
+✔ inspector health parser accepts the pretty JSON returned by the API (20.188052ms)
+✔ launcher uses the shared whitespace-tolerant health checker (0.477751ms)
+✔ health checker accepts the actual pretty HTTP response format (24.760855ms)
+✔ launcher reuses compatible tools and installs only when missing (0.322439ms)
+✔ automatic launcher forces a loopback-only CKB RPC (0.39621ms)
+✔ launcher manages only project-owned services through PID files (0.60525ms)
+✔ service shutdown verifies process identity before sending signals (0.440094ms)
+✔ local chain runner persists its node when requested (0.346285ms)
+✔ automatic wallet setup extracts a local prefunded account and protects the key (0.172977ms)
+✔ one credential ID is used for both off-chain and on-chain lifecycle steps (0.258615ms)
+✔ launcher exports and independently verifies the integrated public proof (0.245505ms)
+✔ environment files are parsed as data rather than executed as shell code (0.32972ms)
+✔ runtime keys, logs, deployment files and PID files remain Git ignored (0.24169ms)
+✔ CKB decimal conversion supports whole and fractional amounts (1.252523ms)
+✔ CKB decimal conversion rejects excess precision and negative values (0.483639ms)
+✔ transfer planner preserves capacity with change and fee (0.782704ms)
+✔ transfer planner supports exact spending with no change (0.157134ms)
+✔ transfer planner rejects insufficient and malformed inputs (0.332585ms)
+✔ UTF-8 Cell data round-trips ASCII and Unicode (0.306205ms)
+✔ Cell data helper reports encoded byte length (0.270662ms)
+✔ hex decoder rejects incomplete or non-hex data (0.185185ms)
+✔ u128 little-endian encoding handles boundary values (0.777126ms)
+✔ u128 encoding rejects overflow and malformed data (1.294656ms)
+✔ token transfer conserves amount and emits xUDT-compatible data (0.280768ms)
+✔ token transfer rejects overspending and zero transfer (0.206237ms)
+✔ canonical JSON is independent of object insertion order (0.212206ms)
+✔ DOB exercise produces deterministic metadata checksum (0.937214ms)
+✔ DOB exercise checksum changes with content (0.289671ms)
+✔ DOB exercise requires core metadata fields (0.162031ms)
+✔ hash-lock accepts the correct preimage (0.243292ms)
+✔ hash-lock rejects an incorrect preimage (0.157965ms)
+✔ hash-lock validates expected hash and preimage (0.208961ms)
+✔ all five local basic exercise models run successfully (0.467426ms)
+✔ Cell decoder CLI returns canonical JSON for a valid vector (36.811972ms)
+✔ Cell decoder CLI returns non-zero for non-canonical data (29.818964ms)
+✔ proof verifier CLI accepts a valid proof and rejects a modified one (78.914985ms)
+✔ test-vector generator is deterministic (34.137474ms)
+✔ community JSON Schemas declare draft 2020-12 and stable identifiers (0.88747ms)
+✔ decoder manifest is explicitly an example and requires deployment replacement (0.345865ms)
+✔ community corpus has stable metadata and both valid and invalid vectors (0.69947ms)
+✔ application and standalone community decoders agree on every vector (3.34707ms)
+✔ valid credential passes all requested checks and omits raw identity (9.545911ms)
+✔ modified document is rejected (6.779325ms)
+✔ tampered signed payload is rejected (3.600987ms)
+✔ unknown issuer is rejected (3.030218ms)
+✔ revoked credential is rejected and binary matches Rust layout (5.596415ms)
+✔ duplicate mint and second revocation are rejected (5.460924ms)
+✔ local verifier detects attempted reactivation after a signed revocation (5.944463ms)
+✔ invalid revocation timestamp leaves the ledger unchanged (2.826796ms)
+✔ revocation event from another credential is rejected (4.828763ms)
+✔ invalid calendar date is rejected during mint (1.149931ms)
+✔ decoder manifest binds recognition to a deployed Type Script (1.924082ms)
+✔ decoder manifest includes RPC only when explicitly requested (0.496539ms)
+✔ decoder manifest rejects malformed deployment metadata (0.58475ms)
+✔ environment parser handles comments and quoted values (1.096942ms)
+✔ environment validator rejects missing and malformed lock hash (0.526654ms)
+✔ public inspector environment does not require private-key settings (1.565408ms)
+✔ static path resolver blocks traversal and accepts files inside public root (1.125264ms)
+✔ health endpoint advertises read-only community formats and security headers (25.659061ms)
+✔ learning endpoint exposes accurate read-only progress (10.32469ms)
+✔ inspect endpoint accepts canonical JSON and handles an uploaded document (9.562785ms)
+✔ API rejects non-JSON requests and invalid base64 (8.457031ms)
+✔ API enforces decoded document and request-body limits (9.086668ms)
+✔ Cell decoder endpoint returns canonical and validation-error states (9.862652ms)
+✔ proof endpoint accepts untampered proof and rejects modified proof (7.099832ms)
+✔ static files are served but unsupported methods and missing paths are rejected (5.037473ms)
+✔ learning catalog exposes all five official beginner tutorials (1.110272ms)
+✔ every tutorial uses HTTPS and has three or more screenshot requirements (0.305053ms)
+✔ every tutorial has an evidence template but no fabricated completion file (0.30958ms)
+✔ resource catalog covers CCC, SDKs, developer tools, Fiber, and Perun (0.203994ms)
+✔ all resource links are HTTPS and uniquely titled within a group (0.146568ms)
+✔ screenshot policy explicitly blocks secret capture (0.099057ms)
+✔ learning overview exposes tutorials without counting templates as completion (2.264959ms)
+✔ learning overview reports completed source work without inventing missing evidence (2.212021ms)
+﹣ CCC derives the expected first OffCKB account Lock Script hash (1.258191ms) # @ckb-ccc/core is not installed; run npm ci for this integration test.
+✔ OffCKB system-script parser produces CCC-compatible known Script keys (1.558599ms)
+✔ OffCKB parser rejects missing required system Scripts (0.688304ms)
+✔ deployment parser accepts the OffCKB scripts.json structure (1.178292ms)
+✔ deployment parser accepts a binary-suffixed contract name (0.506674ms)
+✔ proof verifier accepts an untampered canonical proof (1.591597ms)
+✔ proof verifier detects content tampering (0.23548ms)
+✔ proof verifier detects unsupported schema (0.617479ms)
+✔ proof verifier reports sensitive fields and local absolute paths (0.315739ms)
+✔ proof verifier rejects invalid timestamps and non-object inputs (0.296661ms)
+✔ public inspector verifies an active credential without private-key settings (9.423088ms)
+✔ public inspector reports a revoked but cryptographically intact credential (4.863215ms)
+✔ public inspector detects duplicate live chain records (3.072691ms)
+✔ public inspector can inspect metadata without a document but does not call it fully valid (3.054865ms)
+✔ public proof export writes the same proof object (3.591242ms)
+✔ offline mode never claims complete on-chain validation (2.557514ms)
+✔ public proof removes RPC credentials and internal error details (2.302255ms)
+✔ on-chain record without a public credential is reported explicitly (2.174334ms)
+✔ record summary distinguishes active, revoked, invalid and duplicate states (1.274156ms)
+✔ record validator enforces state-specific fields and issuer binding (0.649796ms)
+✔ credential hash is deterministic and trims surrounding whitespace (1.092555ms)
+✔ active record round-trips through Buffer and hex (0.956533ms)
+✔ revoked record exposes reason name and ISO timestamp (0.473555ms)
+✔ hash-based encoder matches credential-ID encoder (0.254478ms)
+✔ validator reports expected credential and issuer mismatches (1.097633ms)
+✔ validator rejects non-canonical state fields (0.319986ms)
+✔ decoder rejects malformed hex and incorrect length (0.399825ms)
+✔ encoder rejects invalid status, hash, reason and timestamp (0.24173ms)
+✔ reason registry distinguishes standard and extension codes (0.230713ms)
+✔ dashboard exposes every read-only workspace and learning view (0.697127ms)
+✔ dashboard IDs are unique and dynamic errors are rendered as text (0.307247ms)
+ℹ tests 108
+ℹ suites 0
+ℹ pass 107
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 524.405954

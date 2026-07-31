@@ -1,0 +1,61 @@
+{
+  "report": "week-03",
+  "reportingPeriod": {
+    "start": "2026-07-23",
+    "end": "2026-07-31",
+    "publicationDate": "2026-07-31"
+  },
+  "repositoryVersion": "2.4.0",
+  "learning": {
+    "trackedCompleted": 22,
+    "trackedTotal": 61,
+    "percentage": 36,
+    "rustlings": {
+      "completed": 22,
+      "total": 22,
+      "compiledSuccessfully": 22
+    },
+    "academy": { "completed": 0, "total": 8 },
+    "officialBasicTutorials": { "completed": 0, "total": 5 },
+    "cccPath": { "completed": 0, "total": 4 },
+    "cellModelExplanations": { "completed": 0, "total": 8 },
+    "structuredCurriculum": {
+      "completed": 0,
+      "total": 14,
+      "modulesAvailable": 14,
+      "quizzesAvailable": 14,
+      "questionsAvailable": 42
+    },
+    "diagnosticAttempt": {
+      "moduleId": "ckb-foundations",
+      "correct": 0,
+      "total": 3,
+      "claimedComplete": false,
+      "reviewedCorrectAnswers": [2, 1, 2]
+    }
+  },
+  "communityTesting": {
+    "project": "FiberGuard",
+    "extensionVersion": "0.0.1",
+    "fiberVersion": "0.9.0-rc7",
+    "nodeRpc": "http://127.0.0.1:8227",
+    "featuresVerified": [
+      "Health Details",
+      "peers",
+      "channels",
+      "invoice parsing",
+      "payment history RPC after correction"
+    ],
+    "issue": {
+      "feature": "View All Payments",
+      "sentLimit": "50",
+      "expectedLimit": "0x32",
+      "status": "reported to developer"
+    }
+  },
+  "screenshots": [
+    "screenshots/week-03/01-learning-quiz-catalog.png",
+    "screenshots/week-03/02-ckb-foundations-diagnostic-quiz.png",
+    "screenshots/week-03/03-learning-progress-check.png"
+  ]
+}
