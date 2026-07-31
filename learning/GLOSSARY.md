@@ -1,0 +1,22 @@
+# CKB Beginner Glossary
+
+- **Capacity:** A Cell field denominated in shannons that represents CKByte value and backs occupied on-chain storage.
+- **Cell:** CKB's basic state unit containing capacity, a required Lock Script, an optional Type Script, and data.
+- **Live Cell:** An output Cell that has not yet been consumed.
+- **Consumed or dead Cell:** A Cell already referenced as a transaction input.
+- **Out point:** A transaction hash plus output index identifying a Cell.
+- **Lock Script:** The required rule controlling who or what may consume a Cell.
+- **Type Script:** An optional rule controlling creation, transformation, or destruction of typed state or assets.
+- **Cell dep:** A transaction dependency used to make script code or data available during verification.
+- **Witness:** Transaction data commonly carrying signatures or other unlocking information.
+- **Script group:** Inputs or outputs sharing the same script and validated together.
+- **CKB-VM:** The RISC-V virtual machine that executes CKB Scripts.
+- **Cycle:** A unit of script execution cost.
+- **Molecule:** CKB's deterministic binary serialization system.
+- **RPC:** A JSON-RPC interface used to query nodes and submit transactions.
+- **Indexer:** Search functionality for Cells and transactions by script and related criteria.
+- **CCC:** Common Chain Connector, a JavaScript/TypeScript toolkit for CKB clients, signers, and DApps.
+- **xUDT:** An extensible user-defined token standard on CKB.
+- **DOB:** A digital object represented with CKB ecosystem protocols such as Spore.
+- **Devnet:** A local development network used for safe testing.
+- **Testnet:** A public testing network using valueless test assets.

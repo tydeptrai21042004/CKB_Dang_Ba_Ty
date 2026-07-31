@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "transaction-anatomy",
+  "title": "Transaction anatomy and conservation",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "What does a transaction input reference?",
+      "options": [
+        "A previous output Cell",
+        "A future block",
+        "A wallet password",
+        "A JavaScript function"
+      ],
+      "answerIndex": 0,
+      "explanation": "Inputs identify previously created output Cells by out point."
+    },
+    {
+      "id": "q2",
+      "prompt": "Why is a change output commonly needed?",
+      "options": [
+        "Inputs are consumed whole",
+        "Every output must be identical",
+        "Witnesses cannot contain signatures",
+        "The network refunds gas later"
+      ],
+      "answerIndex": 0,
+      "explanation": "A selected input Cell is consumed completely, so unused capacity is returned in a new output."
+    },
+    {
+      "id": "q3",
+      "prompt": "Does receiving a transaction hash prove commitment?",
+      "options": [
+        "Always",
+        "Only on Mainnet",
+        "No, status must still be queried",
+        "Only when the fee is zero"
+      ],
+      "answerIndex": 2,
+      "explanation": "Submission is asynchronous and commitment must be checked separately."
+    }
+  ]
+}

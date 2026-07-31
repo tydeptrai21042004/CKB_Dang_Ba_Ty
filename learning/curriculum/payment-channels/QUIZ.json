@@ -1,0 +1,41 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "payment-channels",
+  "title": "Payment channels: Fiber and Perun",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "What is a key benefit of payment channels?",
+      "options": [
+        "Many updates can occur off-chain before settlement",
+        "They remove all cryptography",
+        "They make private keys unnecessary",
+        "They edit committed Cells in place"
+      ],
+      "answerIndex": 0,
+      "explanation": "Channels allow high-frequency off-chain state updates with on-chain enforcement or settlement."
+    },
+    {
+      "id": "q2",
+      "prompt": "What role can CKB play for a channel?",
+      "options": [
+        "Verification and settlement layer",
+        "CSS renderer",
+        "Password manager",
+        "Email server"
+      ],
+      "answerIndex": 0,
+      "explanation": "The base layer can enforce channel outcomes and disputes."
+    },
+    {
+      "id": "q3",
+      "prompt": "Are Fiber and Perun the same implementation?",
+      "options": [
+        "No, they are distinct approaches",
+        "Yes, always identical"
+      ],
+      "answerIndex": 0,
+      "explanation": "They are separate payment-channel projects with different designs and ecosystems."
+    }
+  ]
+}

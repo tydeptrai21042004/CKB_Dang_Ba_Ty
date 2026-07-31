@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "molecule-serialization",
+  "title": "Molecule serialization and canonical data",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "Why is canonical serialization important for scripts?",
+      "options": [
+        "All participants must interpret identical bytes identically",
+        "It makes private keys public",
+        "It removes the need for tests",
+        "It turns Cells into accounts"
+      ],
+      "answerIndex": 0,
+      "explanation": "Consensus and verification require deterministic interpretation."
+    },
+    {
+      "id": "q2",
+      "prompt": "What should a decoder do with malformed lengths?",
+      "options": [
+        "Reject them",
+        "Guess missing bytes",
+        "Silently append zeros",
+        "Treat them as valid"
+      ],
+      "answerIndex": 0,
+      "explanation": "Malformed binary structures should fail closed."
+    },
+    {
+      "id": "q3",
+      "prompt": "What does a test vector provide?",
+      "options": [
+        "Known input and expected output for independent verification",
+        "A wallet password",
+        "A browser theme",
+        "A mining reward"
+      ],
+      "answerIndex": 0,
+      "explanation": "Test vectors help different implementations agree."
+    }
+  ]
+}

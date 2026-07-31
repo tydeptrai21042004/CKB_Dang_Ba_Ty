@@ -1,0 +1,832 @@
+{
+  "schema": "ckbuilder-learning-catalog/v2",
+  "updatedAt": "2026-07-31",
+  "basicTutorials": [
+    {
+      "id": "transfer-ckb",
+      "title": "Transfer CKB",
+      "url": "https://docs.nervos.org/docs/dapp/transfer-ckb",
+      "estimatedMinutes": "2\u20135",
+      "completionFile": "learning/basic-exercises/transfer-ckb/completion.md",
+      "localPractice": "npm run exercises:run",
+      "screenshots": [
+        "OffCKB devnet running on 127.0.0.1:28114",
+        "Tutorial app showing sender, receiver, and amount without private keys",
+        "Successful transaction hash or committed transaction result"
+      ]
+    },
+    {
+      "id": "store-data-on-cell",
+      "title": "Store Data on Cell",
+      "url": "https://docs.nervos.org/docs/dapp/store-data-on-cell",
+      "estimatedMinutes": "2\u20135",
+      "completionFile": "learning/basic-exercises/store-data-on-cell/completion.md",
+      "localPractice": "npm run exercises:run",
+      "screenshots": [
+        "Message entered in the tutorial app",
+        "Successful transaction hash",
+        "Read-back result showing the same decoded message"
+      ]
+    },
+    {
+      "id": "create-fungible-token",
+      "title": "Create a Fungible Token",
+      "url": "https://docs.nervos.org/docs/dapp/create-token",
+      "estimatedMinutes": "5\u201310",
+      "completionFile": "learning/basic-exercises/create-fungible-token/completion.md",
+      "localPractice": "npm run exercises:run",
+      "screenshots": [
+        "Token name, symbol, decimals, and amount before submission",
+        "Successful xUDT issuance transaction",
+        "Token balance or xUDT Cell data after issuance"
+      ]
+    },
+    {
+      "id": "create-dob",
+      "title": "Create a DOB",
+      "url": "https://docs.nervos.org/docs/dapp/create-dob",
+      "estimatedMinutes": "5\u201310",
+      "completionFile": "learning/basic-exercises/create-dob/completion.md",
+      "localPractice": "npm run exercises:run",
+      "screenshots": [
+        "Selected content and content type before minting",
+        "Successful Spore creation transaction",
+        "Created DOB/Spore details or decoded content"
+      ]
+    },
+    {
+      "id": "build-simple-lock",
+      "title": "Build a Simple Lock",
+      "url": "https://docs.nervos.org/docs/dapp/simple-lock",
+      "estimatedMinutes": "10\u201315",
+      "completionFile": "learning/basic-exercises/build-simple-lock/completion.md",
+      "localPractice": "npm run exercises:run",
+      "screenshots": [
+        "Contract build or deployment success",
+        "Cell locked with the hash-lock",
+        "Correct preimage unlocking success plus one failed wrong-preimage test"
+      ]
+    }
+  ],
+  "resourceGroups": [
+    {
+      "id": "ccc",
+      "title": "CCC JavaScript/TypeScript",
+      "items": [
+        {
+          "title": "Explore CCC App",
+          "url": "https://app.ckbccc.com/",
+          "kind": "interactive"
+        },
+        {
+          "title": "CCC Playground",
+          "url": "https://live.ckbccc.com/",
+          "kind": "interactive"
+        },
+        {
+          "title": "CCC Code Examples",
+          "url": "https://docs.nervos.org/docs/sdk-and-devtool/ccc",
+          "kind": "documentation"
+        },
+        {
+          "title": "CCC API and SDK Guide",
+          "url": "https://docs.nervos.org/docs/sdk-and-devtool/ccc",
+          "kind": "documentation"
+        }
+      ]
+    },
+    {
+      "id": "languages",
+      "title": "SDKs and command-line tools",
+      "items": [
+        {
+          "title": "Rust SDK",
+          "url": "https://docs.nervos.org/docs/sdk-and-devtool/rust",
+          "kind": "documentation"
+        },
+        {
+          "title": "CKB-CLI",
+          "url": "https://docs.nervos.org/docs/sdk-and-devtool/ckb-cli",
+          "kind": "documentation"
+        },
+        {
+          "title": "Go SDK",
+          "url": "https://docs.nervos.org/docs/sdk-and-devtool/go",
+          "kind": "documentation"
+        },
+        {
+          "title": "Java SDK",
+          "url": "https://docs.nervos.org/docs/sdk-and-devtool/java",
+          "kind": "documentation"
+        }
+      ]
+    },
+    {
+      "id": "devtools",
+      "title": "Developer utilities",
+      "items": [
+        {
+          "title": "Testnet Faucet",
+          "url": "https://faucet.nervos.org/",
+          "kind": "tool"
+        },
+        {
+          "title": "CKB Debugger",
+          "url": "https://github.com/nervosnetwork/ckb-standalone-debugger",
+          "kind": "tool"
+        },
+        {
+          "title": "CKB Tools Website",
+          "url": "https://ckb.tools/",
+          "kind": "tool"
+        },
+        {
+          "title": "OffCKB",
+          "url": "https://docs.nervos.org/docs/sdk-and-devtool/offckb",
+          "kind": "documentation"
+        }
+      ]
+    },
+    {
+      "id": "payment-channels",
+      "title": "Payment channels on CKB",
+      "items": [
+        {
+          "title": "Fiber Documentation",
+          "url": "https://www.fiber.world/docs",
+          "kind": "documentation"
+        },
+        {
+          "title": "Fiber Showcase",
+          "url": "https://www.fiber.world/showcase",
+          "kind": "showcase"
+        },
+        {
+          "title": "Perun CKB Backend",
+          "url": "https://github.com/perun-network/perun-ckb-backend",
+          "kind": "source"
+        },
+        {
+          "title": "Perun CKB Contracts",
+          "url": "https://github.com/perun-network/perun-ckb-contract",
+          "kind": "source"
+        }
+      ]
+    }
+  ],
+  "screenshotPolicy": {
+    "minimumPerTutorial": 3,
+    "requiredContext": [
+      "Visible exercise or tool name",
+      "Visible success result",
+      "Visible date in dev-log entry or file metadata"
+    ],
+    "neverCapture": [
+      "Private keys",
+      "Seed phrases",
+      "Passwords",
+      "Authentication tokens",
+      "Personal browser tabs or notifications"
+    ]
+  },
+  "curriculumModules": [
+    {
+      "id": "ckb-foundations",
+      "sequence": 1,
+      "title": "CKB fundamentals and the Cell Model",
+      "category": "Foundations",
+      "level": "Beginner",
+      "estimatedMinutes": 35,
+      "summary": "Build the mental model for live Cells, consumed Cells, capacity, data, and immutable state transitions.",
+      "prerequisites": [],
+      "outcomes": [
+        "Explain why a Cell is immutable after creation",
+        "Distinguish live and consumed Cells",
+        "Describe how a transaction updates state by consuming inputs and creating outputs"
+      ],
+      "checkpoints": [
+        "Draw one input Cell becoming receiver and change outputs",
+        "Explain where transaction fees come from",
+        "Identify lock, type, capacity, and data in a Cell"
+      ],
+      "lab": [
+        "Run `npm run exercises:run`.",
+        "Inspect the transfer and Cell-data practice results.",
+        "Write a five-sentence Cell Model explanation in your dev log."
+      ],
+      "commands": [
+        "npm run exercises:run",
+        "npm run learning:quiz -- ckb-foundations"
+      ],
+      "lessonFile": "learning/curriculum/ckb-foundations/README.md",
+      "quizFile": "learning/curriculum/ckb-foundations/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/ckb-foundations/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/ckb-foundations/completion.md",
+      "references": [
+        {
+          "title": "How CKB Works",
+          "url": "https://docs.nervos.org/docs/getting-started/how-ckb-works"
+        }
+      ]
+    },
+    {
+      "id": "capacity-and-data",
+      "sequence": 2,
+      "title": "Capacity, data, and occupied bytes",
+      "category": "Foundations",
+      "level": "Beginner",
+      "estimatedMinutes": 35,
+      "summary": "Understand how CKBytes represent both value and storage capacity, and how Cell data affects required capacity.",
+      "prerequisites": [
+        "ckb-foundations"
+      ],
+      "outcomes": [
+        "Convert between CKB and shannons",
+        "Explain occupied capacity at a practical level",
+        "Encode and decode UTF-8 data stored in a Cell"
+      ],
+      "checkpoints": [
+        "Calculate shannons for several CKB values",
+        "Round-trip a Unicode message through hexadecimal",
+        "Explain why extra data increases occupied capacity"
+      ],
+      "lab": [
+        "Run the local Store Data on Cell model.",
+        "Change the sample message to include Vietnamese text.",
+        "Record the UTF-8 byte length and hexadecimal payload."
+      ],
+      "commands": [
+        "npm run exercises:run",
+        "npm run learning:quiz -- capacity-and-data"
+      ],
+      "lessonFile": "learning/curriculum/capacity-and-data/README.md",
+      "quizFile": "learning/curriculum/capacity-and-data/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/capacity-and-data/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/capacity-and-data/completion.md",
+      "references": [
+        {
+          "title": "Store Data on Cell",
+          "url": "https://docs.nervos.org/docs/dapp/store-data-on-cell"
+        }
+      ]
+    },
+    {
+      "id": "transaction-anatomy",
+      "sequence": 3,
+      "title": "Transaction anatomy and conservation",
+      "category": "Transactions",
+      "level": "Beginner",
+      "estimatedMinutes": 45,
+      "summary": "Read inputs, outputs, dependencies, witnesses, fees, and transaction status as one coherent state transition.",
+      "prerequisites": [
+        "capacity-and-data"
+      ],
+      "outcomes": [
+        "Identify every major transaction component",
+        "Check capacity conservation and fee calculation",
+        "Explain pending, proposed, committed, and rejected states"
+      ],
+      "checkpoints": [
+        "Annotate a transaction JSON document",
+        "Verify total input capacity equals outputs plus fee",
+        "Explain why a returned transaction hash is not final confirmation"
+      ],
+      "lab": [
+        "Use the local transfer model to inspect sender, receiver, change, and fee.",
+        "Create one valid and one insufficient-capacity example.",
+        "Write the transaction lifecycle in your own words."
+      ],
+      "commands": [
+        "npm run exercises:run",
+        "npm run learning:quiz -- transaction-anatomy"
+      ],
+      "lessonFile": "learning/curriculum/transaction-anatomy/README.md",
+      "quizFile": "learning/curriculum/transaction-anatomy/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/transaction-anatomy/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/transaction-anatomy/completion.md",
+      "references": [
+        {
+          "title": "CKB RPCs",
+          "url": "https://docs.nervos.org/docs/getting-started/rpcs"
+        },
+        {
+          "title": "Transfer CKB",
+          "url": "https://docs.nervos.org/docs/dapp/transfer-ckb"
+        }
+      ]
+    },
+    {
+      "id": "locks-and-types",
+      "sequence": 4,
+      "title": "Lock Scripts, Type Scripts, and script groups",
+      "category": "Contracts",
+      "level": "Beginner",
+      "estimatedMinutes": 45,
+      "summary": "Separate ownership rules from state-transition rules and understand how scripts are grouped and executed.",
+      "prerequisites": [
+        "transaction-anatomy"
+      ],
+      "outcomes": [
+        "Differentiate Lock and Type Scripts",
+        "Explain code_hash, hash_type, and args",
+        "Describe why matching scripts are evaluated as groups"
+      ],
+      "checkpoints": [
+        "Classify three example rules as lock or type logic",
+        "Trace script code from a Cell dep",
+        "Explain what a non-zero script exit code means"
+      ],
+      "lab": [
+        "Inspect the credential Type Script configuration in this repository.",
+        "Compare the issuer Lock Script with the revocation Type Script.",
+        "Record one rule enforced by each script."
+      ],
+      "commands": [
+        "npm run offckb:verify",
+        "npm run learning:quiz -- locks-and-types"
+      ],
+      "lessonFile": "learning/curriculum/locks-and-types/README.md",
+      "quizFile": "learning/curriculum/locks-and-types/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/locks-and-types/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/locks-and-types/completion.md",
+      "references": [
+        {
+          "title": "Intro to Script",
+          "url": "https://docs.nervos.org/docs/script/intro-to-script"
+        },
+        {
+          "title": "How CKB Works",
+          "url": "https://docs.nervos.org/docs/getting-started/how-ckb-works"
+        }
+      ]
+    },
+    {
+      "id": "addresses-and-hashes",
+      "sequence": 5,
+      "title": "Addresses, hashes, and identity binding",
+      "category": "Foundations",
+      "level": "Beginner",
+      "estimatedMinutes": 40,
+      "summary": "Connect human-readable addresses to lock scripts, and distinguish transaction, script, code, and content hashes.",
+      "prerequisites": [
+        "locks-and-types"
+      ],
+      "outcomes": [
+        "Explain that an address encodes a lock script representation",
+        "Distinguish transaction hash from script hash",
+        "Use hashes without confusing them with encryption"
+      ],
+      "checkpoints": [
+        "Decode the role of script args in an address",
+        "Label four different hash purposes",
+        "Explain why a hash does not reveal a private key"
+      ],
+      "lab": [
+        "Inspect the configured issuer lock hash.",
+        "Compare a credential ID hash with a transaction hash.",
+        "Document where each hash is used in verification."
+      ],
+      "commands": [
+        "npm run credential:inspect -- --help",
+        "npm run learning:quiz -- addresses-and-hashes"
+      ],
+      "lessonFile": "learning/curriculum/addresses-and-hashes/README.md",
+      "quizFile": "learning/curriculum/addresses-and-hashes/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/addresses-and-hashes/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/addresses-and-hashes/completion.md",
+      "references": [
+        {
+          "title": "How CKB Works",
+          "url": "https://docs.nervos.org/docs/getting-started/how-ckb-works"
+        },
+        {
+          "title": "CKB Tools",
+          "url": "https://ckb.tools/"
+        }
+      ]
+    },
+    {
+      "id": "rpc-and-indexer",
+      "sequence": 6,
+      "title": "RPC, indexer queries, and transaction status",
+      "category": "Tooling",
+      "level": "Beginner",
+      "estimatedMinutes": 50,
+      "summary": "Use JSON-RPC safely to query chain state, live Cells, transactions, and indexer results.",
+      "prerequisites": [
+        "transaction-anatomy"
+      ],
+      "outcomes": [
+        "Construct a JSON-RPC 2.0 request",
+        "Choose between direct transaction and indexer queries",
+        "Avoid exposing a local node RPC to untrusted networks"
+      ],
+      "checkpoints": [
+        "Query the tip block number",
+        "Query a known transaction status",
+        "Explain when indexer search is more appropriate than direct lookup"
+      ],
+      "lab": [
+        "Start OffCKB and confirm the configured endpoint.",
+        "Call one read-only RPC method.",
+        "Save the request and redacted response in the dev log."
+      ],
+      "commands": [
+        "npm run project:start",
+        "npm run inspector:health",
+        "npm run learning:quiz -- rpc-and-indexer"
+      ],
+      "lessonFile": "learning/curriculum/rpc-and-indexer/README.md",
+      "quizFile": "learning/curriculum/rpc-and-indexer/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/rpc-and-indexer/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/rpc-and-indexer/completion.md",
+      "references": [
+        {
+          "title": "CKB RPCs",
+          "url": "https://docs.nervos.org/docs/getting-started/rpcs"
+        },
+        {
+          "title": "CKB-CLI",
+          "url": "https://github.com/nervosnetwork/ckb-cli"
+        }
+      ]
+    },
+    {
+      "id": "ccc-basics",
+      "sequence": 7,
+      "title": "CCC basics and wallet connections",
+      "category": "DApps",
+      "level": "Beginner",
+      "estimatedMinutes": 50,
+      "summary": "Learn the beginner-friendly JavaScript/TypeScript path for connecting wallets and reading CKB state.",
+      "prerequisites": [
+        "rpc-and-indexer"
+      ],
+      "outcomes": [
+        "Explain signer, client, and network roles",
+        "Connect a DApp without placing private keys in application code",
+        "Read addresses and balances through CCC"
+      ],
+      "checkpoints": [
+        "Explore the CCC App",
+        "Run one Playground example",
+        "Record which wallet and network were used without exposing secrets"
+      ],
+      "lab": [
+        "Open the CCC App and identify network, signer, and address.",
+        "Run one read-only Playground example.",
+        "Create `learning/ccc-playground/explore-ccc-app.md` from the evidence template."
+      ],
+      "commands": [
+        "npm run learning:quiz -- ccc-basics",
+        "npm run learning:check"
+      ],
+      "lessonFile": "learning/curriculum/ccc-basics/README.md",
+      "quizFile": "learning/curriculum/ccc-basics/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/ccc-basics/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/ccc-basics/completion.md",
+      "references": [
+        {
+          "title": "CCC JavaScript/TypeScript",
+          "url": "https://docs.nervos.org/docs/sdk-and-devtool/ccc"
+        },
+        {
+          "title": "CCC App",
+          "url": "https://app.ckbccc.com/"
+        },
+        {
+          "title": "CCC Playground",
+          "url": "https://live.ckbccc.com/"
+        }
+      ]
+    },
+    {
+      "id": "ccc-transactions",
+      "sequence": 8,
+      "title": "Building and signing transactions with CCC",
+      "category": "DApps",
+      "level": "Intermediate",
+      "estimatedMinutes": 65,
+      "summary": "Move from read-only calls to transaction construction, completion, signing, sending, and confirmation.",
+      "prerequisites": [
+        "ccc-basics"
+      ],
+      "outcomes": [
+        "Separate transaction construction from signing",
+        "Explain automatic input and fee completion",
+        "Track a sent transaction until commitment"
+      ],
+      "checkpoints": [
+        "Build a transfer transaction",
+        "Review outputs before signing",
+        "Verify commitment independently after sending"
+      ],
+      "lab": [
+        "Complete the Transfer CKB official tutorial.",
+        "Record sender, receiver, amount, fee, and transaction hash with secrets hidden.",
+        "Create the tutorial `completion.md` only after real on-chain success."
+      ],
+      "commands": [
+        "npm run exercises:run",
+        "npm run learning:quiz -- ccc-transactions"
+      ],
+      "lessonFile": "learning/curriculum/ccc-transactions/README.md",
+      "quizFile": "learning/curriculum/ccc-transactions/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/ccc-transactions/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/ccc-transactions/completion.md",
+      "references": [
+        {
+          "title": "CCC Guide",
+          "url": "https://docs.nervos.org/docs/sdk-and-devtool/ccc"
+        },
+        {
+          "title": "Transfer CKB",
+          "url": "https://docs.nervos.org/docs/dapp/transfer-ckb"
+        }
+      ]
+    },
+    {
+      "id": "molecule-serialization",
+      "sequence": 9,
+      "title": "Molecule serialization and canonical data",
+      "category": "Contracts",
+      "level": "Intermediate",
+      "estimatedMinutes": 60,
+      "summary": "Understand deterministic binary schemas, canonical encoding, and why on-chain readers and writers must agree byte-for-byte.",
+      "prerequisites": [
+        "locks-and-types"
+      ],
+      "outcomes": [
+        "Explain why deterministic serialization matters",
+        "Differentiate fixed and dynamic structures conceptually",
+        "Validate a payload before script logic consumes it"
+      ],
+      "checkpoints": [
+        "Inspect the repository 75-byte credential Cell format",
+        "Explain canonical versus malformed encoding",
+        "Decode one test vector and compare every field"
+      ],
+      "lab": [
+        "Run the community vector tests.",
+        "Decode a canonical credential Cell.",
+        "Mutate one byte and observe validation behavior."
+      ],
+      "commands": [
+        "npm run community:check",
+        "npm run test:vectors",
+        "npm run learning:quiz -- molecule-serialization"
+      ],
+      "lessonFile": "learning/curriculum/molecule-serialization/README.md",
+      "quizFile": "learning/curriculum/molecule-serialization/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/molecule-serialization/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/molecule-serialization/completion.md",
+      "references": [
+        {
+          "title": "Serialization and Molecule in CKB",
+          "url": "https://docs.nervos.org/docs/serialization/serialization-molecule-in-ckb"
+        }
+      ]
+    },
+    {
+      "id": "ckb-vm-riscv",
+      "sequence": 10,
+      "title": "CKB-VM, RISC-V, syscalls, and cycles",
+      "category": "Contracts",
+      "level": "Intermediate",
+      "estimatedMinutes": 60,
+      "summary": "Learn how scripts execute in CKB-VM, load transaction data through syscalls, return exit codes, and consume cycles.",
+      "prerequisites": [
+        "locks-and-types"
+      ],
+      "outcomes": [
+        "Describe the CKB-VM execution boundary",
+        "Identify common data-loading syscall purposes",
+        "Interpret cycles as execution cost rather than a token fee model"
+      ],
+      "checkpoints": [
+        "Trace code loading from Cell deps",
+        "Map script inputs to syscall reads",
+        "Record cycles for one contract test"
+      ],
+      "lab": [
+        "Run the Rust contract tests when the toolchain is available.",
+        "Inspect one syscall in the contract source.",
+        "Record the success and one intentional failure exit code."
+      ],
+      "commands": [
+        "npm run test:rust",
+        "npm run learning:quiz -- ckb-vm-riscv"
+      ],
+      "lessonFile": "learning/curriculum/ckb-vm-riscv/README.md",
+      "quizFile": "learning/curriculum/ckb-vm-riscv/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/ckb-vm-riscv/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/ckb-vm-riscv/completion.md",
+      "references": [
+        {
+          "title": "How CKB Works",
+          "url": "https://docs.nervos.org/docs/getting-started/how-ckb-works"
+        },
+        {
+          "title": "Rust Script Quick Start",
+          "url": "https://docs.nervos.org/docs/script/rust/rust-quick-start"
+        }
+      ]
+    },
+    {
+      "id": "rust-script-development",
+      "sequence": 11,
+      "title": "Rust smart-contract development",
+      "category": "Contracts",
+      "level": "Intermediate",
+      "estimatedMinutes": 80,
+      "summary": "Structure a no-std Rust CKB script, validate arguments and Cell state, and keep error codes deterministic.",
+      "prerequisites": [
+        "molecule-serialization",
+        "ckb-vm-riscv"
+      ],
+      "outcomes": [
+        "Navigate a basic Rust script project",
+        "Design explicit validation branches and error codes",
+        "Write unit and integration tests for valid and invalid transitions"
+      ],
+      "checkpoints": [
+        "Explain the project entry point",
+        "Trace ACTIVE to REVOKED validation",
+        "Add one negative test without weakening the protocol"
+      ],
+      "lab": [
+        "Read the digital-credentials contract.",
+        "Run `make test` through the package command.",
+        "Document one invariant and the test that proves it."
+      ],
+      "commands": [
+        "npm run test:rust",
+        "npm run offckb:lifecycle",
+        "npm run learning:quiz -- rust-script-development"
+      ],
+      "lessonFile": "learning/curriculum/rust-script-development/README.md",
+      "quizFile": "learning/curriculum/rust-script-development/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/rust-script-development/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/rust-script-development/completion.md",
+      "references": [
+        {
+          "title": "Rust Script Quick Start",
+          "url": "https://docs.nervos.org/docs/script/rust/rust-quick-start"
+        },
+        {
+          "title": "Rust SDK",
+          "url": "https://docs.nervos.org/docs/sdk-and-devtool/rust"
+        }
+      ]
+    },
+    {
+      "id": "testing-and-debugging",
+      "sequence": 12,
+      "title": "Testing, debugging, and cycle inspection",
+      "category": "Tooling",
+      "level": "Intermediate",
+      "estimatedMinutes": 70,
+      "summary": "Build a repeatable workflow across unit tests, mock transactions, local Devnet integration, debugger traces, and release checks.",
+      "prerequisites": [
+        "rust-script-development"
+      ],
+      "outcomes": [
+        "Choose the right test layer for a defect",
+        "Use CKB Debugger or mock transactions to inspect script failures",
+        "Keep release claims tied to reproducible evidence"
+      ],
+      "checkpoints": [
+        "Run the full local CI suite",
+        "Capture one expected contract failure",
+        "Explain which tests do and do not require a running node"
+      ],
+      "lab": [
+        "Run `npm run ci:local`.",
+        "Run one deliberately invalid proof or Cell vector.",
+        "Write a short defect report with reproduction, expected, and actual behavior."
+      ],
+      "commands": [
+        "npm run ci:local",
+        "npm run inspector:health",
+        "npm run learning:quiz -- testing-and-debugging"
+      ],
+      "lessonFile": "learning/curriculum/testing-and-debugging/README.md",
+      "quizFile": "learning/curriculum/testing-and-debugging/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/testing-and-debugging/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/testing-and-debugging/completion.md",
+      "references": [
+        {
+          "title": "CKB Standalone Debugger",
+          "url": "https://github.com/nervosnetwork/ckb-standalone-debugger"
+        },
+        {
+          "title": "CKB-CLI",
+          "url": "https://github.com/nervosnetwork/ckb-cli"
+        }
+      ]
+    },
+    {
+      "id": "payment-channels",
+      "sequence": 13,
+      "title": "Payment channels: Fiber and Perun",
+      "category": "Scaling",
+      "level": "Intermediate",
+      "estimatedMinutes": 55,
+      "summary": "Understand why repeated payments can move off-chain while CKB remains the verification and settlement layer.",
+      "prerequisites": [
+        "ccc-transactions"
+      ],
+      "outcomes": [
+        "Explain the channel lifecycle at a high level",
+        "Differentiate off-chain updates from on-chain settlement",
+        "Compare Fiber and Perun as separate CKB payment-channel approaches"
+      ],
+      "checkpoints": [
+        "Describe open, update, and close phases",
+        "Identify what must remain enforceable on-chain",
+        "Review one open-source showcase or backend repository"
+      ],
+      "lab": [
+        "Read the Fiber documentation overview.",
+        "Inspect one Fiber showcase project.",
+        "Inspect the Perun CKB backend or contracts and record one architectural difference."
+      ],
+      "commands": [
+        "npm run learning:quiz -- payment-channels"
+      ],
+      "lessonFile": "learning/curriculum/payment-channels/README.md",
+      "quizFile": "learning/curriculum/payment-channels/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/payment-channels/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/payment-channels/completion.md",
+      "references": [
+        {
+          "title": "Fiber Documentation",
+          "url": "https://www.fiber.world/docs"
+        },
+        {
+          "title": "Fiber Showcase",
+          "url": "https://www.fiber.world/showcase"
+        },
+        {
+          "title": "Perun CKB Backend",
+          "url": "https://github.com/perun-network/perun-ckb-backend"
+        }
+      ]
+    },
+    {
+      "id": "capstone-planning",
+      "sequence": 14,
+      "title": "Capstone design and evidence planning",
+      "category": "Project",
+      "level": "Intermediate",
+      "estimatedMinutes": 60,
+      "summary": "Turn the learning path into a small CKB application with explicit scope, threat boundaries, tests, and weekly evidence.",
+      "prerequisites": [
+        "testing-and-debugging",
+        "payment-channels"
+      ],
+      "outcomes": [
+        "Write a one-page application brief",
+        "Define on-chain and off-chain responsibilities",
+        "Plan tests, screenshots, and weekly dev-log evidence before implementation"
+      ],
+      "checkpoints": [
+        "State the user problem and smallest useful flow",
+        "List protocol invariants and non-goals",
+        "Map every claimed feature to a test or screenshot"
+      ],
+      "lab": [
+        "Complete `learning/CAPSTONE_BRIEF_TEMPLATE.md`.",
+        "Review the idea with the programme director or DevRel.",
+        "Add the next week plan to the dev log."
+      ],
+      "commands": [
+        "npm run learning:check",
+        "npm run ci:local",
+        "npm run learning:quiz -- capstone-planning"
+      ],
+      "lessonFile": "learning/curriculum/capstone-planning/README.md",
+      "quizFile": "learning/curriculum/capstone-planning/QUIZ.json",
+      "evidenceTemplate": "learning/curriculum/capstone-planning/EVIDENCE_TEMPLATE.md",
+      "completionFile": "learning/curriculum/capstone-planning/completion.md",
+      "references": [
+        {
+          "title": "Nervos CKB Documentation",
+          "url": "https://docs.nervos.org/"
+        },
+        {
+          "title": "CKBuilder Handbook source path",
+          "url": "https://docs.nervos.org/"
+        }
+      ]
+    }
+  ],
+  "studyPlan": {
+    "recommendedHoursPerWeek": "4\u20135",
+    "suggestedWeeks": 8,
+    "path": "learning/STUDY_PLAN.md",
+    "devLogTemplate": "learning/DEV_LOG_TEMPLATE.md",
+    "capstoneTemplate": "learning/CAPSTONE_BRIEF_TEMPLATE.md",
+    "glossary": "learning/GLOSSARY.md"
+  }
+}

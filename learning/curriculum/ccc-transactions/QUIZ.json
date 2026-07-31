@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "ccc-transactions",
+  "title": "Building and signing transactions with CCC",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "Which step must happen before a wallet can broadcast an authorized transfer?",
+      "options": [
+        "Signing",
+        "Changing CSS",
+        "Deleting outputs",
+        "Removing all witnesses"
+      ],
+      "answerIndex": 0,
+      "explanation": "The signer authorizes the transaction before it is sent."
+    },
+    {
+      "id": "q2",
+      "prompt": "Why review transaction outputs before signing?",
+      "options": [
+        "To confirm destination, amount, change, and fee",
+        "To increase screen brightness",
+        "To expose the private key",
+        "To skip validation"
+      ],
+      "answerIndex": 0,
+      "explanation": "A signer should verify the exact transaction effects."
+    },
+    {
+      "id": "q3",
+      "prompt": "What should be checked after send returns a hash?",
+      "options": [
+        "Transaction status until committed or rejected",
+        "Only the browser URL",
+        "The source-code line count",
+        "Nothing else"
+      ],
+      "answerIndex": 0,
+      "explanation": "Sending is asynchronous, so status must be followed."
+    }
+  ]
+}

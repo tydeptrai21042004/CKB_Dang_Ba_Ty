@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "ckb-vm-riscv",
+  "title": "CKB-VM, RISC-V, syscalls, and cycles",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "What instruction-set architecture does CKB-VM use?",
+      "options": [
+        "RISC-V",
+        "x86 only",
+        "EVM bytecode",
+        "JVM bytecode"
+      ],
+      "answerIndex": 0,
+      "explanation": "CKB-VM is based on RISC-V."
+    },
+    {
+      "id": "q2",
+      "prompt": "How does a script read transaction data?",
+      "options": [
+        "Through CKB syscalls",
+        "Through browser localStorage",
+        "By editing the block",
+        "By opening a database file"
+      ],
+      "answerIndex": 0,
+      "explanation": "CKB-VM exposes syscalls for Cells, scripts, witnesses, and related data."
+    },
+    {
+      "id": "q3",
+      "prompt": "What does cycle usage measure?",
+      "options": [
+        "Script computation cost",
+        "Wallet balance",
+        "Screenshot size",
+        "Network name length"
+      ],
+      "answerIndex": 0,
+      "explanation": "Cycles measure the computational work performed by VM instructions and syscalls."
+    }
+  ]
+}

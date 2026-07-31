@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "locks-and-types",
+  "title": "Lock Scripts, Type Scripts, and script groups",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "What does a Lock Script primarily control?",
+      "options": [
+        "Who may consume a Cell",
+        "How JSON is formatted",
+        "Which RPC port is used",
+        "How a block is mined"
+      ],
+      "answerIndex": 0,
+      "explanation": "Lock Scripts define ownership or spending authorization."
+    },
+    {
+      "id": "q2",
+      "prompt": "What does a Type Script primarily control?",
+      "options": [
+        "Optional state and asset rules",
+        "Browser rendering",
+        "Private-key storage",
+        "Node discovery"
+      ],
+      "answerIndex": 0,
+      "explanation": "Type Scripts validate creation, transformation, and destruction rules for typed Cells."
+    },
+    {
+      "id": "q3",
+      "prompt": "What does script exit code 0 normally mean?",
+      "options": [
+        "The script passed",
+        "The node stopped",
+        "The Cell is empty",
+        "The fee is zero"
+      ],
+      "answerIndex": 0,
+      "explanation": "A zero exit code signals successful script validation."
+    }
+  ]
+}

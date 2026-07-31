@@ -1,0 +1,98 @@
+{
+  "schema": "ckbuilder-learning-progress/v1",
+  "title": "CKBuilder learning evidence",
+  "updatedAt": "2026-07-31",
+  "tracks": [
+    {
+      "id": "rustlings",
+      "label": "Rustlings foundations",
+      "total": 22,
+      "kind": "source",
+      "location": "learning/rustlings-solved",
+      "description": "The included intro, variables, functions, if-expression, and primitive-type exercises."
+    },
+    {
+      "id": "academy",
+      "label": "CKB Academy modules",
+      "total": 8,
+      "kind": "evidence",
+      "location": "learning/academy",
+      "description": "One contemporaneous learning record and screenshot per completed module."
+    },
+    {
+      "id": "basic-tutorials",
+      "label": "Official basic CKB tutorials",
+      "total": 5,
+      "kind": "evidence",
+      "location": "learning/basic-exercises",
+      "expectedFiles": [
+        "transfer-ckb/completion.md",
+        "store-data-on-cell/completion.md",
+        "create-fungible-token/completion.md",
+        "create-dob/completion.md",
+        "build-simple-lock/completion.md"
+      ],
+      "description": "On-chain completion records for Transfer CKB, Cell data, xUDT, DOB/Spore, and Simple Lock."
+    },
+    {
+      "id": "ccc-learning",
+      "label": "CCC learning path",
+      "total": 4,
+      "kind": "evidence",
+      "location": "learning/ccc-playground",
+      "expectedFiles": [
+        "explore-ccc-app.md",
+        "playground-completion.md",
+        "code-examples-notes.md",
+        "api-notes.md"
+      ],
+      "description": "Evidence for the CCC app, Playground, code examples, and API study."
+    },
+    {
+      "id": "cell-model",
+      "label": "Cell Model explanations",
+      "total": 8,
+      "kind": "answers",
+      "location": "learning/cell-model/answers.md",
+      "description": "Eight project-specific explanations written after running the lifecycle."
+    },
+    {
+      "id": "structured-curriculum",
+      "label": "Structured CKB curriculum",
+      "total": 14,
+      "kind": "evidence",
+      "location": "learning/curriculum",
+      "expectedFiles": [
+        "ckb-foundations/completion.md",
+        "capacity-and-data/completion.md",
+        "transaction-anatomy/completion.md",
+        "locks-and-types/completion.md",
+        "addresses-and-hashes/completion.md",
+        "rpc-and-indexer/completion.md",
+        "ccc-basics/completion.md",
+        "ccc-transactions/completion.md",
+        "molecule-serialization/completion.md",
+        "ckb-vm-riscv/completion.md",
+        "rust-script-development/completion.md",
+        "testing-and-debugging/completion.md",
+        "payment-channels/completion.md",
+        "capstone-planning/completion.md"
+      ],
+      "description": "Fourteen evidence-aware modules covering fundamentals, transactions, DApps, contracts, tooling, scaling, and capstone planning."
+    }
+  ],
+  "technicalMilestones": [
+    "Automated local environment checks",
+    "Rust Type Script build and tests",
+    "Local OffCKB contract deployment",
+    "ACTIVE to REVOKED Cell lifecycle",
+    "Read-only public credential inspector",
+    "Reusable Cell decoder and test vectors",
+    "Independent public-proof verification",
+    "Deterministic local practice suite for five beginner tutorials",
+    "Screenshot-safe evidence templates and learning catalog",
+    "Fourteen-module structured CKB curriculum with runnable quizzes",
+    "Searchable evidence-aware curriculum roadmap in the Learning Hub",
+    "Dark theme, next-module guidance, and copyable learning commands"
+  ]
+}

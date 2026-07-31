@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "capacity-and-data",
+  "title": "Capacity, data, and occupied bytes",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "How many shannons are in one CKB?",
+      "options": [
+        "100",
+        "100,000",
+        "100,000,000",
+        "1,000,000,000"
+      ],
+      "answerIndex": 2,
+      "explanation": "One CKB equals 10^8 shannons."
+    },
+    {
+      "id": "q2",
+      "prompt": "What usually happens when more bytes are stored in Cell data?",
+      "options": [
+        "Required occupied capacity increases",
+        "The lock script disappears",
+        "The transaction no longer needs inputs",
+        "The Cell becomes mutable"
+      ],
+      "answerIndex": 0,
+      "explanation": "More occupied bytes generally require more capacity."
+    },
+    {
+      "id": "q3",
+      "prompt": "Which encoding is used before turning a normal text message into hexadecimal bytes?",
+      "options": [
+        "UTF-8",
+        "Base10",
+        "Roman numerals",
+        "JPEG"
+      ],
+      "answerIndex": 0,
+      "explanation": "Text is encoded as UTF-8 bytes before hexadecimal representation."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "testing-and-debugging",
+  "title": "Testing, debugging, and cycle inspection",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "Which test best proves real Devnet wiring?",
+      "options": [
+        "An integration test against the local node",
+        "A CSS snapshot only",
+        "A markdown spell check",
+        "A unit test with no I/O"
+      ],
+      "answerIndex": 0,
+      "explanation": "Local-node integration verifies deployment and RPC behavior."
+    },
+    {
+      "id": "q2",
+      "prompt": "What should a negative test assert?",
+      "options": [
+        "The precise rejection rule or error",
+        "That everything succeeds",
+        "Only execution time",
+        "A random value"
+      ],
+      "answerIndex": 0,
+      "explanation": "Negative tests should verify the expected failure, not merely any failure."
+    },
+    {
+      "id": "q3",
+      "prompt": "Why record exact commands in a dev log?",
+      "options": [
+        "To make work reproducible",
+        "To expose secrets",
+        "To replace source control",
+        "To avoid testing"
+      ],
+      "answerIndex": 0,
+      "explanation": "Commands, environment, and outputs make evidence auditable."
+    }
+  ]
+}

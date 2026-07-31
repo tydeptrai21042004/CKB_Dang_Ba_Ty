@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "rpc-and-indexer",
+  "title": "RPC, indexer queries, and transaction status",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "Which protocol format is used by standard CKB HTTP RPC calls?",
+      "options": [
+        "JSON-RPC 2.0",
+        "SMTP",
+        "FTP",
+        "GraphQL only"
+      ],
+      "answerIndex": 0,
+      "explanation": "CKB exposes JSON-RPC 2.0 interfaces."
+    },
+    {
+      "id": "q2",
+      "prompt": "What is the safest default for a local node RPC listener?",
+      "options": [
+        "Bind it to trusted/local interfaces",
+        "Expose it publicly without authentication",
+        "Share it through screenshots",
+        "Disable all validation"
+      ],
+      "answerIndex": 0,
+      "explanation": "The node RPC should be restricted to trusted machines or local interfaces."
+    },
+    {
+      "id": "q3",
+      "prompt": "What is an indexer query useful for?",
+      "options": [
+        "Searching Cells or transactions by script criteria",
+        "Generating private keys",
+        "Compiling Rust",
+        "Rendering CSS"
+      ],
+      "answerIndex": 0,
+      "explanation": "Indexer methods support searchable views over Cells and transactions."
+    }
+  ]
+}

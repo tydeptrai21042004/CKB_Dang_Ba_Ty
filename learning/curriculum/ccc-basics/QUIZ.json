@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "ccc-basics",
+  "title": "CCC basics and wallet connections",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "Where should a browser DApp normally obtain signing capability?",
+      "options": [
+        "From a connected wallet signer",
+        "From a hard-coded private key",
+        "From CSS variables",
+        "From the block timestamp"
+      ],
+      "answerIndex": 0,
+      "explanation": "A wallet or signer should handle authorization; private keys should not be embedded in DApp code."
+    },
+    {
+      "id": "q2",
+      "prompt": "What is a CCC client used for?",
+      "options": [
+        "Interacting with a selected CKB network",
+        "Compiling a Rust binary",
+        "Editing screenshots",
+        "Mining blocks in the browser"
+      ],
+      "answerIndex": 0,
+      "explanation": "The client provides chain and RPC interaction."
+    },
+    {
+      "id": "q3",
+      "prompt": "What should evidence screenshots hide?",
+      "options": [
+        "Seed phrases and private keys",
+        "The exercise title",
+        "The success result",
+        "The network name"
+      ],
+      "answerIndex": 0,
+      "explanation": "Secrets must never appear in evidence."
+    }
+  ]
+}

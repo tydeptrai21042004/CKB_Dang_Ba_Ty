@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "capstone-planning",
+  "title": "Capstone design and evidence planning",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "What makes a capstone claim credible?",
+      "options": [
+        "A reproducible test or concrete evidence",
+        "A vague promise",
+        "A hidden private key",
+        "A large screenshot count alone"
+      ],
+      "answerIndex": 0,
+      "explanation": "Each claim should map to verifiable behavior or evidence."
+    },
+    {
+      "id": "q2",
+      "prompt": "What belongs in project non-goals?",
+      "options": [
+        "Features explicitly outside the current scope",
+        "Private keys",
+        "Random passwords",
+        "Only completed tasks"
+      ],
+      "answerIndex": 0,
+      "explanation": "Non-goals prevent scope drift and clarify what is not claimed."
+    },
+    {
+      "id": "q3",
+      "prompt": "When should screenshot requirements be planned?",
+      "options": [
+        "Before or during implementation, not after everything is finished",
+        "Only after submission",
+        "Never",
+        "Only when a test fails"
+      ],
+      "answerIndex": 0,
+      "explanation": "Planning evidence early avoids missing the required proof of work."
+    }
+  ]
+}

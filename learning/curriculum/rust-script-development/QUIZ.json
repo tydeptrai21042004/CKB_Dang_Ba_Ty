@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "rust-script-development",
+  "title": "Rust smart-contract development",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "What is a strong contract-testing strategy?",
+      "options": [
+        "Test valid paths and specific invalid transitions",
+        "Test only compilation",
+        "Ignore exit codes",
+        "Use only screenshots"
+      ],
+      "answerIndex": 0,
+      "explanation": "Contracts need both positive and negative behavioral tests."
+    },
+    {
+      "id": "q2",
+      "prompt": "Why use explicit error codes?",
+      "options": [
+        "They make failure reasons deterministic and debuggable",
+        "They reveal private keys",
+        "They avoid serialization",
+        "They replace all documentation"
+      ],
+      "answerIndex": 0,
+      "explanation": "Stable error codes help tests and tools identify the rejected rule."
+    },
+    {
+      "id": "q3",
+      "prompt": "What should happen to malformed script arguments?",
+      "options": [
+        "Reject them before using them",
+        "Guess a default owner",
+        "Accept them silently",
+        "Send them to a browser"
+      ],
+      "answerIndex": 0,
+      "explanation": "Validation should fail closed on malformed arguments."
+    }
+  ]
+}

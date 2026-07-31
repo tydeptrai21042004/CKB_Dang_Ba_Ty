@@ -1,0 +1,43 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "ckb-foundations",
+  "title": "CKB fundamentals and the Cell Model",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "How is existing Cell state changed on CKB?",
+      "options": [
+        "By editing the Cell in place",
+        "By consuming it and creating new output Cells",
+        "By changing only its timestamp",
+        "By updating a global account record"
+      ],
+      "answerIndex": 1,
+      "explanation": "CKB updates state through input consumption and output creation."
+    },
+    {
+      "id": "q2",
+      "prompt": "What is a live Cell?",
+      "options": [
+        "A Cell that has not been consumed",
+        "A Cell with a running process",
+        "A Cell on Testnet only",
+        "A Cell with no lock script"
+      ],
+      "answerIndex": 0,
+      "explanation": "A live Cell remains available as a future transaction input."
+    },
+    {
+      "id": "q3",
+      "prompt": "Which Cell field represents storage ownership and value?",
+      "options": [
+        "witness",
+        "capacity",
+        "header_dep",
+        "version"
+      ],
+      "answerIndex": 1,
+      "explanation": "Capacity is denominated in shannons and backs occupied on-chain space."
+    }
+  ]
+}

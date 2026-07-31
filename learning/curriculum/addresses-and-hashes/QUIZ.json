@@ -1,0 +1,41 @@
+{
+  "schema": "ckbuilder-learning-quiz/v1",
+  "moduleId": "addresses-and-hashes",
+  "title": "Addresses, hashes, and identity binding",
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "A CKB address most directly represents what?",
+      "options": [
+        "A lock script",
+        "A transaction fee",
+        "A block height",
+        "A private key file"
+      ],
+      "answerIndex": 0,
+      "explanation": "Addresses encode information used to construct a lock script."
+    },
+    {
+      "id": "q2",
+      "prompt": "Which hash identifies a complete transaction?",
+      "options": [
+        "Transaction hash",
+        "Script args only",
+        "Password hash",
+        "File extension"
+      ],
+      "answerIndex": 0,
+      "explanation": "The transaction hash identifies the serialized transaction."
+    },
+    {
+      "id": "q3",
+      "prompt": "Is hashing the same as encrypting?",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "answerIndex": 1,
+      "explanation": "Hashing is one-way digest computation, while encryption is reversible with a key."
+    }
+  ]
+}
