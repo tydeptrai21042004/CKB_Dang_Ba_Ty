@@ -1,0 +1,28 @@
+{
+  "week": 4,
+  "period": "2026-08-01/2026-08-08",
+  "projectVersion": "CKBuilder Passport v5.0.0",
+  "focus": [
+    "production-oriented credential and passport workflow",
+    "optional BYOK AI",
+    "HTML and document evidence support",
+    "self-healing WSL zero-to-full validation",
+    "Fiber Atlas community testing"
+  ],
+  "validation": {
+    "nodeRegressionTotal": 215,
+    "nodePassed": 214,
+    "nodeFailed": 0,
+    "nodeSkipped": 1,
+    "v5DedicatedPassed": 32,
+    "localZeroToFull": "passed"
+  },
+  "screenshots": 5,
+  "communityContributions": [
+    {
+      "project": "Fiber Atlas",
+      "result": "core synthetic close/settlement/penalty classification worked",
+      "issuesFound": 2
+    }
+  ]
+}
