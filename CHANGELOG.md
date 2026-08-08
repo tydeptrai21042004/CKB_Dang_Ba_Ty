@@ -1,5 +1,26 @@
 # Changelog
 
+## 5.0.0 — 2026-08-08
+
+- Added safe HTML/TXT/Markdown/JSON/PDF/image document handling and deterministic document inspection.
+- Added sanitized sandboxed HTML preview with active-content and attribute stripping.
+- Added printable escaped HTML credential output with a restrictive CSP.
+- Added private submission evidence attachments with tracking-token authorization and reviewer-only access.
+- Added raw-download vs safe-preview separation and read-time SHA-256 integrity checks.
+- Extended BYOK AI extraction to HTML/TXT/Markdown/JSON while preserving image vision and deterministic-only PDF handling.
+- Added attachment storage integrity audit and full private backup tooling.
+- Added dedicated v5 document, HTTP, issuer, UI, and storage security tests.
+
+## 4.0.0 — 2026-08-08
+
+- Added submission timelines, cancellation, and controlled resubmission.
+- Added opt-in public credential directory, stats, and readiness APIs.
+- Added issuer dashboard, review search/filtering, bulk intake, operation/webhook inspection, and operational export.
+- Added HMAC-signed HTTPS webhooks with SSRF protections.
+- Added Google Gemini as an optional BYOK AI provider.
+- Added backup export CLI and production configuration checks.
+- Added dedicated v4 product, HTTP, issuer, AI, and webhook regression/security tests.
+
 ## 2.4.0 - 2026-07-31
 
 - Rebuilt the Learning Hub as a searchable, filterable curriculum workspace with prerequisite-aware next-step recommendations.

@@ -1,3 +1,51 @@
+# CKBuilder Passport v5.0
+
+CKBuilder Passport v5 keeps deterministic Ed25519, document-hash, and CKB verification authoritative while adding safe browser-document support and private evidence attachments. AI remains optional and **bring-your-own-key (BYOK)**.
+
+## v5 services and commands
+
+- `npm run inspector:serve` — public Passport, verification, safe document inspection, evidence submission/attachments, QR/portable credentials, learning, and optional BYOK AI. This process does **not** load issuer signing keys.
+- `npm run issuer:serve` — private reviewer/issuer portal with safe attachment preview/download, issue/revoke operations, audits, webhooks, and operational diagnostics.
+- `npm run attachments:audit` — verifies every stored evidence file against its recorded SHA-256/size and reports missing, tampered, or orphaned files.
+- `npm run backup:export` — metadata/ledger JSON backup.
+- `npm run backup:export:full` — full private backup directory including raw evidence attachments after a successful integrity audit.
+- `npm run test:v5` — dedicated v5 HTML/document/storage/security suite.
+
+### Safe HTML and document support
+
+The verifier can deterministically hash any supported credential document and now understands these browser/document formats:
+
+- HTML (`.html`, `.htm`)
+- plain text (`.txt`)
+- Markdown (`.md`, `.markdown`)
+- JSON (`.json`)
+- PDF (`.pdf`) for deterministic hashing/verification
+- PNG, JPEG, and WebP images
+
+HTML is always treated as hostile input. Script/style/frame/object/SVG/MathML/form/image/link content and all element attributes are removed from rendered previews. Raw uploaded HTML is never served inline: reviewer raw access is forced through `Content-Disposition: attachment` with `nosniff`. Every attachment is SHA-256 verified again when read.
+
+### Optional AI — user supplies the API key
+
+OpenAI, OpenRouter, Groq, and Google Gemini remain available. HTML/TXT/Markdown/JSON can now be converted to bounded untrusted text for field extraction; PNG/JPEG/WebP use vision input. PDF intentionally stays deterministic-only in the provider-neutral AI path. Document text is explicitly treated as data so embedded prompt-injection instructions cannot authorize issuance or change cryptographic results.
+
+### Portable HTML credentials
+
+Every issued credential now has a printable, script-free HTML representation:
+
+```text
+GET /api/certificate/:credentialId/html
+```
+
+The page contains the credential ID, award, issuer, recipient Lock Script hash, signed-document SHA-256, issuer public-key fingerprint, and current verification link. All credential-controlled text is escaped.
+
+### Private evidence attachments
+
+Applicants can attach up to 10 files (5 MB each) while a submission is editable. Attachment metadata is visible through the tracking-token workflow; raw files remain private to the issuer portal. Reviewers get a separate **Safe preview** and **Download raw** action.
+
+See **[V5.0_IMPLEMENTATION.md](V5.0_IMPLEMENTATION.md)** and **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)**.
+
+---
+
 # CKB Degree Proof v2.4.0
 
 ## Automatic End-to-End Credential and Learning Console

@@ -59,3 +59,18 @@ See `HANDBOOK_PROGRESS.md`. Do not mark missing course work as completed based o
 - Automatic local lifecycle: hardened contract deployed, one `ACTIVE` Cell created, one `REVOKED` Cell confirmed, public proof exported, and inspector health verified.
 
 See `reports/week-02-report.md` and `evidence/week-02-run-summary.json`.
+
+## v5 document/evidence extension
+
+| Requirement | v5 implementation |
+|---|---|
+| HTML credential input | Deterministic hash + visible-text extraction + sanitized preview |
+| Browser-safe HTML rendering | Strict sanitizer + sandboxed iframe + restrictive CSP |
+| Portable credential HTML | `/api/certificate/:credentialId/html`, escaped fields, no scripts |
+| Text document support | TXT, Markdown, JSON extraction |
+| PDF support | Deterministic hash/verification and private attachment storage |
+| Private evidence attachments | Tracking-token add/list/remove; reviewer-only preview/download |
+| Attachment integrity | SHA-256 + size verified on every read |
+| Storage diagnostics | Missing/tampered/orphaned audit CLI + admin endpoint |
+| Evidence disaster recovery | Full private backup command after successful integrity audit |
+| Optional AI | BYOK text extraction for HTML/TXT/Markdown/JSON and vision for PNG/JPEG/WebP |

@@ -1,3 +1,23 @@
+# Start here — CKBuilder Passport v4
+
+For local development, copy `.env.example` to `.env`, change the admin password/session secret, initialize the issuer, then start the public and private services. For Docker production, use the split `.env.public.example` and `.env.issuer.example` files so the public container never receives issuer-only secrets:
+
+```bash
+cp .env.example .env
+npm ci
+npm run issuer:init
+npm run prod:check
+npm run inspector:serve
+# second private terminal
+npm run issuer:serve
+```
+
+The public service is for builders/verifiers. The issuer portal is private and contains the signing workflow. AI is optional and uses API keys entered by each user in the UI.
+
+See `PRODUCTION_DEPLOYMENT.md` before exposing anything beyond localhost.
+
+---
+
 # Start the complete project
 
 From Ubuntu, Debian, WSL2, or macOS Terminal, open this repository directory and run:

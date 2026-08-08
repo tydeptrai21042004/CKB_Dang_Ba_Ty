@@ -1,0 +1,59 @@
+services:
+  issuer-init:
+    build: .
+    restart: "no"
+    env_file: .env.issuer
+    command: ["npm","run","issuer:init"]
+    environment:
+      CKBUILDER_PROCESS_ENV_ONLY: "1"
+    volumes:
+      - ckbuilder-data:/app/data
+      - ./deployment:/app/deployment:ro
+      - ./secrets:/app/secrets
+
+  public:
+    build: .
+    restart: unless-stopped
+    env_file: .env.public
+    command: ["npm","run","inspector:serve"]
+    environment:
+      CKBUILDER_PROCESS_ENV_ONLY: "1"
+      INSPECTOR_HOST: 0.0.0.0
+      INSPECTOR_PORT: 4173
+    ports:
+      - "4173:4173"
+    volumes:
+      - ckbuilder-data:/app/data
+      - ./deployment:/app/deployment:ro
+    depends_on:
+      issuer-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4173/api/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  issuer:
+    build: .
+    restart: unless-stopped
+    env_file: .env.issuer
+    command: ["npm","run","issuer:serve"]
+    environment:
+      CKBUILDER_PROCESS_ENV_ONLY: "1"
+      ISSUER_PORTAL_HOST: 0.0.0.0
+      ISSUER_PORTAL_PORT: 4273
+    ports:
+      - "127.0.0.1:4273:4273"
+    volumes:
+      - ckbuilder-data:/app/data
+      - ./deployment:/app/deployment:ro
+      - ./secrets:/app/secrets:ro
+    depends_on:
+      issuer-init:
+        condition: service_completed_successfully
+      public:
+        condition: service_healthy
+
+volumes:
+  ckbuilder-data:

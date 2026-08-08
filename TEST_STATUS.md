@@ -1,35 +1,38 @@
-# Test status — v2.4.0
+# Test status — v5.0.0
 
-Validated on 2026-07-31 in the release workspace and again from a clean packaged extraction.
+Validated on 2026-08-08 in the v5 release workspace.
 
 ## Automated checks
 
 | Check | Result |
 |---|---:|
 | JavaScript syntax | Passed |
-| Local beginner exercise models | 5/5 passed |
-| Structured curriculum modules | 14 validated |
-| Quiz banks | 14 files / 42 questions validated |
-| Node.js tests | 126 total |
-| Passed | 125 |
-| Failed | 0 |
-| Skipped | 1 optional CCC dependency integration test |
-| Learning evidence check | 22/61 honestly recorded (36%) |
-| Rustlings deterministic source check | 22/22 clean |
-| Community conformance vectors | 6/6 verified |
-| Release security audit | Passed |
+| v5 dedicated HTML/document/storage/security tests | **32/32 passed** |
+| Full Node.js regression suite | **215 total** |
+| Passed | **214** |
+| Failed | **0** |
+| Skipped | **1 optional CCC dependency integration test** |
+| Production configuration check | Passed; warnings only for intentionally absent test keys/qrencode |
+| Attachment storage audit smoke test | Passed |
+| Full private backup smoke test | Passed; manifest mode `0600` |
 
-The skipped CCC integration test activates when `@ckb-ccc/core` is installed. The release workspace's package mirror did not provide one transitive package, so the optional integration path was skipped rather than falsely reported as passed. All dependency-free application, API, UI, learning, quiz, credential, Cell decoder, proof-verification, and packaging tests passed.
+The skipped Node.js test is the existing optional CCC integration test. `@ckb-ccc/core` is not installed in this execution environment, so that integration path is skipped rather than falsely reported as passed.
+
+The Rust contract test suite was not rerun because `cargo` and `rustc` are unavailable in this runtime. Historical Rust/CKB evidence remains in the repository and is not represented as a fresh v5 execution.
+
+## v5 security coverage
+
+The new suite tests hostile HTML removal, event-handler/attribute stripping, sandboxed preview, MIME mismatch rejection, SVG rejection, malformed JSON, printable credential escaping/CSP, attachment tracking-token authorization, raw HTML forced-download behavior, reviewer authentication, read-time SHA-256 integrity verification, missing/tampered/orphaned attachment audits, and BYOK AI key non-persistence.
 
 ## Commands
 
 ```bash
+npm run test:v5
 npm run syntax:check
-npm run learning:check
-npm run learning:quiz:list
-npm run learning:test
-npm run exercises:run
-npm run community:check
 npm test
+npm run attachments:audit
+npm run backup:export
+npm run backup:export:full -- /secure/private/ckbuilder-full-backup
+npm run prod:check
 bash scripts/audit-release.sh
 ```

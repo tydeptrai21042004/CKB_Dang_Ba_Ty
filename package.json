@@ -1,11 +1,11 @@
 {
-  "name": "ckb-degree-proof",
-  "version": "2.4.0",
+  "name": "ckbuilder-passport",
+  "version": "5.0.0",
   "private": true,
   "type": "module",
-  "description": "CKB Degree Proof v2.4.0: polished read-only console, searchable CKB curriculum, runnable quizzes, beginner exercise models, and hardened credential verification.",
+  "description": "CKBuilder Passport v5: production-oriented CKB-verifiable credentials with safe HTML/document support, private evidence attachments, BYOK AI, signed webhooks, and operational tooling.",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "env:check": "bash scripts/check-env.sh",
@@ -48,7 +48,15 @@
     "exercises:test": "node --test --test-reporter=spec test/basic-exercises.test.js test/learning-catalog.test.js",
     "learning:quiz": "node scripts/run-learning-quiz.js",
     "learning:quiz:list": "node scripts/run-learning-quiz.js --list",
-    "learning:test": "node --test --test-reporter=spec test/learning-catalog.test.js test/learning-progress.test.js test/learning-quiz.test.js"
+    "learning:test": "node --test --test-reporter=spec test/learning-catalog.test.js test/learning-progress.test.js test/learning-quiz.test.js",
+    "issuer:serve": "node src/cli/issuer-portal-server.js",
+    "prod:check": "node scripts/production-check.js",
+    "test:product": "node --test --test-reporter=spec test/product-db.test.js test/session-auth.test.js test/product-http.test.js test/issuer-product.test.js",
+    "backup:export": "node src/cli/export-backup.js",
+    "test:v4": "node --test --test-reporter=spec test/v4-product.test.js test/v4-http.test.js test/v4-ai.test.js test/v4-webhook.test.js test/v4-issuer.test.js test/v4-ui.test.js test/v4-env.test.js",
+    "attachments:audit": "node src/cli/audit-attachments.js",
+    "backup:export:full": "node src/cli/export-full-backup.js",
+    "test:v5": "node --test --test-reporter=spec test/v5-document.test.js test/v5-http.test.js test/v5-issuer.test.js test/v5-ui.test.js test/v5-storage.test.js"
   },
   "dependencies": {
     "@ckb-ccc/core": "1.16.1"
