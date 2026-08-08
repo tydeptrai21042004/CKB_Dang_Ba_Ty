@@ -1,6 +1,7 @@
 import { AppError } from "./errors.js";
 
-export const CREDENTIAL_SCHEMA = "ckb-degree-credential/v1";
+export const CREDENTIAL_SCHEMA = "ckbuilder-credential/v2";
+export const LEGACY_CREDENTIAL_SCHEMA = "ckb-degree-credential/v1";
 export const RECORD_SCHEMA = "ckb-degree-proof-record/v1";
 export const LEDGER_SCHEMA = "ckb-degree-proof-ledger/v1";
 export const STATUS_ACTIVE = "ACTIVE";
@@ -32,7 +33,8 @@ export function validateMintInput(input) {
 }
 
 export function validateCredentialPayload(payload) {
-  if (payload?.schema !== CREDENTIAL_SCHEMA) throw new AppError("SCHEMA_INVALID", `Expected schema ${CREDENTIAL_SCHEMA}.`);
+  if (![CREDENTIAL_SCHEMA, LEGACY_CREDENTIAL_SCHEMA].includes(payload?.schema)) throw new AppError("SCHEMA_INVALID", `Expected schema ${CREDENTIAL_SCHEMA} or legacy ${LEGACY_CREDENTIAL_SCHEMA}.`);
+  if (payload.schema === CREDENTIAL_SCHEMA && (typeof payload.credentialType !== "string" || payload.credentialType.trim() === "")) throw new AppError("CREDENTIAL_TYPE_INVALID", "credentialType is required for v2 credentials.");
   if (typeof payload.credentialId !== "string" || payload.credentialId.length === 0) throw new AppError("CREDENTIAL_ID_INVALID", "credentialId is missing.");
   if (!HEX_32.test(payload.issuer?.issuerId ?? "")) throw new AppError("ISSUER_ID_INVALID", "issuerId is invalid.");
   if (!HEX_32.test(payload.issuer?.lockHash ?? "")) throw new AppError("ISSUER_LOCK_HASH_INVALID", "issuer lock hash is invalid.");

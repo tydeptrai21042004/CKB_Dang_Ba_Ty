@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import test from "node:test";
+import { once } from "node:events";
+import { initializeIssuer } from "../src/lib/credential-service.js";
+import { createSubmission, openProductDb, closeProductDb } from "../src/lib/product-db.js";
+import { createIssuerServer } from "../src/lib/issuer-http.js";
+import { loadLedger } from "../src/lib/ledger.js";
+
+async function setup(){const root=fs.mkdtempSync(path.join(os.tmpdir(),"ckbuilder-issuer-"));const data=path.join(root,"data"),secrets=path.join(root,"secrets"),pub=path.join(root,"issuer-public");fs.mkdirSync(data);fs.mkdirSync(secrets);fs.mkdirSync(pub);fs.writeFileSync(path.join(pub,"index.html"),"<title>issuer</title>");const config={ROOT_DIR:root,DATA_DIR:data,PRODUCT_DB_PATH:path.join(data,"p.sqlite"),ISSUER_NAME:"CKBuilder",ISSUER_LOCK_HASH:`0x${"44".repeat(32)}`,ISSUER_PRIVATE_KEY_PATH:path.join(secrets,"issuer-private.pem"),ISSUER_PUBLIC_KEY_PATH:path.join(secrets,"issuer-public.pem"),TRUSTED_ISSUERS_FILE:path.join(data,"trusted.json"),PUBLIC_BASE_URL:"http://example.test",APP_NETWORK:"devnet",CKB_RPC_URL:"http://127.0.0.1:9",CHAIN_WRITE_MODE:"disabled",ADMIN_EMAIL:"admin@example.com",ADMIN_PASSWORD:"correct horse battery staple",SESSION_SECRET:"s".repeat(48),AI_DEFAULT_PROVIDER:"openai",AI_DEFAULT_MODEL:"gpt-4.1-mini"};initializeIssuer(config);const db=openProductDb(config.PRODUCT_DB_PATH);const sub=createSubmission(db,{applicantName:"Builder",applicantEmail:"builder@example.com",recipientLockHash:`0x${"55".repeat(32)}`,credentialType:"Builder Milestone",credentialTitle:"Type Script Builder",category:"CKB",evidence:["https://github.com/example/repo"],notes:"test"});const server=createIssuerServer({config,publicDir:pub,db,logger:{error(){}}});server.listen(0,"127.0.0.1");await once(server,"listening");return {root,data,config,db,sub,server,base:`http://127.0.0.1:${server.address().port}`}}
+
+test("issuer portal requires login and human approval creates an off-chain credential when chain writes are disabled",async()=>{const x=await setup();try{let r=await fetch(`${x.base}/api/admin/submissions`);assert.equal(r.status,401);r=await fetch(`${x.base}/api/auth/login`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({email:x.config.ADMIN_EMAIL,password:x.config.ADMIN_PASSWORD})});assert.equal(r.status,200);const cookie=r.headers.get("set-cookie").split(";",1)[0];r=await fetch(`${x.base}/api/admin/submissions/${x.sub.id}/review`,{method:"POST",headers:{"content-type":"application/json",cookie},body:JSON.stringify({action:"approve",notes:"Reviewed by human"})});const body=await r.json();assert.equal(r.status,200);assert.equal(body.status,"ACTIVE_OFFCHAIN");assert.ok(loadLedger(x.data).credentials[body.credentialId]);}finally{await new Promise(res=>x.server.close(res));closeProductDb(x.db)}});

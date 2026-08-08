@@ -49,7 +49,8 @@ export function parseEnvText(text) {
 function readMergedEnv(rootDir, options = {}) {
   const envPath = path.join(rootDir, options.filename ?? ".env");
   if (!fs.existsSync(envPath)) {
-    throw new AppError("ENV_FILE_MISSING", `Missing ${envPath}. Copy .env.example to .env first.`);
+    if (String(process.env.CKBUILDER_PROCESS_ENV_ONLY ?? "0") === "1") return { ...process.env };
+    throw new AppError("ENV_FILE_MISSING", `Missing ${envPath}. Copy .env.example to .env first, or set CKBUILDER_PROCESS_ENV_ONLY=1 for an injected production environment.`);
   }
   const fileValues = parseEnvText(fs.readFileSync(envPath, "utf8"));
   return { ...fileValues, ...process.env };
@@ -79,8 +80,8 @@ function validateRequired(env, requiredKeys) {
 }
 
 function validateCommon(env) {
-  if (!new Set(["local", "devnet", "testnet"]).has(env.APP_NETWORK)) {
-    throw new AppError("ENV_NETWORK_INVALID", "APP_NETWORK must be local, devnet, or testnet.");
+  if (!new Set(["local", "devnet", "testnet", "mainnet"]).has(env.APP_NETWORK)) {
+    throw new AppError("ENV_NETWORK_INVALID", "APP_NETWORK must be local, devnet, testnet, or mainnet.");
   }
 
   try {
@@ -123,7 +124,20 @@ function resolveEnvPaths(env, rootDir) {
     OFFCKB_SYSTEM_SCRIPTS: resolve(env.OFFCKB_SYSTEM_SCRIPTS),
     OFFCKB_DEPLOYMENT_SCRIPTS: resolve(env.OFFCKB_DEPLOYMENT_SCRIPTS),
     OFFCKB_CHAIN_STATE: resolve(env.OFFCKB_CHAIN_STATE),
-    REQUIRE_CKB_RPC: String(env.REQUIRE_CKB_RPC ?? "0") === "1"
+    REQUIRE_CKB_RPC: String(env.REQUIRE_CKB_RPC ?? "0") === "1",
+    PRODUCT_DB_PATH: resolve(env.PRODUCT_DB_PATH ?? "./data/ckbuilder-passport.sqlite"),
+    PUBLIC_BASE_URL: env.PUBLIC_BASE_URL ?? "http://127.0.0.1:4173",
+    PUBLIC_APP_NAME: env.PUBLIC_APP_NAME ?? "CKBuilder Passport",
+    AI_ENABLED: String(env.AI_ENABLED ?? "1") !== "0",
+    AI_DEFAULT_PROVIDER: env.AI_DEFAULT_PROVIDER ?? "openai",
+    AI_DEFAULT_MODEL: env.AI_DEFAULT_MODEL ?? "gpt-4.1-mini",
+    CHAIN_WRITE_MODE: env.CHAIN_WRITE_MODE ?? "optional",
+    ADMIN_EMAIL: env.ADMIN_EMAIL,
+    ADMIN_PASSWORD: env.ADMIN_PASSWORD,
+    SESSION_SECRET: env.SESSION_SECRET,
+    PUBLIC_DIRECTORY_ENABLED: String(env.PUBLIC_DIRECTORY_ENABLED ?? "0") === "1",
+    WEBHOOK_URL: env.WEBHOOK_URL ?? "",
+    WEBHOOK_SECRET: env.WEBHOOK_SECRET ?? ""
   };
 }
 
@@ -141,6 +155,13 @@ function resolvePublicEnvPaths(env, rootDir) {
     OFFCKB_SYSTEM_SCRIPTS: resolve(env.OFFCKB_SYSTEM_SCRIPTS),
     OFFCKB_DEPLOYMENT_SCRIPTS: resolve(env.OFFCKB_DEPLOYMENT_SCRIPTS),
     OFFCKB_CHAIN_STATE: resolve(env.OFFCKB_CHAIN_STATE),
-    REQUIRE_CKB_RPC: String(env.REQUIRE_CKB_RPC ?? "0") === "1"
+    REQUIRE_CKB_RPC: String(env.REQUIRE_CKB_RPC ?? "0") === "1",
+    PRODUCT_DB_PATH: resolve(env.PRODUCT_DB_PATH ?? "./data/ckbuilder-passport.sqlite"),
+    PUBLIC_BASE_URL: env.PUBLIC_BASE_URL ?? "http://127.0.0.1:4173",
+    PUBLIC_APP_NAME: env.PUBLIC_APP_NAME ?? "CKBuilder Passport",
+    AI_ENABLED: String(env.AI_ENABLED ?? "1") !== "0",
+    AI_DEFAULT_PROVIDER: env.AI_DEFAULT_PROVIDER ?? "openai",
+    AI_DEFAULT_MODEL: env.AI_DEFAULT_MODEL ?? "gpt-4.1-mini",
+    PUBLIC_DIRECTORY_ENABLED: String(env.PUBLIC_DIRECTORY_ENABLED ?? "0") === "1"
   };
 }

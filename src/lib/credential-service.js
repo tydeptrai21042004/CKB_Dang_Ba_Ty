@@ -46,7 +46,7 @@ export function initializeIssuer(env) {
   return { ...result, issuerId };
 }
 
-export function mintCredential(env, input, documentPath, options = {}) {
+export function prepareCredential(env, input, documentPath, options = {}) {
   validateMintInput(input);
   const privateKey = loadPrivateKey(env.ISSUER_PRIVATE_KEY_PATH);
   const publicKey = loadPublicKey(env.ISSUER_PUBLIC_KEY_PATH);
@@ -59,6 +59,7 @@ export function mintCredential(env, input, documentPath, options = {}) {
   const payload = {
     schema: CREDENTIAL_SCHEMA,
     credentialId: input.credentialId,
+    credentialType: input.credentialType ?? "AcademicCredential",
     issuer: {
       issuerId,
       name: env.ISSUER_NAME,
@@ -91,32 +92,44 @@ export function mintCredential(env, input, documentPath, options = {}) {
     signature,
     revocation: null
   };
+  const activeBinary = encodeRevocationRecord({
+    status: CHAIN_STATUS_ACTIVE,
+    credentialId: input.credentialId,
+    issuerLockHash: env.ISSUER_LOCK_HASH,
+    reasonCode: 0,
+    revokedAt: 0n
+  });
+  return { record, activeBinary };
+}
 
-  ledger.credentials[input.credentialId] = record;
-  saveLedger(env.DATA_DIR, ledger);
+export function persistPreparedCredential(env, prepared) {
+  const { record, activeBinary } = prepared;
+  validateCredentialPayload(record?.payload);
+  const credentialId = record.payload.credentialId;
+  const ledger = loadLedger(env.DATA_DIR);
+  if (ledger.credentials[credentialId]) {
+    throw new AppError("CREDENTIAL_ALREADY_EXISTS", `Credential already exists: ${credentialId}`);
+  }
+  const updated = structuredClone(ledger);
+  updated.credentials[credentialId] = record;
 
-  const artifactStem = credentialArtifactStem(input.credentialId);
+  const artifactStem = credentialArtifactStem(credentialId);
   const credentialDir = path.join(env.DATA_DIR, "credentials");
-  fs.mkdirSync(credentialDir, { recursive: true });
-  writeJsonAtomic(path.join(credentialDir, `${artifactStem}.json`), record);
-
   const chainDir = path.join(env.DATA_DIR, "revocations");
+  fs.mkdirSync(credentialDir, { recursive: true });
   fs.mkdirSync(chainDir, { recursive: true });
-  fs.writeFileSync(
-    path.join(chainDir, `${artifactStem}-active.bin`),
-    encodeRevocationRecord({
-      status: CHAIN_STATUS_ACTIVE,
-      credentialId: input.credentialId,
-      issuerLockHash: env.ISSUER_LOCK_HASH,
-      reasonCode: 0,
-      revokedAt: 0n
-    })
-  );
-
+  saveLedger(env.DATA_DIR, updated);
+  writeJsonAtomic(path.join(credentialDir, `${artifactStem}.json`), record);
+  fs.writeFileSync(path.join(chainDir, `${artifactStem}-active.bin`), activeBinary);
   return record;
 }
 
-export function revokeCredential(env, credentialId, reasonCode, reasonText, options = {}) {
+export function mintCredential(env, input, documentPath, options = {}) {
+  const prepared = prepareCredential(env, input, documentPath, options);
+  return persistPreparedCredential(env, prepared);
+}
+
+export function prepareRevocation(env, credentialId, reasonCode, reasonText, options = {}) {
   const ledger = loadLedger(env.DATA_DIR);
   const record = ledger.credentials[credentialId];
   if (!record) throw new AppError("CREDENTIAL_NOT_FOUND", `Credential not found: ${credentialId}`);
@@ -129,65 +142,48 @@ export function revokeCredential(env, credentialId, reasonCode, reasonText, opti
   if (typeof reasonText !== "string" || reasonText.trim() === "") {
     throw new AppError("REVOCATION_REASON_MISSING", "A human-readable revocation reason is required.");
   }
-
   const privateKey = loadPrivateKey(env.ISSUER_PRIVATE_KEY_PATH);
   const publicKey = loadPublicKey(env.ISSUER_PUBLIC_KEY_PATH);
   const issuerId = issuerIdFromPublicKey(publicKey);
-  if (issuerId !== record.payload.issuer.issuerId) {
-    throw new AppError("ISSUER_MISMATCH", "The configured issuer is not authorized to revoke this credential.");
-  }
+  if (issuerId !== record.payload.issuer.issuerId) throw new AppError("ISSUER_MISMATCH", "The configured issuer is not authorized to revoke this credential.");
 
-  // Validate and encode all values before mutating persistent state.
   const revokedAtIso = options.revokedAt ?? new Date().toISOString();
   const revokedAtMs = Date.parse(revokedAtIso);
-  if (!Number.isFinite(revokedAtMs)) {
-    throw new AppError("REVOCATION_DATE_INVALID", "revokedAt must be a valid ISO-8601 timestamp.");
-  }
+  if (!Number.isFinite(revokedAtMs)) throw new AppError("REVOCATION_DATE_INVALID", "revokedAt must be a valid ISO-8601 timestamp.");
   const normalizedRevokedAt = new Date(revokedAtMs).toISOString();
-  const unixSeconds = BigInt(Math.floor(revokedAtMs / 1000));
-  const event = {
-    schema: REVOCATION_SCHEMA,
-    credentialId,
-    issuerId,
-    reasonCode,
-    reason: reasonText.trim(),
-    revokedAt: normalizedRevokedAt
-  };
-  const signature = signObject(event, privateKey);
-  const revocation = { event, signature };
-  const binary = encodeRevocationRecord({
-    status: CHAIN_STATUS_REVOKED,
-    credentialId,
-    issuerLockHash: env.ISSUER_LOCK_HASH,
-    reasonCode,
-    revokedAt: unixSeconds
-  });
+  const event = { schema: REVOCATION_SCHEMA, credentialId, issuerId, reasonCode, reason: reasonText.trim(), revokedAt: normalizedRevokedAt };
+  const revocation = { event, signature: signObject(event, privateKey) };
+  const binary = encodeRevocationRecord({ status: CHAIN_STATUS_REVOKED, credentialId, issuerLockHash: env.ISSUER_LOCK_HASH, reasonCode, revokedAt: BigInt(Math.floor(revokedAtMs / 1000)) });
+  return { revocation, binary };
+}
 
-  const updatedLedger = structuredClone(ledger);
-  updatedLedger.credentials[credentialId].status = STATUS_REVOKED;
-  updatedLedger.credentials[credentialId].revocation = revocation;
-  updatedLedger.revocations[credentialId] = revocation;
-
+export function persistPreparedRevocation(env, credentialId, prepared) {
+  const ledger = loadLedger(env.DATA_DIR);
+  const record = ledger.credentials[credentialId];
+  if (!record) throw new AppError("CREDENTIAL_NOT_FOUND", `Credential not found: ${credentialId}`);
+  if (record.status === STATUS_REVOKED || ledger.revocations[credentialId] || record.revocation) throw new AppError("CREDENTIAL_ALREADY_REVOKED", `Credential is already revoked: ${credentialId}`);
+  const updated = structuredClone(ledger);
+  updated.credentials[credentialId].status = STATUS_REVOKED;
+  updated.credentials[credentialId].revocation = prepared.revocation;
+  updated.revocations[credentialId] = prepared.revocation;
   const chainDir = path.join(env.DATA_DIR, "revocations");
   const finalBinaryPath = path.join(chainDir, `${credentialArtifactStem(credentialId)}-revoked.bin`);
   const temporaryBinaryPath = `${finalBinaryPath}.${process.pid}.tmp`;
   ensureParent(finalBinaryPath);
-  fs.writeFileSync(temporaryBinaryPath, binary, { mode: 0o600 });
-
+  fs.writeFileSync(temporaryBinaryPath, prepared.binary, { mode: 0o600 });
   try {
-    saveLedger(env.DATA_DIR, updatedLedger);
+    saveLedger(env.DATA_DIR, updated);
     fs.renameSync(temporaryBinaryPath, finalBinaryPath);
   } catch (error) {
-    try {
-      saveLedger(env.DATA_DIR, ledger);
-    } catch {
-      // Preserve the original failure. The caller still receives a failed operation.
-    }
+    try { saveLedger(env.DATA_DIR, ledger); } catch {}
     fs.rmSync(temporaryBinaryPath, { force: true });
     throw error;
   }
+  return prepared.revocation;
+}
 
-  return revocation;
+export function revokeCredential(env, credentialId, reasonCode, reasonText, options = {}) {
+  return persistPreparedRevocation(env, credentialId, prepareRevocation(env, credentialId, reasonCode, reasonText, options));
 }
 
 export function verifyCredential(env, credentialId, documentPath, options = {}) {

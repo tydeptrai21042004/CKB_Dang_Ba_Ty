@@ -41,9 +41,11 @@ function contractTypeScript(contract, issuerLockHash) {
 export function createPublicDevnetContext(env) {
   const systemScriptsPath = path.resolve(env.OFFCKB_SYSTEM_SCRIPTS);
   const deploymentScriptsPath = path.resolve(env.OFFCKB_DEPLOYMENT_SCRIPTS);
-  const scripts = buildKnownScripts(systemScriptsPath);
-  const client = new ccc.ClientPublicTestnet({ url: env.CKB_RPC_URL, scripts });
-  const contract = loadContractInfo(deploymentScriptsPath);
+  const scripts = buildKnownScripts(systemScriptsPath, env.APP_NETWORK);
+  const Client = env.APP_NETWORK === "mainnet" ? ccc.ClientPublicMainnet : ccc.ClientPublicTestnet;
+  if (!Client) throw new Error(`CCC does not expose a client for ${env.APP_NETWORK}.`);
+  const client = new Client({ url: env.CKB_RPC_URL, scripts });
+  const contract = loadContractInfo(deploymentScriptsPath, env.APP_NETWORK);
   const issuerLockHash = env.ISSUER_LOCK_HASH.toLowerCase();
   const typeScript = contractTypeScript(contract, issuerLockHash);
   return { client, contract, issuerLockHash, typeScript };
@@ -59,8 +61,10 @@ export function createDevnetContext(env) {
 export async function deriveIssuer(env) {
   const systemScriptsPath = path.resolve(env.OFFCKB_SYSTEM_SCRIPTS);
   const privateKeyPath = path.resolve(env.CKB_ISSUER_PRIVATE_KEY_FILE);
-  const scripts = buildKnownScripts(systemScriptsPath);
-  const client = new ccc.ClientPublicTestnet({ url: env.CKB_RPC_URL, scripts });
+  const scripts = buildKnownScripts(systemScriptsPath, env.APP_NETWORK);
+  const Client = env.APP_NETWORK === "mainnet" ? ccc.ClientPublicMainnet : ccc.ClientPublicTestnet;
+  if (!Client) throw new Error(`CCC does not expose a client for ${env.APP_NETWORK}.`);
+  const client = new Client({ url: env.CKB_RPC_URL, scripts });
   const signer = new ccc.SignerCkbPrivateKey(client, readSecret(privateKeyPath));
   const address = await signer.getAddressObjSecp256k1();
   return {
