@@ -7,6 +7,7 @@ The reports below are organized as contemporaneous weekly entries and link direc
 - [Week 1 — Initial credential application and Rust revocation contract](week-01-report.md)
 - [Week 2 — Public Credential Inspector and automatic end-to-end workflow](week-02-report.md)
 - [Week 3 — Structured CKB learning and FiberGuard community testing](week-03-report.md)
+- [Week 4 — CKBuilder Passport v5, BYOK AI, WSL validation, and Fiber Atlas testing](week-04-report.md)
 
 ## Templates
 
