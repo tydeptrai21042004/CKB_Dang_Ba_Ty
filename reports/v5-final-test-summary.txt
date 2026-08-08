@@ -1,0 +1,35 @@
+CKBuilder Passport v5.0 — final validation summary
+Date: 2026-08-08
+
+JavaScript syntax check: PASS
+Dedicated v5 HTML/document/storage/security suite: 32 passed, 0 failed
+Full Node.js regression suite: 215 total, 214 passed, 0 failed, 1 skipped
+Skipped: optional @ckb-ccc/core integration test (dependency unavailable in this execution environment)
+Production configuration check: PASS (warnings only for intentionally absent test keys/qrencode)
+Attachment storage audit smoke test: PASS
+Full private backup smoke test: PASS; manifest mode 0600
+
+v5-specific coverage includes:
+- hostile HTML sanitization and visible-text extraction
+- HTML attribute/event-handler stripping
+- script/style/iframe/object/SVG/MathML removal
+- malformed JSON rejection
+- extension/MIME mismatch rejection
+- SVG upload rejection
+- deterministic HTML/TXT/Markdown/JSON/PDF/image document support
+- printable credential HTML escaping + restrictive CSP
+- applicant attachment add/list/remove with tracking-token authorization
+- wrong-token attachment denial
+- reviewer-only preview/download
+- raw HTML forced to attachment download + nosniff
+- attachment SHA-256 tamper detection
+- attachment storage orphan/missing-file audit
+- sandboxed browser preview
+- BYOK AI key non-persistence regression
+
+Rust note: cargo/rustc were not available in this execution environment, so historical Rust evidence was not misrepresented as a fresh run.
+
+Additional v5 hardening:
+- 5 MiB canonical base64 uploads are validated with a linear scan + decode/re-encode check, preventing regexp stack-overflow denial of service.
+- The same hardened decoder is used by both evidence attachments and the original public verifier upload path.
+- Submission tracking credentials are persisted to the browser before optional attachment uploads, so upload failure does not strand the submission.

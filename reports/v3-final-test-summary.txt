@@ -1,0 +1,15 @@
+CKBuilder Passport v3.0 final validation
+Date: 2026-08-08
+
+JavaScript syntax check: PASS
+Node test suite: 137 discovered / 136 passed / 0 failed / 1 skipped
+Release audit: PASS
+Production configuration checker: PASS (with expected warnings in a temporary chain-disabled smoke configuration)
+Issuer human-approval workflow: PASS with freshly generated Ed25519 issuer keys
+Mainnet environment/config parser compatibility tests: PASS
+
+Skipped test:
+- CCC derives the expected first OffCKB account Lock Script hash.
+  Reason: @ckb-ccc/core cannot be installed in the execution environment because its configured npm mirror does not provide a required transitive package. The repository continues to declare the official dependency for normal npm/Docker deployment.
+
+Rust contract source was intentionally not changed in v3. Cargo is unavailable in this execution environment, so Rust tests could not be rerun here.

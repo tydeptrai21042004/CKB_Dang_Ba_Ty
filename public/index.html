@@ -12,7 +12,7 @@
     <aside class="sidebar" aria-label="Primary navigation">
       <a class="brand" href="#overview" aria-label="CKBuilder Console home">
         <span class="brand-mark" aria-hidden="true">CK</span>
-        <span><strong>CKBuilder</strong><small>Degree Proof Console</small></span>
+        <span><strong>CKBuilder</strong><small>Passport & Credential Proof</small></span>
       </a>
 
       <nav class="nav-list">
@@ -22,6 +22,15 @@
         <button class="nav-item" type="button" data-view="inspector">
           <span class="nav-icon" aria-hidden="true">✓</span><span>Credential inspector</span>
         </button>
+        <button class="nav-item" type="button" data-view="passport">
+          <span class="nav-icon" aria-hidden="true">ID</span><span>Builder passport</span>
+        </button>
+        <button class="nav-item hidden" id="directory-nav" type="button" data-view="directory">
+          <span class="nav-icon" aria-hidden="true">⌕</span><span>Credential directory</span>
+        </button>
+        <button class="nav-item" type="button" data-view="submit">
+          <span class="nav-icon" aria-hidden="true">＋</span><span>Submit evidence</span>
+        </button>
         <button class="nav-item" type="button" data-view="decoder">
           <span class="nav-icon" aria-hidden="true">{ }</span><span>Cell decoder</span>
         </button>
@@ -30,6 +39,9 @@
         </button>
         <button class="nav-item" type="button" data-view="learning">
           <span class="nav-icon" aria-hidden="true">↗</span><span>Learning hub</span>
+        </button>
+        <button class="nav-item" type="button" data-scroll="ai-settings-panel">
+          <span class="nav-icon" aria-hidden="true">AI</span><span>AI settings</span>
         </button>
       </nav>
 
@@ -61,11 +73,11 @@
         <div class="hero-card">
           <div class="hero-copy">
             <span class="hero-kicker">CKB Degree Proof v<span id="hero-version">2.4.0</span></span>
-            <h2>Issue, verify, and revoke academic credentials with transparent Cell state.</h2>
-            <p>The console combines public credential inspection, canonical 75-byte Cell decoding, proof-integrity checks, and an honest learning-evidence dashboard.</p>
+            <h2>Build a portable, CKB-verifiable passport for learning, projects, and real contributions.</h2>
+            <p>Learn, submit evidence, receive human-reviewed credentials, and let anyone independently verify your signed credential and CKB Cell state. AI is optional and never decides validity.</p>
             <div class="hero-actions">
               <button class="button primary" type="button" data-go="inspector">Inspect a credential</button>
-              <button class="button ghost" type="button" data-go="learning">Review learning progress</button>
+              <button class="button ghost" type="button" data-go="passport">Open a builder passport</button>
             </div>
           </div>
           <div class="hero-visual" aria-label="Credential lifecycle diagram">
@@ -140,14 +152,14 @@
               <input id="credential-id" name="credentialId" autocomplete="off" maxlength="256" required placeholder="CKB-DEGREE-2026-0001">
 
               <label for="document">Certificate document <span>Optional SHA-256 comparison</span></label>
-              <input id="document" name="document" type="file">
+              <input id="document" name="document" type="file" accept=".html,.htm,.txt,.md,.markdown,.json,.pdf,.png,.jpg,.jpeg,.webp,text/html,text/plain,text/markdown,application/json,application/pdf,image/png,image/jpeg,image/webp">
 
               <label class="check-row" for="offline">
                 <input id="offline" type="checkbox">
                 <span><strong>Offline inspection</strong><small>Skip the live CKB RPC query</small></span>
               </label>
 
-              <button class="button primary full" type="submit">Run public inspection</button>
+              <div class="form-actions"><button id="inspect-document" class="button ghost" type="button">Inspect file</button><button id="ai-read-document" class="button ghost" type="button">AI read fields</button><button class="button primary" type="submit">Run public inspection</button></div><pre id="document-info" class="ai-output hidden"></pre><iframe id="document-html-preview" class="document-preview hidden" sandbox="" title="Sanitized HTML document preview"></iframe><div id="ai-document-output" class="ai-output hidden"></div>
               <p class="form-status" id="status" role="status" aria-live="polite">Ready for a credential ID.</p>
             </form>
           </article>
@@ -161,7 +173,7 @@
           <article id="result" class="panel hidden result-panel" aria-live="polite">
             <div class="result-head">
               <div><p class="eyebrow">Verification outcome</p><h2 id="outcome">—</h2></div>
-              <button id="download" type="button" class="button ghost small">Export proof JSON</button>
+              <div class="result-actions"><a id="html-credential" class="button ghost small hidden" target="_blank" rel="noopener">HTML certificate</a><button id="ai-explain" type="button" class="button ghost small">Explain with AI</button><button id="download" type="button" class="button ghost small">Export proof JSON</button></div>
             </div>
 
             <dl class="summary-grid">
@@ -173,9 +185,35 @@
 
             <div class="result-section"><h3>ACTIVE → REVOKED history</h3><ol id="history" class="history"></ol></div>
             <div class="result-section"><h3>Verification checks</h3><div id="checks" class="checks"></div></div>
-            <details><summary>Raw public proof</summary><pre id="raw"></pre></details>
+            <div id="ai-explanation-panel" class="ai-output hidden"><strong>AI explanation</strong><p id="ai-explanation"></p><small>AI explains deterministic checks; it cannot change the verification result.</small></div><details><summary>Raw public proof</summary><pre id="raw"></pre></details>
           </article>
         </div>
+      </section>
+
+      <section class="view" id="view-passport" data-title="Builder passport">
+        <div class="section-intro"><div><p class="eyebrow">Portable proof of work</p><h2>Open a CKBuilder Passport</h2><p>Enter a recipient Lock Script hash to view its public credentials. No private identity commitment is exposed.</p></div><span class="privacy-badge">Public credential data only</span></div>
+        <article class="panel"><form id="passport-form"><label for="passport-lock">Recipient Lock Script hash</label><input id="passport-lock" required maxlength="66" placeholder="0x…"><button class="button primary" type="submit">Open passport</button><p id="passport-status" class="form-status">Ready.</p></form></article>
+        <div id="passport-result" class="passport-result hidden"><article class="passport-hero"><div><p class="eyebrow">CKBuilder Passport</p><h2 id="passport-name">Anonymous builder</h2><code id="passport-lock-display"></code></div><div class="passport-counts"><span><b id="passport-active">0</b> active</span><span><b id="passport-revoked">0</b> revoked</span></div></article><div id="passport-credentials" class="passport-grid"></div></div>
+      </section>
+
+      <section class="view" id="view-directory" data-title="Credential directory">
+        <div class="section-intro"><div><p class="eyebrow">Opt-in public discovery</p><h2>Credential directory</h2><p>Search public credential metadata only when the deployment explicitly enables discovery. Applicant email, tracking token, private identity commitment, and AI keys are never shown.</p></div><span class="privacy-badge">Deployment opt-in</span></div>
+        <article class="panel"><form id="directory-form"><div class="two-column"><label>Search<input id="directory-query" maxlength="160" placeholder="Builder, credential, category, Lock hash"></label><label>Status<select id="directory-status"><option value="">Any status</option><option value="ACTIVE">Active</option><option value="REVOKED">Revoked</option></select></label></div><div class="two-column"><label>Credential type<input id="directory-type" maxlength="100" placeholder="Builder Milestone"></label><label>Results per page<select id="directory-limit"><option>10</option><option selected>25</option><option>50</option></select></label></div><button class="button primary" type="submit">Search directory</button><p id="directory-status-text" class="form-status">Directory loading…</p></form></article>
+        <div id="directory-results" class="passport-grid"></div>
+      </section>
+
+      <section class="view" id="view-submit" data-title="Submit evidence">
+        <div class="section-intro"><div><p class="eyebrow">Human-reviewed credential workflow</p><h2>Submit builder evidence</h2><p>Submit project, learning, contribution, or event evidence. AI can optionally triage it; only an authenticated human reviewer can approve issuance.</p></div><span class="privacy-badge">No AI key required</span></div>
+        <div class="content-grid"><article class="panel"><form id="submission-form">
+          <div class="two-column"><label>Your name<input id="submission-name" required maxlength="160"></label><label>Email<input id="submission-email" type="email" required maxlength="254"></label></div>
+          <label>Recipient Lock Script hash<input id="submission-lock" required maxlength="66" placeholder="0x…"></label>
+          <div class="two-column"><label>Credential type<select id="submission-type"><option>Learning Credential</option><option>Builder Milestone</option><option>Contribution Credential</option><option>Event/Award Credential</option></select></label><label>Category<input id="submission-category" required maxlength="120" placeholder="CKB / Fiber / Rust / Community"></label></div>
+          <label>Credential title<input id="submission-title" required maxlength="180" placeholder="CKB Type Script Builder"></label>
+          <label>Evidence URLs or references <span>one per line</span><textarea id="submission-evidence" placeholder="https://github.com/...&#10;CKB transaction: 0x..."></textarea></label>
+          <label>Evidence files <span>optional · up to 10 files / 5 MB each</span><input id="submission-files" type="file" multiple accept=".html,.htm,.txt,.md,.markdown,.json,.pdf,.png,.jpg,.jpeg,.webp,text/html,text/plain,text/markdown,application/json,application/pdf,image/png,image/jpeg,image/webp"><small>HTML is stored as raw evidence but only shown through a sanitized preview to reviewers.</small></label>
+          <label>Notes <span>optional</span><textarea id="submission-notes" class="short-textarea" placeholder="What did you build or complete?"></textarea></label>
+          <div class="form-actions"><button id="check-submission" class="button ghost" type="button">Check GitHub / CKB evidence</button><button id="ai-triage-submission" class="button ghost" type="button">AI pre-check</button><button class="button primary" type="submit">Submit for human review</button></div><p id="submission-status" class="form-status">AI is optional.</p>
+        </form></article><article class="panel"><p class="eyebrow">AI pre-check</p><h2>Evidence triage</h2><div id="submission-ai-output" class="ai-output"><p>Enter your own API key in AI Settings if you want an optional pre-check. CKBuilder never stores that key on the server.</p></div><hr><h3>Track a submission</h3><form id="tracking-form"><label>Submission ID<input id="tracking-id"></label><label>Tracking token<input id="tracking-token" type="password"></label><button class="button ghost">Check status</button><p id="tracking-status" class="form-status"></p></form><div id="tracking-details" class="hidden"><h3>Uploaded evidence files</h3><ul id="tracking-attachments" class="attachment-list"></ul><h3>Timeline</h3><ol id="tracking-timeline" class="history"></ol><div id="tracking-actions" class="form-actions"><button id="tracking-resubmit" type="button" class="button ghost hidden">Resubmit updated evidence</button><button id="tracking-cancel" type="button" class="button danger hidden">Cancel submission</button></div></div></article></div>
       </section>
 
       <section class="view" id="view-decoder" data-title="Cell decoder">
@@ -312,6 +350,8 @@
           </div>
         </article>
 
+        <article class="panel ai-tutor"><div><p class="eyebrow">Optional AI tutor</p><h2>Ask about the CKB learning path</h2><p>Uses your API key and the repository curriculum context. It cannot mark modules complete.</p></div><form id="tutor-form"><label>Question<textarea id="tutor-question" class="short-textarea" placeholder="Why does a Type Script run on both inputs and outputs?"></textarea></label><button class="button ghost">Ask AI</button><p id="tutor-status" class="form-status"></p></form><div id="tutor-output" class="ai-output hidden"></div></article>
+
         <dialog id="lesson-dialog" class="lesson-dialog" aria-labelledby="lesson-dialog-title">
           <form method="dialog" class="dialog-close-row"><button class="icon-button" value="close" aria-label="Close lesson details">×</button></form>
           <div class="dialog-scroll">
@@ -329,7 +369,9 @@
         </dialog>
       </section>
 
-      <footer class="footer">
+            <section class="ai-settings-bar panel" id="ai-settings-panel"><div><p class="eyebrow">Optional AI</p><h2>Use your own API key</h2><p>The key is kept only in this browser tab and forwarded only when you click an AI action. The selected AI provider receives the content needed for that request; CKBuilder never writes the key to storage.</p></div><div class="ai-settings-grid"><label>Provider<select id="ai-provider"></select></label><label>Model<input id="ai-model" autocomplete="off"></label><label>API key<input id="ai-key" type="password" autocomplete="off" placeholder="Enter only if you want AI"></label><button id="save-ai-settings" class="button ghost" type="button">Use this session</button></div><p id="ai-settings-status" class="form-status"></p></section>
+
+<footer class="footer">
         <p>CKBuilder Degree Proof Console v2.4.0 · Local read-only verification interface</p>
         <p>Community formats are reference artifacts, not an official CKB standard.</p>
       </footer>

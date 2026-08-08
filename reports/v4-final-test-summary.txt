@@ -1,0 +1,35 @@
+CKBuilder Passport v4.0 — final validation summary
+Date: 2026-08-08
+
+Dedicated v4 tests
+- total: 46
+- passed: 46
+- failed: 0
+- skipped: 0
+
+Full Node.js regression suite
+- total: 183
+- passed: 182
+- failed: 0
+- skipped: 1
+- skip reason: optional CCC integration requires @ckb-ccc/core, which is unavailable in this execution environment.
+
+Additional validation
+- JavaScript syntax: PASS
+- local basic exercise models: 5/5 PASS
+- learning/quiz suite: 23/23 PASS
+- community conformance vectors: 6/6 PASS
+- release security audit: PASS
+- process-only Docker environment tests: PASS
+- public/issuer environment secret separation tests: PASS
+- one-shot Docker issuer initialization tests: PASS
+- backup export smoke test: PASS (0600 output; no password/tracking/session secrets)
+- production configuration check: PASS with no blocking errors
+
+Environment limitations
+- cargo: unavailable
+- rustc: unavailable
+- docker CLI/daemon: unavailable
+- qrencode: unavailable on host; installed by the provided Dockerfile
+
+The Rust contract suite was therefore not freshly rerun in this environment. Historical contract evidence remains in the repository and is not counted as a fresh v4 test pass.

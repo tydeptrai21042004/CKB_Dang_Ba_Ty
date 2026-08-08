@@ -38,10 +38,17 @@ for required in \
   evidence/week-02-run-summary.json \
   reports/week-01-report.md \
   reports/week-02-report.md \
+  reports/v4-final-test-summary.txt \
+  reports/v5-final-test-summary.txt \
   data/offckb-chain-state.json \
   data/automatic-public-verification-proof.json \
   deployment/scripts.json \
   .env.example \
+  .env.public.example \
+  .env.issuer.example \
+  .dockerignore \
+  V4.0_IMPLEMENTATION.md \
+  V5.0_IMPLEMENTATION.md \
   .gitignore \
   docs/PUBLIC_INSPECTOR.md \
   docs/CREDENTIAL_CELL_DATA_FORMAT.md \
