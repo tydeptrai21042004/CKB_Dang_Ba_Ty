@@ -121,7 +121,12 @@ async function postJson(url, body) {
 async function requestJson(url, method, body) {
   const response = await fetch(url, { method, headers: { "content-type": "application/json", accept: "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
   const value = await response.json();
-  if (!response.ok) { const error = new Error(value.message ?? value.error ?? "Request failed."); error.payload = value; throw error; }
+  if (!response.ok) {
+    const upstream = typeof value?.details?.detail === "string" && value.details.detail.trim() ? ` ${value.details.detail.trim()}` : "";
+    const error = new Error(`${value.message ?? value.error ?? "Request failed."}${upstream}`);
+    error.payload = value;
+    throw error;
+  }
   return value;
 }
 
@@ -690,7 +695,12 @@ let latestFiberQuote = null;
 async function postJsonWithHeaders(url, body, headers = {}) {
   const response = await fetch(url, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body) });
   const value = await response.json();
-  if (!response.ok) { const error = new Error(value.message ?? value.error ?? "Request failed."); error.payload = value; throw error; }
+  if (!response.ok) {
+    const upstream = typeof value?.details?.detail === "string" && value.details.detail.trim() ? ` ${value.details.detail.trim()}` : "";
+    const error = new Error(`${value.message ?? value.error ?? "Request failed."}${upstream}`);
+    error.payload = value;
+    throw error;
+  }
   return value;
 }
 function aiRequestHeaders() {
@@ -1011,7 +1021,7 @@ document.querySelector("#agent-service-form")?.addEventListener("submit", async 
     const terms = agreementPreview.agreement.executionTerms; const accepted = window.confirm(`Accept service agreement ${agreementPreview.agreement.agreementId}?\n\nStep budget: ${terms.maxSteps}\nPayment mode: ${terms.paymentMode}\nAutonomous spend: ${terms.autonomousSpend}\nSigning: ${terms.signingAuthority}\nBroadcast: ${terms.broadcastAuthority}\n\nCKBuilder will reject this job if these terms are altered.`); if (!accepted) throw new Error("Service agreement was not accepted; no agent job was executed.");
     const payload = { serviceId: selectedAgentService.id, objective, context, maxSteps: 5, agreement: agreementPreview.agreement, ...(latestFiberQuote ? { paymentQuote: latestFiberQuote } : {}) };
     let result = await postJsonWithHeaders("/api/agent-commerce/run", payload, aiRequestHeaders());
-    if (result.approvalRequired) { const approval = result.approvalRequired; const approved = window.confirm(`Community service requests ${approval.tool}. Approve this non-read-only tool once?`); if (approved) result = await postJsonWithHeaders("/api/agent-commerce/run", { ...payload, approvedTools: [approval.tool] }, aiRequestHeaders()); }
+    if (result.approvalRequired) { const approval = result.approvalRequired; const approved = window.confirm(`Community service requests ${approval.tool}. Approve this non-read-only tool once?`); if (approved) result = await postJsonWithHeaders("/api/agent-commerce/run", { ...payload, approvedTools: [approval.tool], approvedOperations: [{ tool: approval.tool, argumentsHash: approval.argumentsHash }] }, aiRequestHeaders()); }
     latestAgentServiceResult = result; rememberAgentJobAccess(result);
     output.textContent = result.text; output.classList.remove("hidden"); renderToolTrace("#agent-service-trace", result.toolTrace, "Delegation evidence trail");
     if (result.receipt || result.agreement || result.fulfillment) {
@@ -1043,7 +1053,7 @@ document.querySelector("#ckb-application-form")?.addEventListener("submit", asyn
     if (result.approvalRequired) {
       const approval = result.approvalRequired;
       const approved = window.confirm(`Workflow plugin ${approval.pluginId} requests ${approval.tool}. Run this non-read-only MCP tool once?`);
-      if (approved) result = await postJsonWithHeaders("/api/ai/application", { ...payload, approvedTools: [approval.tool] }, aiRequestHeaders());
+      if (approved) result = await postJsonWithHeaders("/api/ai/application", { ...payload, approvedTools: [approval.tool], approvedOperations: [{ tool: approval.tool, argumentsHash: approval.argumentsHash }] }, aiRequestHeaders());
     }
     output.textContent = result.text; output.classList.remove("hidden");
     renderToolTrace("#ckb-application-trace", result.toolTrace, "Workflow evidence trail");
@@ -1077,7 +1087,7 @@ Arguments:
 ${JSON.stringify(approval.arguments ?? {}, null, 2)}
 
 This tool was not marked read-only by its MCP server. Run it once for this task?`);
-      if (approved) result = await postJsonWithHeaders("/api/ai/agent", { ...payload, approvedTools: [approval.tool] }, aiRequestHeaders());
+      if (approved) result = await postJsonWithHeaders("/api/ai/agent", { ...payload, approvedTools: [approval.tool], approvedOperations: [{ tool: approval.tool, argumentsHash: approval.argumentsHash }] }, aiRequestHeaders());
     }
     output.textContent = result.text; output.classList.remove("hidden");
     const trace = document.querySelector("#ai-agent-trace"); trace?.replaceChildren();
@@ -1128,6 +1138,17 @@ document.querySelector("#verify-latest-agent-receipt")?.addEventListener("click"
   try { if (!latestAgentServiceResult?.receipt) throw new Error("Run an agent service first so there is a receipt to verify."); const result = await postJson("/api/agent-commerce/verify-receipt", { receipt: latestAgentServiceResult.receipt, agreement: latestAgentServiceResult.agreement, fulfillment: latestAgentServiceResult.fulfillment }); output.textContent = JSON.stringify(result, null, 2); output.classList.remove("hidden"); } catch (error) { output.textContent = error.message; output.classList.remove("hidden"); } finally { setButtonBusy(event.currentTarget, false); }
 });
 
+
+
+document.querySelector("#fiber-payment-status-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault(); const status = document.querySelector("#fiber-payment-status-status"); const output = document.querySelector("#fiber-payment-status-output"); const button = event.submitter; setButtonBusy(button, true, "Verifying…");
+  try { const paymentHash = document.querySelector("#fiber-payment-hash")?.value.trim(); if (!paymentHash) throw new Error("Enter a Fiber payment hash."); const result = await postJson("/api/agent-commerce/fiber-payment-status", { paymentHash }); output.textContent = JSON.stringify(result, null, 2); output.classList.remove("hidden"); setFormStatus(status, result.settled ? "Fiber payment is settled." : `Fiber payment status: ${result.status}.`, result.settled ? "success" : "neutral"); } catch (error) { setFormStatus(status, error.message, "error"); } finally { setButtonBusy(button, false); }
+});
+
+document.querySelector("#ckb-tx-builder-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault(); const status = document.querySelector("#ckb-tx-builder-status"); const output = document.querySelector("#ckb-tx-builder-output"); const button = event.submitter; setButtonBusy(button, true, "Building…");
+  try { const raw = document.querySelector("#ckb-tx-builder-json")?.value.trim(); if (!raw) throw new Error("Enter builder input JSON."); let input; try { input = JSON.parse(raw); } catch { throw new Error("Builder input must be valid JSON."); } const result = await postJson("/api/agent-commerce/transaction-build", input); output.textContent = JSON.stringify(result, null, 2); output.classList.remove("hidden"); setFormStatus(status, `Unsigned intent ready · ${result.selectedInputs ?? result.inputCount ?? result.transaction?.inputs?.length ?? 0} input(s) · wallet approval required.`, "success"); } catch (error) { setFormStatus(status, error.message, "error"); } finally { setButtonBusy(button, false); }
+});
 document.querySelector("#ckb-tx-preflight-form")?.addEventListener("submit", async (event) => {
   event.preventDefault(); const status = document.querySelector("#ckb-tx-preflight-status"); const output = document.querySelector("#ckb-tx-preflight-output"); const button = event.submitter; setButtonBusy(button, true, "Checking…");
   try { const raw = document.querySelector("#ckb-tx-preflight-json")?.value.trim(); if (!raw) throw new Error("Paste a raw CKB transaction JSON object."); let transaction; try { transaction = JSON.parse(raw); } catch { throw new Error("Transaction must be valid JSON."); } const result = await postJson("/api/agent-commerce/transaction-preflight", { transaction, runDryRun: document.querySelector("#ckb-tx-preflight-dryrun")?.checked !== false }); output.textContent = JSON.stringify(result, null, 2); output.classList.remove("hidden"); setFormStatus(status, `Preflight ${result.staticAnalysis.riskLevel} risk · dry-run ${result.dryRun.status} · no signing/broadcast`, result.staticAnalysis.riskLevel === "high" ? "error" : "success"); } catch (error) { setFormStatus(status, error.message, "error"); } finally { setButtonBusy(button, false); }
@@ -1136,5 +1157,5 @@ document.querySelector("#ckb-tx-preflight-form")?.addEventListener("submit", asy
 
 document.querySelector("#export-latest-agent-pack")?.addEventListener("click", () => {
   const status = document.querySelector("#agent-service-status");
-  try { if (!latestAgentServiceResult?.receipt) throw new Error("Run or reopen a completed agent job first."); const pack = { schema: "ckbuilder-agent-evidence-pack/v1", exportedAt: new Date().toISOString(), service: latestAgentServiceResult.service ?? null, agreement: latestAgentServiceResult.agreement ?? null, fulfillment: latestAgentServiceResult.fulfillment ?? null, receipt: latestAgentServiceResult.receipt, result: { text: latestAgentServiceResult.text ?? "", toolTrace: latestAgentServiceResult.toolTrace ?? [], team: latestAgentServiceResult.team ?? null, teamReports: latestAgentServiceResult.teamReports ?? null } }; downloadJsonArtifact(`ckbuilder-agent-job-${latestAgentServiceResult.receipt.jobId}.json`, pack); setFormStatus(status, "Evidence pack exported locally. It contains no BYOK API key or server connector secret.", "success"); } catch (error) { setFormStatus(status, error.message, "error"); }
+  try { if (!latestAgentServiceResult?.receipt) throw new Error("Run or reopen a completed agent job first."); const pack = { schema: "ckbuilder-agent-evidence-pack/v1", exportedAt: new Date().toISOString(), service: latestAgentServiceResult.service ?? null, agreement: latestAgentServiceResult.agreement ?? null, fulfillment: latestAgentServiceResult.fulfillment ?? null, receipt: latestAgentServiceResult.receipt, result: { text: latestAgentServiceResult.text ?? "", toolTrace: latestAgentServiceResult.toolTrace ?? [], team: latestAgentServiceResult.team ?? null, teamReports: latestAgentServiceResult.teamReports ?? null, workflow: latestAgentServiceResult.workflow ?? null } }; downloadJsonArtifact(`ckbuilder-agent-job-${latestAgentServiceResult.receipt.jobId}.json`, pack); setFormStatus(status, "Evidence pack exported locally. It contains no BYOK API key or server connector secret.", "success"); } catch (error) { setFormStatus(status, error.message, "error"); }
 });

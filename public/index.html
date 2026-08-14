@@ -78,7 +78,7 @@
       <section class="view active" id="view-overview" data-title="Project overview">
         <div class="hero-card">
           <div class="hero-copy">
-            <span class="hero-kicker">CKBuilder Agent Economy + Mission Control v<span id="hero-version">9.0.0</span></span>
+            <span class="hero-kicker">CKBuilder Agent Economy + Mission Control v<span id="hero-version">10.0.1</span></span>
             <h2>Build a portable, CKB-verifiable passport for learning, projects, and real contributions.</h2>
             <p>Learn, submit evidence, receive human-reviewed credentials, and let anyone independently verify your signed credential and CKB Cell state. AI is optional and never decides validity.</p>
             <div class="hero-actions">
@@ -377,7 +377,7 @@
 
             <section class="mission-control panel" id="agent-economy-hub">
               <div class="mission-control-head">
-                <div><p class="eyebrow">CKB Agent Service Hub · AI × blockchain</p><h2>Delegate work, simulate payment, keep a verifiable receipt</h2><p>Inspired by current agent-commerce systems, CKBuilder v9 treats CKB agents as services rather than chat personas. Choose a service or specialist team, attach live CKB/Fiber evidence, optionally simulate a Fiber payment quote, and receive a cryptographic job receipt that a wallet can later anchor on CKB.</p></div>
+                <div><p class="eyebrow">CKB Agent Service Hub · AI × blockchain</p><h2>Delegate work, simulate payment, keep a verifiable receipt</h2><p>Inspired by current agent-commerce systems, CKBuilder v10 treats CKB agents as services rather than chat personas. Choose a service or specialist team, attach live CKB/Fiber evidence, optionally simulate a Fiber payment quote, and receive a cryptographic job receipt that a wallet can later anchor on CKB.</p></div>
                 <span class="privacy-badge">Human-controlled settlement</span>
               </div>
               <div id="agent-service-grid" class="application-grid"><span class="muted">Loading agent services…</span></div>
@@ -421,6 +421,24 @@
                   <pre id="ckb-tx-preflight-output" class="ai-output receipt-output hidden"></pre>
                 </form>
               </div>
+              <div class="two-column agent-ops-grid">
+                <form id="ckb-tx-builder-form" class="application-runner">
+                  <p class="eyebrow">Human-approved transaction intent</p><h3>Build an unsigned CKB capacity transfer</h3>
+                  <p class="muted">Selects supplied/live Cells, creates target + change outputs, and returns an unsigned transaction. The agent never signs or broadcasts; your wallet remains the execution boundary.</p>
+                  <label>Builder input JSON<textarea id="ckb-tx-builder-json" class="short-textarea" maxlength="120000" placeholder='{"fromLock":{"code_hash":"0x…","hash_type":"type","args":"0x…"},"toLock":{"code_hash":"0x…","hash_type":"type","args":"0x…"},"amountShannons":"10000000000","feeShannons":"1000","liveCells":[…]}'></textarea></label>
+                  <div class="form-actions"><button class="button primary" type="submit">Build unsigned transaction</button></div>
+                  <p id="ckb-tx-builder-status" class="form-status">Provide liveCells directly, or configure CKB_RPC_URL so CKBuilder can query read-only live Cells for fromLock.</p>
+                  <pre id="ckb-tx-builder-output" class="ai-output receipt-output hidden"></pre>
+                </form>
+                <form id="fiber-payment-status-form" class="application-runner">
+                  <p class="eyebrow">Fiber settlement verifier</p><h3>Verify a real payment after external approval</h3>
+                  <p class="muted">Read-only verification against your configured Fiber node. CKBuilder does not create or execute the payment here.</p>
+                  <label>Payment hash<input id="fiber-payment-hash" autocomplete="off" placeholder="0x… 32-byte payment hash"></label>
+                  <div class="form-actions"><button class="button ghost" type="submit">Verify Fiber payment</button></div>
+                  <p id="fiber-payment-status-status" class="form-status">Requires FIBER_RPC_URL and calls only the read-only payment-status RPC path.</p>
+                  <pre id="fiber-payment-status-output" class="ai-output receipt-output hidden"></pre>
+                </form>
+              </div>
             </section>
 
             <section class="mission-control panel" id="ckb-mission-control">
@@ -456,7 +474,7 @@
             <section class="ai-settings-bar panel" id="ai-settings-panel"><div><p class="eyebrow">Optional AI · BYOK</p><h2>Use your own API key</h2><p>The key is kept only in this browser tab and forwarded only when you click an AI action. Auto-detect recognizes common OpenAI, Gemini, Anthropic, Groq, and OpenRouter key formats. The selected provider receives only the content required for that request; CKBuilder never writes the key to server storage.</p></div><div class="ai-settings-grid"><label>Provider<select id="ai-provider"></select></label><label>Model<input id="ai-model" autocomplete="off" placeholder="Leave blank to use provider default"></label><label>API key<input id="ai-key" type="password" autocomplete="off" placeholder="Enter only if you want AI"></label><button id="save-ai-settings" class="button ghost" type="button">Use this session</button></div><p id="ai-settings-status" class="form-status"></p></section>
 
 <footer class="footer">
-        <p>CKBuilder v9.0.0 · persistent agent jobs, CKB transaction preflight, service reputation + Mission Control</p>
+        <p>CKBuilder v10.0.1 · signed agent receipts, SQLite jobs, transaction intents, Fiber settlement verification + Mission Control</p>
         <p>Community formats are reference artifacts, not an official CKB standard.</p>
       </footer>
     </main>
