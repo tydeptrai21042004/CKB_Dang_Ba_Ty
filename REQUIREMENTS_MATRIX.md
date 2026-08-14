@@ -33,7 +33,7 @@
 
 | Handbook requirement | Repository support | Current evidence status |
 |---|---|---|
-| Weekly contemporaneous GitHub report | Week 1 and Week 2 reports with linked evidence | completed for the two recorded reporting periods |
+| Weekly contemporaneous GitHub report | Week 1 through Week 5 reports with linked evidence | completed through Week 5; external publication/feedback evidence remains separate |
 | Course/module completion and scores | `learning/academy/` structure | not yet recorded |
 | CCC Playground work | dedicated evidence directory | not yet recorded |
 | Screenshots for practical work | screenshots and evidence folders | capstone evidence exists; course evidence still needed |
@@ -74,3 +74,25 @@ See `reports/week-02-report.md` and `evidence/week-02-run-summary.json`.
 | Storage diagnostics | Missing/tampered/orphaned audit CLI + admin endpoint |
 | Evidence disaster recovery | Full private backup command after successful integrity audit |
 | Optional AI | BYOK text extraction for HTML/TXT/Markdown/JSON and vision for PNG/JPEG/WebP |
+
+
+## v10.0.1 AgentOS extension
+
+| Requirement | v10.0.1 implementation | Verification |
+|---|---|---|
+| Concrete CKB AI use cases | Mission Control application catalog plus Advanced Agent Workbench | v7/v10 HTTP/UI tests + Week 5 screenshots |
+| Current CKB grounding | Official docs/LLM corpus + CKB Dev Skills tool | v10 docs-plugin regression |
+| Read-only chain evidence | CKB JSON-RPC/Indexer lookup, Cell search, transaction lookup, dry-run | plugin/application tests |
+| Safe transaction assistance | unsigned capacity-transfer intent + deterministic preflight | v10 transaction builder tests |
+| Fiber integration | read-only diagnostics, forced dry-run quote, post-execution `get_payment` verification | v7/v8/v10 Fiber tests |
+| Verifiable agent service | Ed25519 service identity + signed `ckbuilder-agent-job-receipt/v2` | v10 receipt tests |
+| Persistent agent jobs | SQLite/WAL private job store with token-gated access | v10 persistence/reputation tests |
+| Multi-agent observability | explicit `ckbuilder-agent-workflow/v1` DAG + workflow hash | v10 workflow tests |
+| Community MCP safety | exact tool+argument approval, mutation hard blocks, SSRF/DNS/redirect defenses | v6/v7/v10 MCP tests |
+| Gemini BYOK reliability | current GenerateContent field names, thought-signature replay, matching function responses, sanitized gateway errors | v10.0.1 AI/HTTP regressions |
+| Runtime/release reproducibility | `ci:runtime` for live trees, `ci:local` for clean release audit | package/launcher regression + release audit |
+| Week 5 evidence | seven screenshots + canonical Week 5 report | `screenshots/week-05/`, `reports/week-05-report.md` |
+
+## Current v10.0.1 validation inventory
+
+See `TEST_STATUS.md` and `reports/v10.0.1-final-test-summary.txt` for the fresh Week 5 counts. Historical v2/v5 counts above are retained only as contemporaneous milestones; they are not the current suite size.

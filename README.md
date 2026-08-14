@@ -1,3 +1,42 @@
+# CKBuilder AgentOS v10.0.1
+
+CKBuilder v10 upgrades the v9 agent-service platform with **persistent Ed25519 service identity, signed receipts, SQLite agent jobs, exact argument-bound MCP approvals, hardened MCP 2026 transport, unsigned CKB transaction building, Fiber settlement verification, and live CKB Dev Skills grounding**. The existing safety invariant remains unchanged: the AI runtime does not hold wallet keys, sign or broadcast transactions, send real Fiber payments, or mutate channels.
+
+## Week 5 / v10.0.1 reliability update
+
+- Added the seven Week 5 screenshots under [`screenshots/week-05/`](./screenshots/week-05/) and the canonical [`Week 5 report`](./reports/week-05-report.md).
+- Fixed Gemini 3 tool-using workflows by preserving Gemini model Parts/thought signatures and returning ID/name-matched `functionResponse` Parts on stateless continuation calls.
+- Updated the Gemini REST adapter to canonical `systemInstruction`, `functionDeclarations`, `parametersJsonSchema`, `inlineData`, and `mimeType` fields.
+- New Gemini selections default to stable `gemini-3.7-flash`; user-entered explicit model IDs remain supported.
+- Gemini 3.x requests no longer inherit CKBuilder's low generic `temperature` override.
+- Upstream model rejection is returned as a sanitized gateway error (`502`) rather than being misreported as a local request-validation `400`.
+- Added `npm run ci:runtime` for a live workspace and retained `npm run ci:local` for a clean release tree that must pass `scripts/audit-release.sh`.
+- Added focused Gemini request-shape, thought-signature replay, function-response matching, and upstream-error redaction regression tests.
+
+For normal local validation while `.env`, `secrets/`, `node_modules/`, and runtime state exist, run:
+
+```bash
+npm run ci:runtime
+```
+
+Use `npm run ci:local` only against a clean release tree/archive because it intentionally rejects runtime/private files.
+
+## v10 additions
+
+- Ed25519 deployment identity and independently verifiable `ckbuilder-agent-job-receipt/v2` signatures.
+- SQLite/WAL agent-job ledger with legacy JSON migration and signed-receipt reputation metrics.
+- Exact tool + argument-hash approval for untrusted community MCP actions.
+- MCP 2026-07-28 `server/discover`, authorization-header support, redirect blocking, bounded responses, and SSRF/DNS-rebinding defenses.
+- Explicit multi-agent workflow DAG: specialist nodes run independently in parallel, synthesis waits on all workers, and the workflow hash is bound into the final receipt.
+- Unsigned CKB capacity-transfer intent builder with Cell selection, change, fee accounting, static preflight, and optional read-only Cell discovery.
+- Read-only Fiber `get_payment` settlement verification after external human-approved execution.
+- Official CKB Dev Skills live-doc tool in the CKB grounding plugin.
+- Restored release dotfiles and executable launcher permissions.
+
+See [`V10.0_AGENTOS.md`](./V10.0_AGENTOS.md) for architecture, safety boundaries, APIs, and validation commands.
+
+---
+
 # CKBuilder Agent Operations + Mission Control v9.0
 
 CKBuilder v9 extends the v8 Agent Service Hub into an **operable CKB agent-service platform**: persistent private jobs, pre-execution service agreements, evidence-derived service reputation, deterministic CKB transaction preflight, independent receipt verification, runtime readiness diagnostics, Fiber dry-run commerce, MCP/community plugins, and multi-agent CKB workflows.

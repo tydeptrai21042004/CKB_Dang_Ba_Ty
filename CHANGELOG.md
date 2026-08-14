@@ -1,5 +1,43 @@
 # Changelog
 
+## 10.0.1 — 2026-08-15
+
+### Fixed
+
+- Fixed Google Gemini 3 tool-using application runs that could fail upstream with HTTP 400 after a function call.
+- Preserved Gemini model Parts, including opaque `thoughtSignature`, across stateless GenerateContent continuation requests.
+- Added ID/name-matched Gemini `functionResponse` Parts and parallel-call response-cardinality handling.
+- Updated direct Gemini request fields to current `systemInstruction`, `functionDeclarations`, `parametersJsonSchema`, `inlineData`, and `mimeType` JSON names.
+- Removed CKBuilder's low generic `temperature` override from Gemini 3.x requests and defaulted new Gemini selections to stable `gemini-3.7-flash`.
+- Provider failures now return sanitized upstream detail as HTTP 502 instead of being flattened into a local HTTP 400.
+- Separated live-workspace `ci:runtime` from clean-release `ci:local`, preventing `.env`, `secrets/`, `node_modules/`, and runtime PID/state files from causing false failures after a successful local startup.
+
+### Evidence and documentation
+
+- Added seven Week 5 screenshots under `screenshots/week-05/`.
+- Added `reports/week-05-report.md` and root compatibility pointer `week-05-report.md`.
+- Updated README, v10 architecture notes, test status, report index, and submission checklist for v10.0.1.
+- Added Gemini request-shape, thought-signature replay, function-response matching, and upstream-error redaction regression coverage.
+
+## 10.0.0 — 2026-08-15
+
+- Added persistent Ed25519 service identity and independently verifiable signed agent receipts.
+- Migrated private agent jobs to SQLite/WAL with legacy JSON migration and signed-receipt reputation metrics.
+- Bound untrusted MCP approval to exact tool arguments using a canonical SHA-256 approval fingerprint.
+- Hardened remote MCP transport with 2026-07-28 `server/discover`, authorization support, redirect blocking, bounded responses, and private-network/DNS-rebinding defenses.
+- Added observable `ckbuilder-agent-workflow/v1` DAG execution with parallel specialists and synthesis.
+- Added unsigned CKB capacity-transfer intent construction plus deterministic preflight and optional read-only Cell discovery.
+- Added read-only Fiber payment-status verification after external human-approved payment execution.
+- Added official CKB Dev Skills live grounding.
+
+## 9.0.0 — 2026-08-14
+
+- Added private token-gated agent job persistence, service reputation, pre-execution service agreements, receipt verification, transaction preflight, runtime doctor, and portable evidence-pack export.
+
+## 8.0.0 — 2026-08-14
+
+- Added the CKB Agent Service Hub, launch-readiness multi-agent team, Fiber dry-run commerce planner, cryptographic job receipts, deterministic fulfillment evaluation, and NEAR AI BYOK provider.
+
 ## 7.0.0 — 2026-08-14
 
 - Reframed the AI product as **CKB Mission Control** with seven concrete workflows instead of a blank-prompt-first experience.

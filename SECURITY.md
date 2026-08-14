@@ -61,3 +61,22 @@ Uploaded HTML is hostile input. CKBuilder never serves a raw HTML attachment inl
 Attachment records store SHA-256 and byte length. Every reviewer read recomputes both and fails closed if the stored file changed. Use `npm run attachments:audit` to detect missing, tampered, or orphaned files. Full backups can contain private evidence and must be encrypted and access-controlled.
 
 HTML/TXT/Markdown/JSON supplied to optional AI is converted to bounded untrusted text. Embedded instructions in a document are data, not authority. AI still cannot approve, sign, issue, revoke, modify issuer trust, or override deterministic verification.
+
+
+## v10 AgentOS and tool authority boundary
+
+The AI runtime is deliberately not a wallet or unrestricted shell. It can read declared evidence, build unsigned transaction intents, request bounded plugin operations, and produce signed service receipts. It cannot receive issuer/wallet private keys, sign or broadcast CKB transactions, execute real Fiber payments, mutate Fiber channels, or use community MCP tools whose names/permissions match hard-blocked signing/payment/secret operations.
+
+Untrusted community MCP approvals are bound to both the tool name and a canonical SHA-256 hash of the requested arguments. A tool-name approval cannot silently authorize a different amount, destination, or payload. Remote MCP endpoints are subject to scheme policy, direct/private-address blocking, DNS resolution checks, redirect denial, timeouts, and bounded response sizes.
+
+Agent-service receipts use a persistent Ed25519 service identity in protected runtime storage. A receipt hash proves content consistency; the signature separately proves which CKBuilder service identity issued the receipt. Do not copy the service private identity into public reports, client-side JavaScript, or portable evidence packs.
+
+## v10.0.1 Gemini BYOK boundary
+
+Gemini 3 stateless function-calling responses may contain opaque `thoughtSignature` metadata. CKBuilder preserves that provider-generated metadata only as protocol state needed for the next Gemini request; it is not interpreted as application authority and it is never treated as a private wallet/signing secret. Function results remain untrusted data and continue through the same plugin safety boundary.
+
+User-supplied Gemini/API keys remain browser-session-only from CKBuilder's perspective. Upstream provider error details are length-bounded and redacted before they are returned to the browser. Never add raw request headers, API keys, or complete provider error dumps to logs or reports.
+
+## Runtime state versus release artifacts
+
+A live local workspace may legitimately contain `.env`, `secrets/`, `node_modules/`, SQLite databases, logs, and project-owned PID/state files. These are runtime assets and must stay out of distributable release archives. Use `npm run ci:runtime` for the live tree and `npm run ci:local` only for a clean release copy/archive; do not weaken the release audit to accommodate runtime state.

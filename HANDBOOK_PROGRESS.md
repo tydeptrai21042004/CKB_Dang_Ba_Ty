@@ -9,6 +9,8 @@ This file separates programme-learning evidence from capstone engineering. A cod
 | Week 1 | Completed | [`reports/week-01-report.md`](reports/week-01-report.md) |
 | Week 2 | Completed | [`reports/week-02-report.md`](reports/week-02-report.md) |
 | Week 3 | Completed | [`reports/week-03-report.md`](reports/week-03-report.md) |
+| Week 4 | Completed | [`reports/week-04-report.md`](reports/week-04-report.md) |
+| Week 5 | Completed | [`reports/week-05-report.md`](reports/week-05-report.md) |
 
 ## Reporting rules
 
@@ -27,6 +29,17 @@ The report also records testing of FiberGuard v0.0.1 against a local Fiber `0.9.
 - [Week 3 report](reports/week-03-report.md)
 - [Week 3 learning summary](evidence/week-03-learning-summary.json)
 - [FiberGuard test notes](evidence/week-03-fiberguard-test-notes.md)
+
+
+## Week 5 engineering evidence
+
+Week 5 records the CKBuilder AgentOS v10.0.1 engineering milestone: Mission Control workflows, bounded CKB agent tools, MCP hardening, signed agent-service receipts, SQLite agent-job persistence, unsigned transaction intents, Fiber settlement verification, and the Gemini 3 BYOK reliability patch. Seven screenshots are stored under `screenshots/week-05/` and the fresh automated result is recorded in `reports/v10.0.1-final-test-summary.txt`.
+
+These engineering results strengthen the capstone but **do not increase formal learning completion by themselves**. Academy, CCC Playground, and module completion still require their own evidence records.
+
+- [Week 5 report](reports/week-05-report.md)
+- [Week 5 screenshots](screenshots/week-05/)
+- [v10.0.1 test summary](reports/v10.0.1-final-test-summary.txt)
 
 ## v2.4 evidence-aware learning dashboard
 

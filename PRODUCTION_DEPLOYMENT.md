@@ -1,4 +1,4 @@
-# CKBuilder Passport v5 — production deployment
+# CKBuilder AgentOS v10.0.1 — production deployment
 
 ## Services
 
@@ -11,20 +11,26 @@ Never expose the issuer port directly to the public Internet. Put it behind a VP
 
 ## AI: bring your own key
 
-No AI key is required in `.env`. A user selects OpenAI, OpenRouter, Groq, or Google Gemini and enters an API key in the UI. The browser keeps the key only in memory for the current tab. CKBuilder forwards it in the single AI request; it is not written to SQLite, the ledger, audit logs, or credential payloads.
+No user AI key is required in `.env`. The BYOK catalog supports OpenAI, Google Gemini, Anthropic, Mistral, DeepSeek, OpenRouter, Groq, and NEAR AI Cloud. A user selects a provider/model and enters an API key in the UI. The browser keeps the key only in memory for the current tab. CKBuilder forwards it only for the requested AI action; it is not written to SQLite, the credential ledger, audit logs, agent-job records, or credential payloads. New Gemini selections default to `gemini-3.7-flash`.
 
 AI can:
 
 - summarize deterministic credential verification;
 - triage submitted project/evidence references;
 - explain missing evidence;
-- answer curriculum questions.
+- answer curriculum questions;
+- run bounded Mission Control/Advanced Agent workflows over declared read-only tools;
+- build unsigned CKB transaction intents and explain deterministic preflight results;
+- produce signed agent-service receipts and evidence packs;
+- inspect configured read-only CKB/Fiber/workspace/community evidence.
 
 AI cannot:
 
 - approve a submission;
-- access issuer keys;
+- access issuer or wallet private keys;
 - sign credentials or CKB transactions;
+- broadcast CKB transactions;
+- execute a real Fiber payment or mutate a Fiber channel;
 - change trusted issuers;
 - mint/revoke by itself;
 - override a cryptographic or CKB verification result.
@@ -133,3 +139,20 @@ The normal `backup:export` command contains attachment metadata but not raw evid
 PDF is accepted for deterministic SHA-256 comparison and private attachment storage, but the provider-neutral BYOK AI document extractor intentionally does not send PDF files to third-party AI APIs.
 
 Printable HTML credentials are available from `/api/certificate/:credentialId/html`. They are convenience artifacts; verifiers should follow the embedded verification link for current revocation/chain state.
+
+
+## Runtime CI and release audit
+
+A live application tree is expected to contain local runtime state. Validate that state with:
+
+```bash
+npm run ci:runtime
+```
+
+A distributable release tree must not contain runtime `.env`, `secrets/`, `node_modules/`, PID files, or private state. Validate a clean release copy/archive with:
+
+```bash
+npm run ci:local
+```
+
+Do not weaken `scripts/audit-release.sh` to make a live workspace pass; run the correct CI mode for the artifact being validated.
