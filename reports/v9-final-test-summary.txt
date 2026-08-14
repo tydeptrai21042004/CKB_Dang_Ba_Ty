@@ -1,0 +1,49 @@
+CKBuilder v9.0.0 final validation summary
+Date: 2026-08-14
+
+New v9 suite:
+- 11 tests
+- 11 passed
+- 0 failed
+- 0 skipped
+
+AI / agent / MCP / Mission Control / commerce / v9 suite:
+- 130 tests
+- 130 passed
+- 0 failed
+- 0 skipped
+
+Full Node repository suite:
+- 333 tests
+- 332 passed
+- 0 failed
+- 1 skipped
+- The single skip is the pre-existing optional CCC integration test when @ckb-ccc/core is not installed in the source-only tree.
+
+Release validation:
+- npm run syntax:check: PASS
+- npm run plugins:check: PASS
+- npm run learning:check: PASS (deterministic checks; rustc unavailable in this validation environment)
+- npm run exercises:run: PASS (5/5)
+- npm run learning:test: PASS (23/23)
+- npm run community:check: PASS
+- scripts/audit-release.sh: PASS
+- npm run ci:local: PASS
+
+v9 capabilities exercised by regression tests:
+- private token-gated persistent agent job storage
+- service reputation aggregation with no objective/token disclosure
+- pre-execution service agreement generation and tamper rejection before AI call
+- independent job-receipt/anchor verification
+- offline receipt verification CLI
+- deterministic raw CKB transaction preflight
+- optional live CKB dry_run_transaction with proof that send_transaction is never called
+- offline transaction preflight CLI
+- Agent Runtime Doctor readiness classification without endpoint/path/token leakage
+- private same-tab job reopen flow
+- portable evidence-pack export browser contract
+- HTTP endpoints and UI integration
+- v4-v8 compatibility regression suite
+
+Release packaging repair:
+- Restored the two sanitized OffCKB evidence logs referenced by audit-release.sh from the original user-provided CKBuilder-main(5).zip. No evidence content was fabricated.
