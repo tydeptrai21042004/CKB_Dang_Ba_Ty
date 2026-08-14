@@ -125,7 +125,7 @@ export function createIssuerServer({ config, publicDir, db, logger = console }) 
     try {
       const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
       if (request.method === "GET" && url.pathname === "/api/health") {
-        sendJson(response, 200, { ok: true, service: "CKBuilder Issuer Portal", version: "8.0.0", network: config.APP_NETWORK, chainWriteMode: config.CHAIN_WRITE_MODE, signingKeysLoaded: true, htmlSupport: true, submissionAttachments: true }, requestId); return;
+        sendJson(response, 200, { ok: true, service: "CKBuilder Issuer Portal", version: "9.0.0", network: config.APP_NETWORK, chainWriteMode: config.CHAIN_WRITE_MODE, signingKeysLoaded: true, htmlSupport: true, submissionAttachments: true }, requestId); return;
       }
       if (request.method === "POST" && url.pathname === "/api/auth/login") {
         checkLoginRate(request);

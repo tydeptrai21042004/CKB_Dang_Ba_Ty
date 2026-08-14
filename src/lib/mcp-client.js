@@ -2,7 +2,7 @@ import { AppError } from "./errors.js";
 
 export const MCP_PROTOCOL_CURRENT = "2026-07-28";
 const LEGACY_PROTOCOL = "2025-11-25";
-const CLIENT_INFO = { name: "ckbuilder-passport", version: "8.0.0" };
+const CLIENT_INFO = { name: "ckbuilder-passport", version: "9.0.0" };
 
 function safeMcpUrl(value) {
   let url;

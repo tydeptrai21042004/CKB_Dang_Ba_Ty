@@ -167,6 +167,16 @@ export function createAgentServiceAgreement({ service, objective, input = {}, cr
   return { ...core, agreementId: `agr_${agreementHash.slice(0, 20)}`, agreementHash: `sha256:${agreementHash}` };
 }
 
+export function verifyAgentServiceAgreement(agreement, { service, objective }) {
+  if (!agreement || agreement.schema !== "ckbuilder-agent-service-agreement/v1") throw new AppError("AGENT_SERVICE_AGREEMENT_INVALID", "A valid CKBuilder service agreement is required.");
+  const { agreementId, agreementHash, ...core } = agreement; const computed = digest(core);
+  const expectedPolicy = service.evaluation ?? { minSuccessfulToolCalls: 0, anyEvidenceFrom: [] };
+  const expectedEvidence = [...new Set(expectedPolicy.anyEvidenceFrom ?? [])].sort();
+  const valid = agreementHash === `sha256:${computed}` && agreementId === `agr_${computed.slice(0, 20)}` && agreement.serviceId === service.id && agreement.objectiveHash === `sha256:${digest(String(objective))}` && agreement.expectedOutcome === service.outcome && agreement.executionTerms?.autonomousSpend === false && agreement.executionTerms?.signingAuthority === false && agreement.executionTerms?.broadcastAuthority === false && agreement.executionTerms?.paymentMode === (service.payment?.mode ?? "none") && Number(agreement.executionTerms?.maxSteps) >= 2 && Number(agreement.executionTerms?.maxSteps) <= 6 && Number(agreement.evidencePolicy?.minSuccessfulToolCalls) === (Number(expectedPolicy.minSuccessfulToolCalls) || 0) && JSON.stringify(agreement.evidencePolicy?.anyEvidenceFrom ?? []) === JSON.stringify(expectedEvidence);
+  if (!valid) throw new AppError("AGENT_SERVICE_AGREEMENT_MISMATCH", "The service agreement was modified or does not match this objective/service policy.");
+  return true;
+}
+
 export function evaluateAgentServiceFulfillment({ service, result, agreement }) {
   const trace = Array.isArray(result?.toolTrace) ? result.toolTrace : [];
   const successful = trace.filter((item) => item.status === "ok");
@@ -303,7 +313,8 @@ export async function runAgentService(headers, input, config = {}, options = {})
   const objective = boundedString(input?.objective ?? input?.task, "objective", 6000);
   const context = input?.context == null ? "No additional context supplied." : (typeof input.context === "string" ? input.context : JSON.stringify(input.context, null, 2));
   if (context.length > 24000) throw new AppError("AGENT_SERVICE_CONTEXT_TOO_LONG", "context must be at most 24000 characters.");
-  const agreement = createAgentServiceAgreement({ service, objective, input });
+  const agreement = input?.agreement ?? createAgentServiceAgreement({ service, objective, input });
+  if (input?.agreement) verifyAgentServiceAgreement(agreement, { service, objective });
   const result = service.kind === "team"
     ? await runTeamService(headers, service, objective, context, config, input, options)
     : await runSingleService(headers, service, objective, context, config, input, options);
@@ -311,6 +322,16 @@ export async function runAgentService(headers, input, config = {}, options = {})
   if (result.approvalRequired) return { service: publicService(service, config), agreement, fulfillment, ...result };
   const receipt = createAgentJobReceipt({ service, objective, result, paymentQuote: input?.paymentQuote ?? null, agreement, fulfillment });
   return { service: publicService(service, config), agreement, fulfillment, ...result, receipt };
+}
+
+export function verifyAgentJobReceipt(receipt, { agreement = null, fulfillment = null } = {}) {
+  if (!receipt || receipt.schema !== "ckbuilder-agent-job-receipt/v1") throw new AppError("AGENT_RECEIPT_INVALID", "Unsupported or missing CKBuilder agent receipt.");
+  const { receiptHash, anchor, ...core } = receipt;
+  const expected = `sha256:${digest(core)}`;
+  const checks = { receiptHash: receiptHash === expected, anchorDigest: anchor?.digestHex === `0x${expected.slice(7)}`, anchorPayload: anchor?.suggestedCellDataHex === `0x${Buffer.from("CKBA1", "utf8").toString("hex")}${expected.slice(7)}` };
+  if (agreement) { const { agreementId, agreementHash, ...agreementCore } = agreement; checks.agreementHash = agreementHash === `sha256:${digest(agreementCore)}` && receipt.agreementHash === agreementHash; checks.agreementId = agreementId === `agr_${digest(agreementCore).slice(0, 20)}`; }
+  if (fulfillment) checks.fulfillmentHash = receipt.fulfillmentHash === `sha256:${digest(fulfillment)}`;
+  return { schema: "ckbuilder-agent-receipt-verification/v1", valid: Object.values(checks).every(Boolean), jobId: receipt.jobId ?? null, serviceId: receipt.serviceId ?? null, checks, expectedReceiptHash: expected };
 }
 
 export async function createFiberPaymentQuote(input, config = {}, options = {}) {

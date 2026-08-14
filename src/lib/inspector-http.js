@@ -11,7 +11,9 @@ import { decodeRevocationRecordJson } from "./revocation-binary.js";
 import { aiAgentCatalog, aiProviderCatalog, analyzeCredentialDocument, analyzeEvidence, explainVerification, runCkbAgent, tutor } from "./ai-service.js";
 import { aiPluginCatalog } from "./plugin-service.js";
 import { ckbApplicationCatalog, runCkbApplication } from "./application-service.js";
-import { agentServiceCatalog, createFiberPaymentQuote, runAgentService } from "./agent-commerce-service.js";
+import { agentServiceCatalog, createAgentServiceAgreement, createFiberPaymentQuote, getAgentService, runAgentService, verifyAgentJobReceipt } from "./agent-commerce-service.js";
+import { getAgentJob, recordAgentJob, serviceReputation } from "./agent-job-store.js";
+import { agentRuntimeDoctor, runCkbTransactionPreflight } from "./agent-ops-service.js";
 import { createSubmission, getTrackedSubmission, getTrackedSubmissionWithTimeline, resubmitTrackedSubmission, cancelTrackedSubmission } from "./product-db.js";
 import { getPassport } from "./passport-service.js";
 import { loadLedger } from "./ledger.js";
@@ -200,7 +202,7 @@ export function createInspectorServer(options) {
         sendJson(response, 200, {
           ok: true,
           service: "CKBuilder Passport Public Verifier",
-          version: "8.0.0",
+          version: "9.0.0",
           network: config.APP_NETWORK,
           readOnly: true,
           privateKeyRequired: false,
@@ -244,7 +246,7 @@ export function createInspectorServer(options) {
           aiAgents: aiAgentCatalog(),
           aiPlugins: aiPluginCatalog(config.ROOT_DIR ?? path.resolve(publicDir, "..")),
           ckbApplications: ckbApplicationCatalog(config),
-          agentServices: agentServiceCatalog(config, config.ROOT_DIR ?? path.resolve(publicDir, "..")),
+          agentServices: agentServiceCatalog(config, config.ROOT_DIR ?? path.resolve(publicDir, "..")).map((service) => ({ ...service, reputation: serviceReputation(config.DATA_DIR)[service.id] ?? { jobs: 0, fulfilled: 0, gaps: 0, blocked: 0, fulfillmentRate: null, evidenceSuccessRate: null, latestAt: null } })),
           aiDefaultProvider: config.AI_DEFAULT_PROVIDER ?? "openai", aiDefaultModel: config.AI_DEFAULT_MODEL ?? "gpt-4.1-mini",
           publicDirectoryEnabled: config.PUBLIC_DIRECTORY_ENABLED === true,
           supportedDocuments: supportedDocumentTypes(),
@@ -413,6 +415,15 @@ export function createInspectorServer(options) {
         sendJson(response, 200, await tutor(request.headers, question, learningOverview(), config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER), requestId); return;
       }
 
+      if (request.method === "POST" && url.pathname === "/api/agent-commerce/agreement") {
+        rateLimit(request, "agent-commerce-agreement");
+        const body = await readJsonBody(request, Math.min(maxBodyBytes, 64 * 1024));
+        const service = getAgentService(body.serviceId ?? body.service, config, config.ROOT_DIR ?? path.resolve(publicDir, ".."));
+        const objective = cleanText(body.objective ?? body.task, "objective", 6000);
+        const agreement = createAgentServiceAgreement({ service, objective, input: body });
+        sendJson(response, 200, { service: { id: service.id, title: service.title, outcome: service.outcome }, agreement }, requestId); return;
+      }
+
       if (request.method === "POST" && url.pathname === "/api/agent-commerce/fiber-quote") {
         rateLimit(request, "agent-commerce-fiber-quote");
         if (config.AI_ENABLED === false) throw new AppError("AI_DISABLED", "Agent commerce features are disabled by this deployment.");
@@ -426,10 +437,35 @@ export function createInspectorServer(options) {
         rateLimit(request, "agent-commerce-run");
         if (config.AI_ENABLED === false) throw new AppError("AI_DISABLED", "Agent commerce features are disabled by this deployment.");
         const body = await readJsonBody(request, Math.min(maxBodyBytes, 128 * 1024));
-        sendJson(response, 200, await runAgentService(request.headers, body, config, {
+        const result = await runAgentService(request.headers, body, config, {
           rootDir: config.ROOT_DIR ?? path.resolve(publicDir, ".."), fetchImpl: options.aiFetchImpl ?? fetch, toolFetchImpl: options.toolFetchImpl ?? fetch,
           timeoutMs: options.aiTimeoutMs, toolTimeoutMs: options.aiToolTimeoutMs
-        }), requestId); return;
+        });
+        const access = result.receipt ? recordAgentJob(config.DATA_DIR, { objective: body.objective ?? body.task, result }) : null;
+        sendJson(response, 200, access ? { ...result, jobAccess: access } : result, requestId); return;
+      }
+
+      if (request.method === "GET" && /^\/api\/agent-commerce\/jobs\/[^/]+$/.test(url.pathname)) {
+        rateLimit(request, "agent-commerce-job");
+        const jobId = decodeURIComponent(url.pathname.split("/")[4]);
+        sendJson(response, 200, getAgentJob(config.DATA_DIR, jobId, url.searchParams.get("token")), requestId); return;
+      }
+
+      if (request.method === "POST" && url.pathname === "/api/agent-commerce/verify-receipt") {
+        rateLimit(request, "agent-commerce-verify");
+        const body = await readJsonBody(request, Math.min(maxBodyBytes, 256 * 1024));
+        sendJson(response, 200, verifyAgentJobReceipt(body.receipt ?? body, { agreement: body.agreement ?? null, fulfillment: body.fulfillment ?? null }), requestId); return;
+      }
+
+      if (request.method === "POST" && url.pathname === "/api/agent-commerce/transaction-preflight") {
+        rateLimit(request, "agent-commerce-preflight");
+        const body = await readJsonBody(request, Math.min(maxBodyBytes, 512 * 1024));
+        sendJson(response, 200, await runCkbTransactionPreflight(body, config, { rootDir: config.ROOT_DIR ?? path.resolve(publicDir, ".."), toolFetchImpl: options.toolFetchImpl ?? fetch, toolTimeoutMs: options.aiToolTimeoutMs }), requestId); return;
+      }
+
+      if (request.method === "GET" && url.pathname === "/api/agent-commerce/doctor") {
+        rateLimit(request, "agent-commerce-doctor");
+        sendJson(response, 200, agentRuntimeDoctor(config, config.ROOT_DIR ?? path.resolve(publicDir, "..")), requestId); return;
       }
 
       if (request.method === "POST" && url.pathname === "/api/ai/application") {
