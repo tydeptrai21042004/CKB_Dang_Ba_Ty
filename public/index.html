@@ -40,8 +40,11 @@
         <button class="nav-item" type="button" data-view="learning">
           <span class="nav-icon" aria-hidden="true">↗</span><span>Learning hub</span>
         </button>
+        <button class="nav-item" type="button" data-scroll="ckb-mission-control">
+          <span class="nav-icon" aria-hidden="true">◎</span><span>Mission control</span>
+        </button>
         <button class="nav-item" type="button" data-scroll="ai-agent-panel">
-          <span class="nav-icon" aria-hidden="true">AI</span><span>CKB agents</span>
+          <span class="nav-icon" aria-hidden="true">AI</span><span>Advanced agents</span>
         </button>
         <button class="nav-item" type="button" data-scroll="ai-settings-panel">
           <span class="nav-icon" aria-hidden="true">⚙</span><span>AI settings</span>
@@ -75,7 +78,7 @@
       <section class="view active" id="view-overview" data-title="Project overview">
         <div class="hero-card">
           <div class="hero-copy">
-            <span class="hero-kicker">CKB Degree Proof v<span id="hero-version">2.4.0</span></span>
+            <span class="hero-kicker">CKBuilder Agent Economy + Mission Control v<span id="hero-version">8.0.0</span></span>
             <h2>Build a portable, CKB-verifiable passport for learning, projects, and real contributions.</h2>
             <p>Learn, submit evidence, receive human-reviewed credentials, and let anyone independently verify your signed credential and CKB Cell state. AI is optional and never decides validity.</p>
             <div class="hero-actions">
@@ -372,8 +375,54 @@
         </dialog>
       </section>
 
+            <section class="mission-control panel" id="agent-economy-hub">
+              <div class="mission-control-head">
+                <div><p class="eyebrow">CKB Agent Service Hub · AI × blockchain</p><h2>Delegate work, simulate payment, keep a verifiable receipt</h2><p>Inspired by current agent-commerce systems, CKBuilder v8 treats CKB agents as services rather than chat personas. Choose a service or specialist team, attach live CKB/Fiber evidence, optionally simulate a Fiber payment quote, and receive a cryptographic job receipt that a wallet can later anchor on CKB.</p></div>
+                <span class="privacy-badge">Human-controlled settlement</span>
+              </div>
+              <div id="agent-service-grid" class="application-grid"><span class="muted">Loading agent services…</span></div>
+              <div class="two-column service-workbench">
+                <form id="agent-service-form" class="application-runner">
+                  <div class="two-column"><label>Selected service<input id="agent-service-selected" disabled value="Choose a service above"></label><label>Settlement policy<input value="Quote / intent only · human executes" disabled></label></div>
+                  <label>Job objective<textarea id="agent-service-objective" class="short-textarea" maxlength="6000" placeholder="Example: run a production-readiness gate for my CKB + Fiber application before testnet launch."></textarea></label>
+                  <label>Optional job context<textarea id="agent-service-context" class="short-textarea" maxlength="24000" placeholder="Architecture, repository facts, tx hash, release target, business constraints, etc."></textarea></label>
+                  <div class="form-actions"><button class="button primary" type="submit">Delegate agent job</button></div>
+                  <p id="agent-service-status" class="form-status">Choose a service. Multi-agent services coordinate specialist roles automatically.</p>
+                </form>
+                <form id="fiber-quote-form" class="application-runner fiber-quote-panel">
+                  <div><p class="eyebrow">Fiber payment simulation</p><h3>Quote before any agent payment</h3><p class="muted">Uses FNN <code>send_payment</code> with <code>dry_run=true</code> forced server-side. It cannot spend funds.</p></div>
+                  <label>Fiber invoice <span>or use pubkey + amount</span><textarea id="fiber-quote-invoice" class="micro-textarea" maxlength="8192" placeholder="Invoice string"></textarea></label>
+                  <div class="two-column"><label>Target pubkey<input id="fiber-quote-pubkey" autocomplete="off" placeholder="02/03… compressed pubkey"></label><label>Amount hex<input id="fiber-quote-amount" autocomplete="off" placeholder="0x…"></label></div>
+                  <label>Maximum fee amount <span>optional hex</span><input id="fiber-quote-max-fee" autocomplete="off" placeholder="0x…"></label>
+                  <div class="form-actions"><button class="button ghost" type="submit">Simulate Fiber quote</button></div>
+                  <p id="fiber-quote-status" class="form-status">Requires FIBER_RPC_URL. The returned quote can be attached to an agent-service job.</p>
+                  <pre id="fiber-quote-output" class="ai-output hidden"></pre>
+                </form>
+              </div>
+              <div id="agent-service-output" class="ai-output hidden"></div>
+              <div id="agent-service-trace" class="agent-trace hidden"></div>
+              <pre id="agent-service-receipt" class="ai-output receipt-output hidden"></pre>
+            </section>
+
+            <section class="mission-control panel" id="ckb-mission-control">
+              <div class="mission-control-head">
+                <div><p class="eyebrow">CKB Mission Control · real-world workflows</p><h2>Start with a CKB job, not an empty chatbot</h2><p>Choose an operational or developer mission. CKBuilder selects the specialist agent, evidence plugins, and expected deliverables automatically. Live workflows show whether the required CKB/Fiber/workspace connection is configured before you run them.</p></div>
+                <span class="privacy-badge">Read-only evidence first</span>
+              </div>
+              <div id="ckb-application-grid" class="application-grid"><span class="muted">Loading CKB applications…</span></div>
+              <form id="ckb-application-form" class="application-runner">
+                <div class="two-column"><label>Selected workflow<input id="ckb-application-selected" disabled value="Choose a mission above"></label><label>Agent policy<input value="Evidence-backed · no signing/broadcast" disabled></label></div>
+                <label>What do you need solved?<textarea id="ckb-application-objective" class="short-textarea" maxlength="6000" placeholder="Select a workflow above to load a real CKB example."></textarea></label>
+                <label>Optional evidence / context<textarea id="ckb-application-context" class="short-textarea" maxlength="24000" placeholder="Transaction hash or JSON, out point, error log, contributor skills, research question details, etc."></textarea></label>
+                <div class="form-actions"><button id="ckb-application-run" class="button primary" type="submit">Run CKB mission</button></div>
+                <p id="ckb-application-status" class="form-status">Select one of the workflows above.</p>
+              </form>
+              <div id="ckb-application-output" class="ai-output hidden"></div>
+              <div id="ckb-application-trace" class="agent-trace hidden"></div>
+            </section>
+
             <section class="ai-agent-workbench panel" id="ai-agent-panel">
-              <div><p class="eyebrow">CKB agent workbench</p><h2>Tool-using CKB agents + community plugins</h2><p>Choose Auto and CKBuilder routes the task to a specialist, then the specialist can discover and call enabled read-only tools. Built-in plugins cover official CKB docs, Nervos Talk, and configured CKB JSON-RPC; community MCP plugins can extend the runtime. Every tool call is audited, and signing/broadcasting remains outside the AI agent.</p></div>
+              <div><p class="eyebrow">Advanced agent workbench</p><h2>Build a custom CKB agent run</h2><p>For tasks that do not fit a Mission Control workflow, choose Auto or a specialist and manually select the evidence plugins. The specialist can discover and call enabled read-only tools. Built-in plugins cover official CKB docs, Nervos Talk, and configured CKB JSON-RPC; community MCP plugins can extend the runtime. Every tool call is audited, and signing/broadcasting remains outside the AI agent.</p></div>
               <form id="ai-agent-form">
                 <div class="two-column"><label>Agent<select id="ai-agent"><option value="auto">Auto-route</option></select></label><label>Mode<input value="Read-only advisory" disabled></label></div>
                 <label>Task<textarea id="ai-agent-task" class="short-textarea" maxlength="6000" placeholder="Example: Why does this CKB transaction fail after I add a Type Script output?"></textarea></label>
@@ -388,7 +437,7 @@
             <section class="ai-settings-bar panel" id="ai-settings-panel"><div><p class="eyebrow">Optional AI · BYOK</p><h2>Use your own API key</h2><p>The key is kept only in this browser tab and forwarded only when you click an AI action. Auto-detect recognizes common OpenAI, Gemini, Anthropic, Groq, and OpenRouter key formats. The selected provider receives only the content required for that request; CKBuilder never writes the key to server storage.</p></div><div class="ai-settings-grid"><label>Provider<select id="ai-provider"></select></label><label>Model<input id="ai-model" autocomplete="off" placeholder="Leave blank to use provider default"></label><label>API key<input id="ai-key" type="password" autocomplete="off" placeholder="Enter only if you want AI"></label><button id="save-ai-settings" class="button ghost" type="button">Use this session</button></div><p id="ai-settings-status" class="form-status"></p></section>
 
 <footer class="footer">
-        <p>CKBuilder Degree Proof Console v2.4.0 · Local read-only verification interface</p>
+        <p>CKBuilder v8.0.0 · CKB agent services, Fiber quote simulation, mission control + verification console</p>
         <p>Community formats are reference artifacts, not an official CKB standard.</p>
       </footer>
     </main>

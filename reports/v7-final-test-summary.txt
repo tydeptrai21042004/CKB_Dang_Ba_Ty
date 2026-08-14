@@ -1,0 +1,24 @@
+# CKBuilder v7 Final Test Summary
+
+Date: 2026-08-14
+Release: 7.0.0
+
+## Validation
+- npm run syntax:check: PASS
+- npm run plugins:check: PASS
+- npm run test:v7: 24 passed, 0 failed
+- npm run test:v6: 32 passed, 0 failed
+- npm test: 306 total; 305 passed; 0 failed; 1 skipped
+
+The skipped test is the optional @ckb-ccc/core integration test; the dependency is not installed in this source-only environment.
+
+## v7 coverage highlights
+- Mission registry, readiness, deliverable contracts, and bounded step budgets
+- End-to-end transaction-forensics mission through CKB RPC evidence and model synthesis
+- Fiber read-only node/peer/channel/payment/graph diagnostics and partial RPC failure behavior
+- CKB dry-run without broadcast
+- Current GitHub issue evidence and server-only token isolation
+- Read-only local workspace search with secret/path traversal blocking
+- Community MCP payment/channel mutation hard blocks
+- HTTP /api/ai/application and config-secret non-disclosure
+- Mission Control browser contracts and evidence trail rendering

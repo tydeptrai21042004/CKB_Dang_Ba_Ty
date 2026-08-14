@@ -682,6 +682,9 @@ loadDashboard();
 let productConfig = { aiProviders: [], aiDefaultProvider: "openai", aiDefaultModel: "gpt-4.1-mini" };
 let sessionAi = { apiKey: "", provider: "openai", model: "gpt-4.1-mini" };
 let latestTrackedSubmission = null;
+let selectedCkbApplication = null;
+let selectedAgentService = null;
+let latestFiberQuote = null;
 
 async function postJsonWithHeaders(url, body, headers = {}) {
   const response = await fetch(url, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body) });
@@ -697,6 +700,88 @@ function aiRequestHeaders() {
     ...(sessionAi.model ? { "x-ai-model": sessionAi.model } : {})
   };
 }
+
+function renderToolTrace(targetSelector, items, headingText = "Evidence/tool audit") {
+  const trace = document.querySelector(targetSelector);
+  trace?.replaceChildren();
+  if (!(items ?? []).length) { trace?.classList.add("hidden"); return; }
+  const heading = document.createElement("h3"); heading.textContent = headingText; trace.append(heading);
+  for (const item of items) {
+    const row = document.createElement("div"); row.className = "trace-row";
+    const step = document.createElement("span"); step.textContent = `#${item.step}`;
+    const tool = document.createElement("code"); tool.textContent = item.tool;
+    const plugin = document.createElement("span"); plugin.textContent = item.pluginId;
+    const state = document.createElement("span"); state.textContent = item.status;
+    row.append(step, tool, plugin, state); trace.append(row);
+  }
+  trace.classList.remove("hidden");
+}
+
+function selectCkbApplication(app) {
+  selectedCkbApplication = app;
+  const selected = document.querySelector("#ckb-application-selected");
+  if (selected) selected.value = app.title;
+  const objective = document.querySelector("#ckb-application-objective");
+  if (objective && !objective.value.trim()) objective.value = app.example ?? "";
+  const missing = app.missingConfig ?? [];
+  setFormStatus(document.querySelector("#ckb-application-status"), app.ready ? `${app.title} is ready. Expected output: ${(app.deliverables ?? []).join(" · ")}` : `${app.title} can run in advisory mode, but live evidence needs: ${missing.join(", ")}.`, app.ready ? "success" : "neutral");
+  document.querySelectorAll(".application-card").forEach((card) => card.classList.toggle("selected", card.dataset.applicationId === app.id));
+  document.querySelector("#ckb-application-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function selectAgentService(service) {
+  selectedAgentService = service;
+  const selected = document.querySelector("#agent-service-selected");
+  if (selected) selected.value = service.title;
+  const objective = document.querySelector("#agent-service-objective");
+  if (objective && !objective.value.trim()) objective.value = service.id === "ckb-launch-readiness-team" ? "Review this CKB application for testnet/mainnet launch readiness and give me a release decision." : service.description;
+  const readiness = service.ready ? "ready" : `needs ${String((service.missingConfig ?? []).join(", "))}`;
+  setFormStatus(document.querySelector("#agent-service-status"), `${service.kind} service · ${readiness} · ${service.outcome}`, service.ready ? "success" : "neutral");
+  document.querySelectorAll(".service-card").forEach((card) => card.classList.toggle("selected", card.dataset.serviceId === service.id));
+}
+
+function renderAgentServices() {
+  const box = document.querySelector("#agent-service-grid");
+  if (!box) return;
+  box.replaceChildren();
+  for (const service of productConfig.agentServices ?? []) {
+    const card = document.createElement("article"); card.className = "application-card service-card"; card.dataset.serviceId = service.id;
+    const top = document.createElement("div"); top.className = "application-card-top";
+    const badge = document.createElement("span"); badge.className = `application-readiness ${service.ready ? "ready" : "needs-config"}`; badge.textContent = service.kind === "team" ? "Multi-agent team" : service.kind === "community" ? "Community MCP" : "Agent service";
+    const category = document.createElement("small"); category.textContent = service.category; top.append(badge, category);
+    const title = document.createElement("h3"); title.textContent = service.title;
+    const desc = document.createElement("p"); desc.textContent = service.description;
+    const outcome = document.createElement("p"); outcome.className = "service-outcome"; outcome.textContent = `Produces: ${service.outcome}`;
+    const meta = document.createElement("div"); meta.className = "application-meta";
+    const audience = document.createElement("span"); audience.textContent = service.audience;
+    const pay = document.createElement("code"); pay.textContent = `${service.payment?.rail ?? "no rail"} · ${service.payment?.mode ?? "n/a"}`; meta.append(audience, pay);
+    const use = document.createElement("button"); use.type = "button"; use.className = "button ghost application-use"; use.textContent = "Delegate to service"; use.addEventListener("click", () => selectAgentService(service));
+    card.append(top, title, desc, outcome, meta, use); box.append(card);
+  }
+}
+
+function renderCkbApplications() {
+  const box = document.querySelector("#ckb-application-grid");
+  if (!box) return;
+  box.replaceChildren();
+  for (const app of productConfig.ckbApplications ?? []) {
+    const card = document.createElement("article"); card.className = "application-card"; card.dataset.applicationId = app.id;
+    const top = document.createElement("div"); top.className = "application-card-top";
+    const badge = document.createElement("span"); badge.className = `application-readiness ${app.ready ? "ready" : "needs-config"}`; badge.textContent = app.ready ? "Live evidence ready" : "Needs config for live data";
+    const audience = document.createElement("small"); audience.textContent = app.audience; top.append(badge, audience);
+    const title = document.createElement("h3"); title.textContent = app.title;
+    const desc = document.createElement("p"); desc.textContent = app.description;
+    const outputs = document.createElement("ul"); outputs.className = "application-deliverables";
+    for (const item of (app.deliverables ?? []).slice(0, 4)) { const li = document.createElement("li"); li.textContent = item; outputs.append(li); }
+    const meta = document.createElement("div"); meta.className = "application-meta";
+    const agent = document.createElement("code"); agent.textContent = app.agent;
+    const plugins = document.createElement("span"); plugins.textContent = (app.plugins ?? []).join(" + "); meta.append(agent, plugins);
+    if (!app.ready && (app.missingConfig ?? []).length) { const config = document.createElement("small"); config.className = "application-config"; config.textContent = `Configure ${app.missingConfig.join(", ")}`; meta.append(config); }
+    const use = document.createElement("button"); use.type = "button"; use.className = "button ghost application-use"; use.textContent = "Use this workflow"; use.addEventListener("click", () => selectCkbApplication(app));
+    card.append(top, title, desc, outputs, meta, use); box.append(card);
+  }
+}
+
 function submissionPayload() {
   return {
     applicantName: document.querySelector("#submission-name")?.value.trim(),
@@ -852,7 +937,9 @@ async function loadProductConfig() {
       const check = document.createElement("input"); check.type = "checkbox"; check.value = plugin.id; check.dataset.aiPlugin = "1"; check.checked = plugin.enabledByDefault === true;
       const text = document.createElement("span"); const title = document.createElement("strong"); title.textContent = plugin.name; const meta = document.createElement("small"); meta.textContent = `${plugin.description} · ${plugin.trust} · ${(plugin.permissions ?? []).join(", ")}`; text.append(title, meta); label.append(check, text); pluginList?.append(label);
     }
-    if (productConfig.aiEnabled === false) { document.querySelector("#ai-settings-panel")?.classList.add("hidden"); document.querySelector("#ai-agent-panel")?.classList.add("hidden"); }
+    renderAgentServices();
+    renderCkbApplications();
+    if (productConfig.aiEnabled === false) { document.querySelector("#ai-settings-panel")?.classList.add("hidden"); document.querySelector("#ai-agent-panel")?.classList.add("hidden"); document.querySelector("#ckb-mission-control")?.classList.add("hidden"); document.querySelector("#agent-economy-hub")?.classList.add("hidden"); }
   } catch (error) { setFormStatus(document.querySelector("#ai-settings-status"), error.message, "error"); }
 }
 
@@ -866,6 +953,67 @@ document.querySelector("#save-ai-settings")?.addEventListener("click", () => {
   sessionAi.provider = document.querySelector("#ai-provider").value; sessionAi.model = document.querySelector("#ai-model").value.trim(); sessionAi.apiKey = document.querySelector("#ai-key").value.trim();
   try { sessionStorage.setItem("ckbuilder-ai-settings", JSON.stringify({ provider: sessionAi.provider, model: sessionAi.model })); } catch {}
   setFormStatus(document.querySelector("#ai-settings-status"), sessionAi.apiKey ? "AI enabled for this browser tab. The API key was not persisted." : "Provider/model saved; AI remains off until you enter a key.", "success");
+});
+
+document.querySelector("#fiber-quote-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault(); const status = document.querySelector("#fiber-quote-status"); const output = document.querySelector("#fiber-quote-output"); const button = event.submitter; setButtonBusy(button, true, "Simulating…");
+  try {
+    const invoice = document.querySelector("#fiber-quote-invoice")?.value.trim();
+    const targetPubkey = document.querySelector("#fiber-quote-pubkey")?.value.trim();
+    const amount = document.querySelector("#fiber-quote-amount")?.value.trim();
+    const maxFeeAmount = document.querySelector("#fiber-quote-max-fee")?.value.trim();
+    latestFiberQuote = await postJson("/api/agent-commerce/fiber-quote", { invoice: invoice || undefined, targetPubkey: targetPubkey || undefined, amount: amount || undefined, maxFeeAmount: maxFeeAmount || undefined });
+    output.textContent = JSON.stringify(latestFiberQuote, null, 2); output.classList.remove("hidden");
+    setFormStatus(status, `Dry-run quote ready · ${latestFiberQuote.quoteHash}. No payment was executed.`, "success");
+  } catch (error) { setFormStatus(status, error.message, "error"); } finally { setButtonBusy(button, false); }
+});
+
+document.querySelector("#agent-service-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault(); const status = document.querySelector("#agent-service-status"); const output = document.querySelector("#agent-service-output"); const receipt = document.querySelector("#agent-service-receipt"); const button = event.submitter; setButtonBusy(button, true, "Delegating…");
+  try {
+    if (!selectedAgentService) throw new Error("Choose an agent service first.");
+    const objective = document.querySelector("#agent-service-objective")?.value.trim(); if (!objective) throw new Error("Enter the job objective.");
+    const rawContext = document.querySelector("#agent-service-context")?.value.trim(); let context = rawContext || undefined; if (rawContext && /^[\[{]/.test(rawContext)) { try { context = JSON.parse(rawContext); } catch {} }
+    const payload = { serviceId: selectedAgentService.id, objective, context, maxSteps: 5, ...(latestFiberQuote ? { paymentQuote: latestFiberQuote } : {}) };
+    let result = await postJsonWithHeaders("/api/agent-commerce/run", payload, aiRequestHeaders());
+    if (result.approvalRequired) { const approval = result.approvalRequired; const approved = window.confirm(`Community service requests ${approval.tool}. Approve this non-read-only tool once?`); if (approved) result = await postJsonWithHeaders("/api/agent-commerce/run", { ...payload, approvedTools: [approval.tool] }, aiRequestHeaders()); }
+    output.textContent = result.text; output.classList.remove("hidden"); renderToolTrace("#agent-service-trace", result.toolTrace, "Delegation evidence trail");
+    if (result.receipt || result.agreement || result.fulfillment) {
+      receipt.textContent = JSON.stringify({ agreement: result.agreement ?? null, fulfillment: result.fulfillment ?? null, receipt: result.receipt ?? null }, null, 2);
+      receipt.classList.remove("hidden");
+    }
+    const team = result.team ? ` · ${result.team.roles.length} specialist agents` : "";
+    const verdict = result.fulfillment?.verdict ? ` · ${result.fulfillment.verdict}` : "";
+    setFormStatus(status, `${result.service?.title ?? selectedAgentService.title}${team}${verdict} · receipt ${result.receipt?.receiptHash ?? "pending"}`, result.approvalRequired ? "neutral" : (result.fulfillment?.verdict === "fulfilled" ? "success" : "neutral"));
+  } catch (error) { setFormStatus(status, error.message, "error"); } finally { setButtonBusy(button, false); }
+});
+
+document.querySelector("#ckb-application-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const status = document.querySelector("#ckb-application-status");
+  const output = document.querySelector("#ckb-application-output");
+  const button = event.submitter;
+  setButtonBusy(button, true, "Running mission…");
+  try {
+    if (!selectedCkbApplication) throw new Error("Choose a CKB Mission Control workflow first.");
+    const objective = document.querySelector("#ckb-application-objective")?.value.trim();
+    if (!objective) throw new Error("Describe the real CKB problem you need solved.");
+    const rawContext = document.querySelector("#ckb-application-context")?.value.trim();
+    let context = rawContext ? { raw: rawContext } : undefined;
+    if (rawContext && /^[\[{]/.test(rawContext)) { try { context = JSON.parse(rawContext); } catch {} }
+    const payload = { applicationId: selectedCkbApplication.id, objective, context, maxSteps: 6 };
+    let result = await postJsonWithHeaders("/api/ai/application", payload, aiRequestHeaders());
+    if (result.approvalRequired) {
+      const approval = result.approvalRequired;
+      const approved = window.confirm(`Workflow plugin ${approval.pluginId} requests ${approval.tool}. Run this non-read-only MCP tool once?`);
+      if (approved) result = await postJsonWithHeaders("/api/ai/application", { ...payload, approvedTools: [approval.tool] }, aiRequestHeaders());
+    }
+    output.textContent = result.text; output.classList.remove("hidden");
+    renderToolTrace("#ckb-application-trace", result.toolTrace, "Workflow evidence trail");
+    const live = result.application?.ready ? "live evidence configured" : `advisory + missing ${(result.application?.missingConfig ?? []).join(", ") || "runtime data"}`;
+    setFormStatus(status, `${result.application?.title ?? selectedCkbApplication.title} · ${result.agentName} · ${result.steps} step(s) · ${live}`, result.approvalRequired ? "neutral" : "success");
+  } catch (error) { setFormStatus(status, error.message, "error"); }
+  finally { setButtonBusy(button, false); }
 });
 
 document.querySelector("#ai-agent-form")?.addEventListener("submit", async (event) => {

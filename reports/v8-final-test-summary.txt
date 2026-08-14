@@ -1,0 +1,13 @@
+CKBuilder v8 final validation
+Date: 2026-08-14
+
+npm run test:v8
+  16 passed, 0 failed
+
+npm test
+  322 total
+  321 passed
+  0 failed
+  1 skipped (optional @ckb-ccc/core integration; run npm ci to enable)
+
+The v8 suite covers service discovery, community MCP delegation, service agreements, deterministic fulfillment/evidence gaps, Fiber dry-run quote enforcement, plugin payment boundaries, cryptographic receipts, multi-agent launch readiness, NEAR AI provider routing, HTTP contracts, secret non-disclosure, and UI contracts.
