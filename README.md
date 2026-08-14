@@ -1,3 +1,82 @@
+# CKBuilder Agent Economy + Mission Control v8.0
+
+CKBuilder v8 moves beyond a CKB chatbot/mission catalog into a **CKB agent-service platform**. The new Agent Service Hub lets users delegate bounded jobs to specialist or community agents, coordinate a multi-agent CKB launch-readiness review, simulate Fiber payment quotes without spending funds, and receive cryptographic service receipts that can later be anchored by a human-controlled wallet.
+
+## v8 additions
+
+- **CKB Agent Service Hub** — service discovery with audience, outcome contract, trust/settlement metadata, and automatic community-MCP service exposure.
+- **CKB Launch Readiness Team** — three specialist agents (ecosystem research, security/build, network operations) plus a release-chair synthesis.
+- **Fiber Agent Commerce Planner** — FNN payment feasibility/fee/route simulation with `send_payment` forced to `dry_run=true`; no autonomous spending.
+- **Verifiable job receipts** — SHA-256 binding of objective, result, tool trace, optional payment quote, and execution metadata plus an application-defined CKB Cell anchor payload.
+- **Service agreement + deterministic fulfillment**: each delegated job fixes evidence/payment/safety terms before execution and reports `fulfilled`, `fulfilled-with-evidence-gaps`, or `blocked` afterward; the receipt cryptographically binds both records.
+- **NEAR AI Cloud BYOK** — optional OpenAI-compatible provider for users who want a private/verifiable inference option; it does not move CKB state to another chain.
+- Existing v7 Mission Control and v6 tool/plugin/MCP layers remain available underneath.
+
+New HTTP surfaces:
+
+```text
+POST /api/agent-commerce/run
+POST /api/agent-commerce/fiber-quote
+```
+
+Validate v8:
+
+```bash
+npm run test:v8
+npm run test:ai
+npm run syntax:check
+```
+
+See **[V8.0_AI_BLOCKCHAIN_DIRECTION.md](V8.0_AI_BLOCKCHAIN_DIRECTION.md)** for the AI+blockchain comparison, why these directions fit CKB, and the retained safety invariants.
+
+---
+
+# CKBuilder Mission Control v7.0
+
+CKBuilder v7 turns the optional BYOK AI layer into a **real-world CKB mission-control copilot**. Instead of starting from a generic chat box, users choose a concrete CKB job and CKBuilder automatically binds the right specialist, read-only evidence plugins, runtime connections, and output contract. Deterministic credential/CKB verification remains authoritative.
+
+## v7 real-world CKB applications
+
+| Mission | Who it serves | Live evidence | Main output |
+|---|---|---|---|
+| Fiber Node Operator Diagnostics | Fiber operators/payment apps | `FIBER_RPC_URL` | peer/channel/payment/graph diagnosis + safe operator actions |
+| CKB Transaction Failure Lab | dApp/wallet/Script builders | `CKB_RPC_URL` | transaction/Cell/dry-run evidence + ranked root causes |
+| CKB Script Debug & Test Lab | Rust/CKB-VM developers | `CKB_AGENT_WORKSPACE` + optional RPC | source/test/debugger reproduction plan |
+| xUDT / Spore / RGB++ Asset Investigator | wallets/explorers/marketplaces | `CKB_RPC_URL` | Cell/type-script provenance and protocol-fit evidence |
+| CKB Community Contribution Finder | CKBuilders/new contributors | GitHub + Nervos Talk + docs | current issues matched to skills + first milestone |
+| Protocol & Ecosystem Research Brief | researchers/proposal teams | docs + repositories + community | source-backed alternatives, unknowns, research agenda |
+| CKB dApp Architecture Advisor | teams/startups/hackathons | current docs + community | CKB-native component map and MVP boundaries |
+
+Mission Control is exposed through `POST /api/ai/application`; the lower-level `POST /api/ai/agent` workbench remains available for custom tasks. A workflow reports **live evidence ready** only when its required runtime connection is configured; otherwise it stays in advisory mode and names what is missing.
+
+### New v7 evidence plugins
+
+- **Fiber Node Operations** — read-only `node_info`, peer, channel, payment, and network-graph inspection. Mutation such as payments/channel changes is not exposed.
+- **CKB Project Radar** — read-only issue/release/commit evidence from an allowlist of CKB, Fiber, CCC, Spore, ckb-testtool, and ckb-cli repositories. An optional server-only `CKB_GITHUB_TOKEN` raises GitHub API limits.
+- **CKB Developer Workspace** — source/config/test discovery and text search inside one explicitly approved directory. It has no shell execution and blocks `.env`, key/seed/mnemonic/keystore material and path traversal.
+- **Expanded CKB RPC/Indexer** — transaction, live Cell, Cell search/capacity, and `dry_run_transaction`; broadcast remains outside the AI boundary.
+- Existing official CKB docs, Nervos Talk, and community MCP plugins remain available behind the v6 trust/approval model.
+
+Configure optional live integrations in `.env` / `.env.public`:
+
+```bash
+FIBER_RPC_URL=http://127.0.0.1:8227
+CKB_AGENT_WORKSPACE=./path-to-approved-ckb-project
+CKB_GITHUB_TOKEN=
+```
+
+Validate the real-world layer with:
+
+```bash
+npm run test:v7
+npm run plugins:check
+npm run syntax:check
+```
+
+See **[V7.0_REAL_WORLD_APPLICATIONS.md](V7.0_REAL_WORLD_APPLICATIONS.md)** for the research rationale, workflow contracts, safety boundaries, and community-extension path.
+
+---
+
 # CKBuilder Passport v6.0
 
 CKBuilder Passport v6 keeps deterministic Ed25519, document-hash, and CKB verification authoritative while upgrading optional BYOK AI into a bounded **tool-using CKB agent runtime** with built-in CKB tools and community MCP plugins.

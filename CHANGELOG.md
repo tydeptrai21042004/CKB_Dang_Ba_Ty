@@ -1,5 +1,17 @@
 # Changelog
 
+## 7.0.0 — 2026-08-14
+
+- Reframed the AI product as **CKB Mission Control** with seven concrete workflows instead of a blank-prompt-first experience.
+- Added Fiber Node Operator Diagnostics with read-only node/peer/channel/payment/graph evidence and explicit live-configuration status.
+- Added CKB Transaction Failure Lab and expanded read-only CKB RPC/Indexer tooling, including `dry_run_transaction`, Cell search, and capacity evidence without broadcast.
+- Added CKB Script Debug & Test Lab backed by a secret-filtered, path-confined, read-only developer workspace plugin with no arbitrary shell execution.
+- Added xUDT/Spore/RGB++ asset investigation, CKB contribution discovery, protocol/ecosystem research briefs, and CKB-native dApp architecture workflows.
+- Added CKB Project Radar for current allowlisted GitHub issue/release/commit evidence and optional server-only `CKB_GITHUB_TOKEN`.
+- Added application readiness metadata, expected deliverables, dedicated `POST /api/ai/application`, Mission Control cards/UI, and workflow evidence trails.
+- Hardened MCP blocks to cover Fiber payment/channel mutation names in addition to signing/broadcast/secret operations.
+- Added focused v7 application, plugin, HTTP, and UI regression coverage while preserving all v6 agent/plugin safety boundaries.
+
 ## 6.0.0 — 2026-08-14
 
 - Upgraded optional BYOK AI from prompt routing to a bounded multi-step CKB tool-using agent runtime.
@@ -144,3 +156,14 @@
 - Added off-chain/on-chain state comparison and proof export.
 - Added browser interface and duplicate/malformed Cell reporting.
 - Fixed revocation timestamp rollback and signed-event binding defects.
+
+## 8.0.0 - 2026-08-14
+- Added deterministic service agreement and fulfillment evaluation; receipts now bind both hashes.
+
+- Added the CKB Agent Service Hub and automatic community-MCP service delegation surface.
+- Added a three-specialist CKB Launch Readiness Team with release-chair synthesis.
+- Added Fiber payment quote simulation; `send_payment` is reachable only through a wrapper that forces `dry_run=true` and returns a human-execution intent.
+- Added cryptographic `ckbuilder-agent-job-receipt/v1` receipts and application-defined CKB anchor digest payloads.
+- Added optional NEAR AI Cloud BYOK provider through its OpenAI-compatible API.
+- Added v8 HTTP/UI surfaces and dedicated agent-commerce regression coverage.
+- Retained hard blocks on signing, CKB broadcast, Fiber real payments, and channel mutation.

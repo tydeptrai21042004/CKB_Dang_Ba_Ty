@@ -18,7 +18,7 @@ function tmpRoot() { return fs.mkdtempSync(path.join(os.tmpdir(), "ckbuilder-v6-
 test("v6 plugin catalog exposes read-only builtins and CKB AI MCP", () => {
   const root = tmpRoot();
   const catalog = aiPluginCatalog(root);
-  assert.deepEqual(catalog.map((p) => p.id), ["ckb-docs", "ckb-community", "ckb-rpc", "ckb-ai-mcp"]);
+  assert.deepEqual(catalog.map((p) => p.id), ["ckb-docs", "ckb-community", "ckb-github", "ckb-rpc", "fiber-rpc", "ckb-workspace", "ckb-ai-mcp"]);
   assert.equal(catalog.find((p) => p.id === "ckb-docs").enabledByDefault, true);
   assert.equal(catalog.find((p) => p.id === "ckb-ai-mcp").enabledByDefault, false);
   assert.equal(JSON.stringify(catalog).toLowerCase().includes("api key"), false);

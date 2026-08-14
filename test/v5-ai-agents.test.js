@@ -23,10 +23,10 @@ function okAnthropic(text = "ok") {
 
 const provider = (id) => aiProviderCatalog().find((item) => item.id === id);
 
-test("v5 AI catalog exposes auto plus seven BYOK providers without secrets", () => {
+test("v5 AI catalog exposes auto plus eight BYOK providers without secrets", () => {
   const catalog = aiProviderCatalog();
   assert.equal(catalog[0].id, "auto");
-  assert.equal(catalog.length, 8);
+  assert.equal(catalog.length, 9);
   for (const id of ["openai", "gemini", "anthropic", "mistral", "deepseek", "openrouter", "groq"]) assert.ok(catalog.some((item) => item.id === id));
   assert.equal(JSON.stringify(catalog).toLowerCase().includes("apikey"), false);
 });
