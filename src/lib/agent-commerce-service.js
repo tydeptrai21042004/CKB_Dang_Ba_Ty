@@ -1,7 +1,8 @@
 import crypto from "node:crypto";
 import { AppError } from "./errors.js";
 import { runCkbAgent } from "./ai-service.js";
-import { aiPluginCatalog, quoteFiberPayment } from "./plugin-service.js";
+import { aiPluginCatalog, quoteFiberPayment, verifyFiberPayment } from "./plugin-service.js";
+import { loadOrCreateAgentServiceIdentity, publicAgentServiceIdentity, signAgentReceiptHash, verifyAgentReceiptSignature } from "./agent-identity.js";
 
 const BUILTIN_SERVICES = Object.freeze([
   {
@@ -208,10 +209,10 @@ export function evaluateAgentServiceFulfillment({ service, result, agreement }) 
   };
 }
 
-export function createAgentJobReceipt({ service, objective, result, paymentQuote = null, agreement = null, fulfillment = null, createdAt = new Date().toISOString(), jobId = crypto.randomUUID() }) {
-  const evidence = (result?.toolTrace ?? []).map((item) => ({ pluginId: item.pluginId, tool: item.tool, status: item.status, risk: item.risk ?? "read" }));
+export function createAgentJobReceipt({ service, objective, result, paymentQuote = null, agreement = null, fulfillment = null, identity = null, createdAt = new Date().toISOString(), jobId = crypto.randomUUID() }) {
+  const evidence = (result?.toolTrace ?? []).map((item) => ({ pluginId: item.pluginId, tool: item.tool, status: item.status, risk: item.risk ?? "read", argumentsHash: item.argumentsHash ?? null }));
   const core = {
-    schema: "ckbuilder-agent-job-receipt/v1",
+    schema: "ckbuilder-agent-job-receipt/v2",
     jobId,
     serviceId: service.id,
     createdAt,
@@ -221,17 +222,27 @@ export function createAgentJobReceipt({ service, objective, result, paymentQuote
     paymentQuoteHash: paymentQuote ? `sha256:${digest(paymentQuote)}` : null,
     agreementHash: agreement?.agreementHash ?? null,
     fulfillmentHash: fulfillment ? `sha256:${digest(fulfillment)}` : null,
+    workflowHash: result?.workflow ? `sha256:${digest(result.workflow)}` : null,
     execution: { agent: result?.agent ?? null, provider: result?.provider ?? null, model: result?.model ?? null, steps: result?.steps ?? null },
     evidence
   };
-  const receiptHash = digest(core);
+  const receiptHash = `sha256:${digest(core)}`;
+  const publicIdentity = identity ? publicAgentServiceIdentity(identity) : null;
+  const authenticity = publicIdentity ? {
+    mode: "ed25519",
+    serviceIdentity: publicIdentity.serviceId,
+    algorithm: publicIdentity.algorithm,
+    issuerPublicKey: publicIdentity.publicKeyDer,
+    signature: signAgentReceiptHash(identity, receiptHash)
+  } : { mode: "unsigned", serviceIdentity: null, algorithm: null, issuerPublicKey: null, signature: null };
   return {
     ...core,
-    receiptHash: `sha256:${receiptHash}`,
+    receiptHash,
+    authenticity,
     anchor: {
-      scheme: "ckbuilder-agent-receipt/v1",
-      digestHex: `0x${receiptHash}`,
-      suggestedCellDataHex: `0x${Buffer.from("CKBA1", "utf8").toString("hex")}${receiptHash}`,
+      scheme: "ckbuilder-agent-receipt/v2",
+      digestHex: `0x${receiptHash.slice(7)}`,
+      suggestedCellDataHex: `0x${Buffer.from("CKBA1", "utf8").toString("hex")}${receiptHash.slice(7)}`,
       note: "Application-defined receipt anchor payload; not an official CKB protocol or standard. A wallet/user must create and sign any anchoring transaction."
     }
   };
@@ -248,7 +259,8 @@ async function runSingleService(headers, service, objective, context, config, in
     context: { serviceId: service.id, userContext: context, paymentQuote: input.paymentQuote ?? null },
     plugins: service.plugins ?? [],
     maxSteps: Math.max(2, Math.min(6, Number(input.maxSteps) || 5)),
-    approvedTools: Array.isArray(input.approvedTools) ? input.approvedTools.slice(0, 8) : []
+    approvedTools: Array.isArray(input.approvedTools) ? input.approvedTools.slice(0, 8) : [],
+    approvedOperations: Array.isArray(input.approvedOperations) ? input.approvedOperations.slice(0, 8) : []
   }, config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER, {
     rootDir: config.ROOT_DIR ?? options.rootDir,
     rpcUrl: config.CKB_RPC_URL,
@@ -263,15 +275,16 @@ async function runSingleService(headers, service, objective, context, config, in
 }
 
 async function runTeamService(headers, service, objective, context, config, input, options) {
-  const reports = [];
-  for (const role of service.roles) {
+  const workerIds = service.roles.map((role) => `role:${role.id}`);
+  const workerRuns = service.roles.map(async (role) => {
+    const startedAt = new Date().toISOString();
     const report = await runCkbAgent(headers, {
       agent: role.agent,
       task: `${role.prompt}\n\nRelease objective: ${objective}\n\nShared context: ${context}`,
       context: { serviceId: service.id, role: role.id },
       plugins: role.plugins,
       maxSteps: Math.max(2, Math.min(4, Number(input.roleMaxSteps) || 3)),
-      approvedTools: []
+      approvedTools: [], approvedOperations: []
     }, config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER, {
       rootDir: config.ROOT_DIR ?? options.rootDir,
       rpcUrl: config.CKB_RPC_URL,
@@ -283,10 +296,23 @@ async function runTeamService(headers, service, objective, context, config, inpu
       timeoutMs: options.timeoutMs,
       toolTimeoutMs: options.toolTimeoutMs
     });
-    reports.push({ role: role.id, roleName: role.name, text: report.text, toolTrace: report.toolTrace, provider: report.provider, model: report.model, steps: report.steps });
-    if (report.approvalRequired) return { ...report, teamReports: reports };
-  }
+    return {
+      role: role.id, roleName: role.name, text: report.text, toolTrace: report.toolTrace,
+      provider: report.provider, model: report.model, steps: report.steps,
+      approvalRequired: report.approvalRequired ?? null, startedAt, completedAt: new Date().toISOString()
+    };
+  });
+  const reports = await Promise.all(workerRuns);
+  const approval = reports.find((report) => report.approvalRequired);
+  const baseWorkflow = {
+    schema: "ckbuilder-agent-workflow/v1",
+    mode: "parallel-specialists-then-synthesis",
+    nodes: reports.map((report) => ({ id: `role:${report.role}`, type: "specialist", dependsOn: [], status: report.approvalRequired ? "waiting-approval" : "completed", steps: report.steps, startedAt: report.startedAt, completedAt: report.completedAt }))
+  };
+  if (approval) return { text: approval.text, toolTrace: reports.flatMap((report) => report.toolTrace ?? []), approvalRequired: approval.approvalRequired, teamReports: reports, workflow: { ...baseWorkflow, nodes: [...baseWorkflow.nodes, { id: "synthesis", type: "synthesis", dependsOn: workerIds, status: "blocked" }] } };
+
   const synthesisContext = reports.map((report) => `### ${report.roleName}\n${report.text}`).join("\n\n").slice(0, 30000);
+  const synthesisStartedAt = new Date().toISOString();
   const final = await runCkbAgent(headers, {
     agent: "ckb-security-reviewer",
     task: `Act as release chair. Produce one GO / CONDITIONAL GO / NO-GO decision for this CKB release objective: ${objective}. Reconcile the specialist reports below, rank blockers by severity, list evidence gaps, and assign the smallest next validation steps. Never upgrade an unverified claim into a fact.\n\nSPECIALIST REPORTS\n${synthesisContext}`,
@@ -299,11 +325,16 @@ async function runTeamService(headers, service, objective, context, config, inpu
     timeoutMs: options.timeoutMs,
     toolTimeoutMs: options.toolTimeoutMs
   });
+  const workflow = {
+    ...baseWorkflow,
+    nodes: [...baseWorkflow.nodes, { id: "synthesis", type: "synthesis", dependsOn: workerIds, status: final.approvalRequired ? "waiting-approval" : "completed", steps: final.steps, startedAt: synthesisStartedAt, completedAt: new Date().toISOString() }]
+  };
   return {
     ...final,
     teamReports: reports,
+    workflow,
     toolTrace: reports.flatMap((report) => report.toolTrace.map((item) => ({ ...item, role: report.role }))).concat(final.toolTrace ?? []),
-    team: { serviceId: service.id, roles: reports.map((report) => ({ id: report.role, name: report.roleName, steps: report.steps })) }
+    team: { serviceId: service.id, roles: reports.map((report) => ({ id: report.role, name: report.roleName, steps: report.steps })), execution: "parallel-specialists-then-synthesis" }
   };
 }
 
@@ -315,23 +346,48 @@ export async function runAgentService(headers, input, config = {}, options = {})
   if (context.length > 24000) throw new AppError("AGENT_SERVICE_CONTEXT_TOO_LONG", "context must be at most 24000 characters.");
   const agreement = input?.agreement ?? createAgentServiceAgreement({ service, objective, input });
   if (input?.agreement) verifyAgentServiceAgreement(agreement, { service, objective });
-  const result = service.kind === "team"
+  const rawResult = service.kind === "team"
     ? await runTeamService(headers, service, objective, context, config, input, options)
     : await runSingleService(headers, service, objective, context, config, input, options);
+  const result = rawResult.workflow ? rawResult : { ...rawResult, workflow: { schema: "ckbuilder-agent-workflow/v1", mode: "single-agent", nodes: [{ id: "agent", type: "agent", dependsOn: [], status: rawResult.approvalRequired ? "waiting-approval" : "completed", steps: rawResult.steps ?? null }] } };
   const fulfillment = evaluateAgentServiceFulfillment({ service, result, agreement });
   if (result.approvalRequired) return { service: publicService(service, config), agreement, fulfillment, ...result };
-  const receipt = createAgentJobReceipt({ service, objective, result, paymentQuote: input?.paymentQuote ?? null, agreement, fulfillment });
+  const identity = config.DATA_DIR ? loadOrCreateAgentServiceIdentity(config.DATA_DIR) : null;
+  const receipt = createAgentJobReceipt({ service, objective, result, paymentQuote: input?.paymentQuote ?? null, agreement, fulfillment, identity });
   return { service: publicService(service, config), agreement, fulfillment, ...result, receipt };
 }
 
 export function verifyAgentJobReceipt(receipt, { agreement = null, fulfillment = null } = {}) {
-  if (!receipt || receipt.schema !== "ckbuilder-agent-job-receipt/v1") throw new AppError("AGENT_RECEIPT_INVALID", "Unsupported or missing CKBuilder agent receipt.");
-  const { receiptHash, anchor, ...core } = receipt;
+  if (!receipt || !new Set(["ckbuilder-agent-job-receipt/v1", "ckbuilder-agent-job-receipt/v2"]).has(receipt.schema)) throw new AppError("AGENT_RECEIPT_INVALID", "Unsupported or missing CKBuilder agent receipt.");
+  const { receiptHash, anchor, authenticity, ...core } = receipt;
   const expected = `sha256:${digest(core)}`;
-  const checks = { receiptHash: receiptHash === expected, anchorDigest: anchor?.digestHex === `0x${expected.slice(7)}`, anchorPayload: anchor?.suggestedCellDataHex === `0x${Buffer.from("CKBA1", "utf8").toString("hex")}${expected.slice(7)}` };
-  if (agreement) { const { agreementId, agreementHash, ...agreementCore } = agreement; checks.agreementHash = agreementHash === `sha256:${digest(agreementCore)}` && receipt.agreementHash === agreementHash; checks.agreementId = agreementId === `agr_${digest(agreementCore).slice(0, 20)}`; }
+  const v2 = receipt.schema === "ckbuilder-agent-job-receipt/v2";
+  const prefix = Buffer.from("CKBA1", "utf8").toString("hex");
+  const checks = {
+    receiptHash: receiptHash === expected,
+    anchorDigest: anchor?.digestHex === `0x${expected.slice(7)}`,
+    anchorPayload: anchor?.suggestedCellDataHex === `0x${prefix}${expected.slice(7)}`
+  };
+  if (agreement) {
+    const { agreementId, agreementHash, ...agreementCore } = agreement;
+    checks.agreementHash = agreementHash === `sha256:${digest(agreementCore)}` && receipt.agreementHash === agreementHash;
+    checks.agreementId = agreementId === `agr_${digest(agreementCore).slice(0, 20)}`;
+  }
   if (fulfillment) checks.fulfillmentHash = receipt.fulfillmentHash === `sha256:${digest(fulfillment)}`;
-  return { schema: "ckbuilder-agent-receipt-verification/v1", valid: Object.values(checks).every(Boolean), jobId: receipt.jobId ?? null, serviceId: receipt.serviceId ?? null, checks, expectedReceiptHash: expected };
+  const signaturePresent = Boolean(authenticity?.signature && authenticity?.issuerPublicKey);
+  const authenticityVerified = signaturePresent ? verifyAgentReceiptSignature({ receiptHash: expected, issuerPublicKey: authenticity.issuerPublicKey, signature: authenticity.signature }) : false;
+  if (signaturePresent) checks.signature = authenticityVerified;
+  return {
+    schema: "ckbuilder-agent-receipt-verification/v2",
+    valid: Object.values(checks).every(Boolean),
+    integrityVerified: checks.receiptHash && checks.anchorDigest && checks.anchorPayload,
+    authenticityVerified,
+    serviceIdentity: authenticity?.serviceIdentity ?? null,
+    jobId: receipt.jobId ?? null,
+    serviceId: receipt.serviceId ?? null,
+    checks,
+    expectedReceiptHash: expected
+  };
 }
 
 export async function createFiberPaymentQuote(input, config = {}, options = {}) {
@@ -352,4 +408,9 @@ export async function createFiberPaymentQuote(input, config = {}, options = {}) 
     executionBoundary: "CKBuilder returns simulation evidence only. A human-controlled wallet/Fiber client must explicitly approve and execute any real payment."
   };
   return { quote: quote.result, intent, quoteHash: `sha256:${digest({ quote: quote.result, request: quote.request })}` };
+}
+
+export async function verifyFiberPaymentSettlement(input, config = {}, options = {}) {
+  if (!String(config.FIBER_RPC_URL ?? "").trim()) throw new AppError("FIBER_RPC_NOT_CONFIGURED", "Set FIBER_RPC_URL before verifying a Fiber payment.");
+  return verifyFiberPayment({ fetchImpl: options.toolFetchImpl ?? options.fetchImpl ?? fetch, timeoutMs: Math.min(options.toolTimeoutMs ?? 12000, 30000), fiberRpcUrl: config.FIBER_RPC_URL }, input ?? {});
 }

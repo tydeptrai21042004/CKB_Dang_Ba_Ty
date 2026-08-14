@@ -11,9 +11,9 @@ import { decodeRevocationRecordJson } from "./revocation-binary.js";
 import { aiAgentCatalog, aiProviderCatalog, analyzeCredentialDocument, analyzeEvidence, explainVerification, runCkbAgent, tutor } from "./ai-service.js";
 import { aiPluginCatalog } from "./plugin-service.js";
 import { ckbApplicationCatalog, runCkbApplication } from "./application-service.js";
-import { agentServiceCatalog, createAgentServiceAgreement, createFiberPaymentQuote, getAgentService, runAgentService, verifyAgentJobReceipt } from "./agent-commerce-service.js";
+import { agentServiceCatalog, createAgentServiceAgreement, createFiberPaymentQuote, getAgentService, runAgentService, verifyAgentJobReceipt, verifyFiberPaymentSettlement } from "./agent-commerce-service.js";
 import { getAgentJob, recordAgentJob, serviceReputation } from "./agent-job-store.js";
-import { agentRuntimeDoctor, runCkbTransactionPreflight } from "./agent-ops-service.js";
+import { agentRuntimeDoctor, runCkbCapacityTransferBuilder, runCkbTransactionPreflight } from "./agent-ops-service.js";
 import { createSubmission, getTrackedSubmission, getTrackedSubmissionWithTimeline, resubmitTrackedSubmission, cancelTrackedSubmission } from "./product-db.js";
 import { getPassport } from "./passport-service.js";
 import { loadLedger } from "./ledger.js";
@@ -202,7 +202,7 @@ export function createInspectorServer(options) {
         sendJson(response, 200, {
           ok: true,
           service: "CKBuilder Passport Public Verifier",
-          version: "9.0.0",
+          version: "10.0.1",
           network: config.APP_NETWORK,
           readOnly: true,
           privateKeyRequired: false,
@@ -463,6 +463,18 @@ export function createInspectorServer(options) {
         sendJson(response, 200, await runCkbTransactionPreflight(body, config, { rootDir: config.ROOT_DIR ?? path.resolve(publicDir, ".."), toolFetchImpl: options.toolFetchImpl ?? fetch, toolTimeoutMs: options.aiToolTimeoutMs }), requestId); return;
       }
 
+      if (request.method === "POST" && url.pathname === "/api/agent-commerce/transaction-build") {
+        rateLimit(request, "agent-commerce-build");
+        const body = await readJsonBody(request, Math.min(maxBodyBytes, 512 * 1024));
+        sendJson(response, 200, await runCkbCapacityTransferBuilder(body, config, { rootDir: config.ROOT_DIR ?? path.resolve(publicDir, ".."), toolFetchImpl: options.toolFetchImpl ?? fetch, toolTimeoutMs: options.aiToolTimeoutMs }), requestId); return;
+      }
+
+      if (request.method === "POST" && url.pathname === "/api/agent-commerce/fiber-payment-status") {
+        rateLimit(request, "agent-commerce-fiber-status");
+        const body = await readJsonBody(request, Math.min(maxBodyBytes, 64 * 1024));
+        sendJson(response, 200, await verifyFiberPaymentSettlement(body, config, { toolFetchImpl: options.toolFetchImpl ?? fetch, toolTimeoutMs: options.aiToolTimeoutMs }), requestId); return;
+      }
+
       if (request.method === "GET" && url.pathname === "/api/agent-commerce/doctor") {
         rateLimit(request, "agent-commerce-doctor");
         sendJson(response, 200, agentRuntimeDoctor(config, config.ROOT_DIR ?? path.resolve(publicDir, "..")), requestId); return;
@@ -548,10 +560,13 @@ export function createInspectorServer(options) {
           : error?.code === "RATE_LIMITED" ? 429
             : error?.code === "RESUBMISSION_NOT_ALLOWED" || error?.code === "CANCELLATION_NOT_ALLOWED" ? 409
               : error?.code === "DIRECTORY_DISABLED" ? 404
-                : 400;
+                : error?.code === "AI_PROVIDER_UNAVAILABLE" ? 503
+                  : error?.code === "AI_PROVIDER_ERROR" ? 502
+                    : 400;
       sendJson(response, status, {
         error: known ? error.code : "INSPECTION_FAILED",
-        message: known ? error.message : "Inspection failed. Check the request, public credential data, and RPC configuration."
+        message: known ? error.message : "Inspection failed. Check the request, public credential data, and RPC configuration.",
+        ...(known && error.code === "AI_PROVIDER_ERROR" && error.details ? { details: error.details } : {})
       }, requestId);
     }
   });

@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { AppError } from "./errors.js";
@@ -6,6 +7,16 @@ import { callMcpTool, listMcpTools, validateMcpEndpoint } from "./mcp-client.js"
 const OFFICIAL_DOCS = "https://docs.nervos.org";
 const COMMUNITY_FORUM = "https://talk.nervos.org";
 const GITHUB_API = "https://api.github.com";
+
+
+function stable(value) {
+  if (Array.isArray(value)) return value.map(stable);
+  if (value && typeof value === "object") return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])]));
+  return value;
+}
+export function agentToolApprovalFingerprint(tool, args = {}) {
+  return `sha256:${crypto.createHash("sha256").update(JSON.stringify(stable({ tool: String(tool), arguments: args ?? {} }))).digest("hex")}`;
+}
 
 const CKB_REPOS = Object.freeze({
   ckb: "nervosnetwork/ckb",
@@ -150,10 +161,19 @@ export async function quoteFiberPayment(runtime, input = {}) {
   return { request: payload, result };
 }
 
+export async function verifyFiberPayment(runtime, input = {}) {
+  const paymentHash = String(input.paymentHash ?? input.payment_hash ?? "").trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(paymentHash)) throw new AppError("FIBER_PAYMENT_STATUS_INVALID", "paymentHash must be a 32-byte hexadecimal Fiber payment hash.");
+  const result = await fiberRpc(runtime, "get_payment", [paymentHash]);
+  const status = String(result?.status ?? result?.payment_status ?? result?.state ?? "unknown").toLowerCase();
+  const settled = new Set(["success", "succeeded", "completed", "settled"]).has(status);
+  return { schema: "ckbuilder-fiber-payment-verification/v1", paymentHash, settled, status, result, evidenceSource: "fiber-rpc:get_payment" };
+}
+
 function githubHeaders(runtime) {
   return {
     accept: "application/vnd.github+json",
-    "user-agent": "ckbuilder-community-agent/7.0",
+    "user-agent": "ckbuilder-community-agent/10.0",
     "x-github-api-version": "2022-11-28",
     ...(runtime.githubToken ? { authorization: `Bearer ${runtime.githubToken}` } : {})
   };
@@ -240,6 +260,16 @@ function builtinTools(pluginId, runtime) {
         const response = await fetchTimeout(runtime.fetchImpl, `${OFFICIAL_DOCS}/llms-full.txt`, { headers: { accept: "text/plain" } }, Math.max(runtime.timeoutMs, 20000));
         if (!response.ok) throw new AppError("PLUGIN_HTTP_ERROR", `Official CKB full docs returned HTTP ${response.status}.`);
         return { source: `${OFFICIAL_DOCS}/llms-full.txt`, matches: searchText(await response.text(), query, 14) };
+      }
+    },
+    {
+      name: "ckb_dev_skills", description: "Read the official CKB AI Resources / CKB Dev Skills guidance for choosing current agent workflows across dApps, Scripts, Cells, transactions, testing, debugging, and deployment.",
+      inputSchema: { type: "object", properties: { query: { type: "string" } }, additionalProperties: false },
+      execute: async ({ query = "CKB Dev Skills agent workflow" }) => {
+        const source = `${OFFICIAL_DOCS}/docs/ai-agents/ai-resource`;
+        const response = await fetchTimeout(runtime.fetchImpl, source, { headers: { accept: "text/html" } }, runtime.timeoutMs);
+        if (!response.ok) throw new AppError("PLUGIN_HTTP_ERROR", `Official CKB AI Resources returned HTTP ${response.status}.`);
+        return { source, matches: searchText(await response.text(), query, 12), freshness: "live official docs" };
       }
     }
   ];
@@ -429,7 +459,12 @@ export async function resolveAgentTools(pluginIds, runtime = {}) {
         tools.push({ name: functionName, description: `[${plugin.name} MCP] ${remoteTool.description || remoteTool.name}`, inputSchema: remoteTool.inputSchema, pluginId: id, remoteName: remoteTool.name, risk });
         execByName.set(functionName, async (args) => {
           if (risk === "blocked") throw new AppError("PLUGIN_TOOL_BLOCKED", `CKBuilder blocks MCP tool ${remoteTool.name} because signing, broadcasting, payments, channel mutation, or secret-handling operations are outside the AI boundary.`);
-          const approved = new Set(Array.isArray(runtime.approvedTools) ? runtime.approvedTools.map(String) : []); if (risk !== "read" && !approved.has(functionName)) throw new AppError("PLUGIN_CONFIRMATION_REQUIRED", `MCP tool ${remoteTool.name} is not explicitly marked read-only and requires approval.`);
+          const approved = new Set(Array.isArray(runtime.approvedTools) ? runtime.approvedTools.map(String) : []);
+          const fingerprint = agentToolApprovalFingerprint(functionName, args ?? {});
+          const exactOperations = Array.isArray(runtime.approvedOperations) ? runtime.approvedOperations : [];
+          const exactApproval = exactOperations.some((item) => item && String(item.tool) === functionName && String(item.argumentsHash) === fingerprint);
+          const legacyApproval = exactOperations.length === 0 && approved.has(functionName);
+          if (risk !== "read" && !exactApproval && !legacyApproval) throw new AppError("PLUGIN_CONFIRMATION_REQUIRED", `MCP tool ${remoteTool.name} is not explicitly marked read-only and requires approval.`, { tool: functionName, argumentsHash: fingerprint });
           const called = await callMcpTool(plugin.endpoint, remoteTool.name, args ?? {}, { fetchImpl: baseRuntime.fetchImpl, timeoutMs: baseRuntime.timeoutMs }); return boundedJson(called.result);
         });
       }
