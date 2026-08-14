@@ -9,6 +9,7 @@ const downloadButton = document.querySelector("#download");
 const decodeForm = document.querySelector("#decode-form");
 const proofForm = document.querySelector("#proof-form");
 let latestProof;
+let latestAgentServiceResult = null;
 let curriculumModules = [];
 let activeCurriculumCategory = "All";
 let curriculumQuery = "";
@@ -755,6 +756,7 @@ function renderAgentServices() {
     const meta = document.createElement("div"); meta.className = "application-meta";
     const audience = document.createElement("span"); audience.textContent = service.audience;
     const pay = document.createElement("code"); pay.textContent = `${service.payment?.rail ?? "no rail"} · ${service.payment?.mode ?? "n/a"}`; meta.append(audience, pay);
+    const reputation = document.createElement("small"); reputation.className = "service-reputation"; reputation.textContent = service.reputation?.jobs ? `${service.reputation.jobs} local job(s) · ${Math.round((service.reputation.fulfillmentRate ?? 0) * 100)}% fully evidence-fulfilled · tool success ${service.reputation.evidenceSuccessRate == null ? "n/a" : `${Math.round(service.reputation.evidenceSuccessRate * 100)}%`}` : "No local execution history yet"; meta.append(reputation);
     const use = document.createElement("button"); use.type = "button"; use.className = "button ghost application-use"; use.textContent = "Delegate to service"; use.addEventListener("click", () => selectAgentService(service));
     card.append(top, title, desc, outcome, meta, use); box.append(card);
   }
@@ -955,6 +957,36 @@ document.querySelector("#save-ai-settings")?.addEventListener("click", () => {
   setFormStatus(document.querySelector("#ai-settings-status"), sessionAi.apiKey ? "AI enabled for this browser tab. The API key was not persisted." : "Provider/model saved; AI remains off until you enter a key.", "success");
 });
 
+
+function agentJobAccessList() {
+  try { const value = JSON.parse(sessionStorage.getItem("ckbuilder-agent-jobs") ?? "[]"); return Array.isArray(value) ? value.slice(0, 10) : []; } catch { return []; }
+}
+function rememberAgentJobAccess(result) {
+  if (!result?.jobAccess?.jobId || !result?.jobAccess?.jobAccessToken) return;
+  const current = agentJobAccessList().filter((item) => item.jobId !== result.jobAccess.jobId);
+  current.unshift({ jobId: result.jobAccess.jobId, token: result.jobAccess.jobAccessToken, serviceId: result.service?.id ?? "unknown", receiptHash: result.receipt?.receiptHash ?? null, createdAt: result.receipt?.createdAt ?? new Date().toISOString() });
+  try { sessionStorage.setItem("ckbuilder-agent-jobs", JSON.stringify(current.slice(0, 10))); } catch {}
+  renderRecentAgentJobs();
+}
+async function reopenAgentJob(item) {
+  const result = await getJson(`/api/agent-commerce/jobs/${encodeURIComponent(item.jobId)}?token=${encodeURIComponent(item.token)}`);
+  latestAgentServiceResult = result;
+  const output = document.querySelector("#agent-service-output"), receipt = document.querySelector("#agent-service-receipt");
+  if (output) { output.textContent = result.text ?? ""; output.classList.remove("hidden"); }
+  renderToolTrace("#agent-service-trace", result.toolTrace, "Persisted job evidence trail");
+  if (receipt) { receipt.textContent = JSON.stringify({ agreement: result.agreement ?? null, fulfillment: result.fulfillment ?? null, receipt: result.receipt ?? null }, null, 2); receipt.classList.remove("hidden"); }
+  setFormStatus(document.querySelector("#agent-service-status"), `Reopened private job ${item.jobId} · ${result.verdict ?? result.fulfillment?.verdict ?? "stored"}`, "success");
+}
+function renderRecentAgentJobs() {
+  const box = document.querySelector("#recent-agent-jobs"); if (!box) return; box.replaceChildren(); const jobs = agentJobAccessList();
+  if (!jobs.length) { const empty = document.createElement("span"); empty.className = "muted"; empty.textContent = "No jobs saved in this browser tab yet."; box.append(empty); return; }
+  for (const item of jobs) { const row = document.createElement("div"); row.className = "recent-agent-job"; const text = document.createElement("small"); text.textContent = `${item.serviceId} · ${item.jobId}`; const open = document.createElement("button"); open.type = "button"; open.className = "button ghost small"; open.textContent = "Reopen"; open.addEventListener("click", async () => { try { await reopenAgentJob(item); } catch (error) { setFormStatus(document.querySelector("#agent-service-status"), error.message, "error"); } }); row.append(text, open); box.append(row); }
+}
+function downloadJsonArtifact(name, value) {
+  const blob = new Blob([`${JSON.stringify(value, null, 2)}\n`], { type: "application/json" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+renderRecentAgentJobs();
+
 document.querySelector("#fiber-quote-form")?.addEventListener("submit", async (event) => {
   event.preventDefault(); const status = document.querySelector("#fiber-quote-status"); const output = document.querySelector("#fiber-quote-output"); const button = event.submitter; setButtonBusy(button, true, "Simulating…");
   try {
@@ -974,9 +1006,13 @@ document.querySelector("#agent-service-form")?.addEventListener("submit", async 
     if (!selectedAgentService) throw new Error("Choose an agent service first.");
     const objective = document.querySelector("#agent-service-objective")?.value.trim(); if (!objective) throw new Error("Enter the job objective.");
     const rawContext = document.querySelector("#agent-service-context")?.value.trim(); let context = rawContext || undefined; if (rawContext && /^[\[{]/.test(rawContext)) { try { context = JSON.parse(rawContext); } catch {} }
-    const payload = { serviceId: selectedAgentService.id, objective, context, maxSteps: 5, ...(latestFiberQuote ? { paymentQuote: latestFiberQuote } : {}) };
+    const agreementPreview = await postJson("/api/agent-commerce/agreement", { serviceId: selectedAgentService.id, objective, maxSteps: 5 });
+    const agreementBox = document.querySelector("#agent-service-agreement-preview"); if (agreementBox) { agreementBox.textContent = JSON.stringify(agreementPreview.agreement, null, 2); agreementBox.classList.remove("hidden"); }
+    const terms = agreementPreview.agreement.executionTerms; const accepted = window.confirm(`Accept service agreement ${agreementPreview.agreement.agreementId}?\n\nStep budget: ${terms.maxSteps}\nPayment mode: ${terms.paymentMode}\nAutonomous spend: ${terms.autonomousSpend}\nSigning: ${terms.signingAuthority}\nBroadcast: ${terms.broadcastAuthority}\n\nCKBuilder will reject this job if these terms are altered.`); if (!accepted) throw new Error("Service agreement was not accepted; no agent job was executed.");
+    const payload = { serviceId: selectedAgentService.id, objective, context, maxSteps: 5, agreement: agreementPreview.agreement, ...(latestFiberQuote ? { paymentQuote: latestFiberQuote } : {}) };
     let result = await postJsonWithHeaders("/api/agent-commerce/run", payload, aiRequestHeaders());
     if (result.approvalRequired) { const approval = result.approvalRequired; const approved = window.confirm(`Community service requests ${approval.tool}. Approve this non-read-only tool once?`); if (approved) result = await postJsonWithHeaders("/api/agent-commerce/run", { ...payload, approvedTools: [approval.tool] }, aiRequestHeaders()); }
+    latestAgentServiceResult = result; rememberAgentJobAccess(result);
     output.textContent = result.text; output.classList.remove("hidden"); renderToolTrace("#agent-service-trace", result.toolTrace, "Delegation evidence trail");
     if (result.receipt || result.agreement || result.fulfillment) {
       receipt.textContent = JSON.stringify({ agreement: result.agreement ?? null, fulfillment: result.fulfillment ?? null, receipt: result.receipt ?? null }, null, 2);
@@ -984,7 +1020,8 @@ document.querySelector("#agent-service-form")?.addEventListener("submit", async 
     }
     const team = result.team ? ` · ${result.team.roles.length} specialist agents` : "";
     const verdict = result.fulfillment?.verdict ? ` · ${result.fulfillment.verdict}` : "";
-    setFormStatus(status, `${result.service?.title ?? selectedAgentService.title}${team}${verdict} · receipt ${result.receipt?.receiptHash ?? "pending"}`, result.approvalRequired ? "neutral" : (result.fulfillment?.verdict === "fulfilled" ? "success" : "neutral"));
+    const persisted = result.jobAccess?.jobId ? ` · saved job ${result.jobAccess.jobId}` : "";
+    setFormStatus(status, `${result.service?.title ?? selectedAgentService.title}${team}${verdict} · receipt ${result.receipt?.receiptHash ?? "pending"}${persisted}`, result.approvalRequired ? "neutral" : (result.fulfillment?.verdict === "fulfilled" ? "success" : "neutral"));
   } catch (error) { setFormStatus(status, error.message, "error"); } finally { setButtonBusy(button, false); }
 });
 
@@ -1078,4 +1115,26 @@ document.querySelector("#ai-read-document")?.addEventListener("click", async (ev
   setButtonBusy(event.currentTarget, true, "Reading…");
   try { const result = await postJsonWithHeaders("/api/ai/document", await fileDocumentPayload(file), aiRequestHeaders()); output.textContent = result.text; output.classList.remove("hidden"); setFormStatus(status, "AI extracted visible fields only. Run deterministic verification separately.", "success"); }
   catch (error) { setFormStatus(status, error.message, "error"); } finally { setButtonBusy(event.currentTarget, false); }
+});
+
+
+document.querySelector("#agent-runtime-doctor")?.addEventListener("click", async (event) => {
+  const output = document.querySelector("#agent-runtime-doctor-output"); setButtonBusy(event.currentTarget, true, "Checking…");
+  try { const result = await getJson("/api/agent-commerce/doctor"); output.textContent = JSON.stringify(result, null, 2); output.classList.remove("hidden"); } catch (error) { output.textContent = error.message; output.classList.remove("hidden"); } finally { setButtonBusy(event.currentTarget, false); }
+});
+
+document.querySelector("#verify-latest-agent-receipt")?.addEventListener("click", async (event) => {
+  const output = document.querySelector("#agent-runtime-doctor-output"); setButtonBusy(event.currentTarget, true, "Verifying…");
+  try { if (!latestAgentServiceResult?.receipt) throw new Error("Run an agent service first so there is a receipt to verify."); const result = await postJson("/api/agent-commerce/verify-receipt", { receipt: latestAgentServiceResult.receipt, agreement: latestAgentServiceResult.agreement, fulfillment: latestAgentServiceResult.fulfillment }); output.textContent = JSON.stringify(result, null, 2); output.classList.remove("hidden"); } catch (error) { output.textContent = error.message; output.classList.remove("hidden"); } finally { setButtonBusy(event.currentTarget, false); }
+});
+
+document.querySelector("#ckb-tx-preflight-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault(); const status = document.querySelector("#ckb-tx-preflight-status"); const output = document.querySelector("#ckb-tx-preflight-output"); const button = event.submitter; setButtonBusy(button, true, "Checking…");
+  try { const raw = document.querySelector("#ckb-tx-preflight-json")?.value.trim(); if (!raw) throw new Error("Paste a raw CKB transaction JSON object."); let transaction; try { transaction = JSON.parse(raw); } catch { throw new Error("Transaction must be valid JSON."); } const result = await postJson("/api/agent-commerce/transaction-preflight", { transaction, runDryRun: document.querySelector("#ckb-tx-preflight-dryrun")?.checked !== false }); output.textContent = JSON.stringify(result, null, 2); output.classList.remove("hidden"); setFormStatus(status, `Preflight ${result.staticAnalysis.riskLevel} risk · dry-run ${result.dryRun.status} · no signing/broadcast`, result.staticAnalysis.riskLevel === "high" ? "error" : "success"); } catch (error) { setFormStatus(status, error.message, "error"); } finally { setButtonBusy(button, false); }
+});
+
+
+document.querySelector("#export-latest-agent-pack")?.addEventListener("click", () => {
+  const status = document.querySelector("#agent-service-status");
+  try { if (!latestAgentServiceResult?.receipt) throw new Error("Run or reopen a completed agent job first."); const pack = { schema: "ckbuilder-agent-evidence-pack/v1", exportedAt: new Date().toISOString(), service: latestAgentServiceResult.service ?? null, agreement: latestAgentServiceResult.agreement ?? null, fulfillment: latestAgentServiceResult.fulfillment ?? null, receipt: latestAgentServiceResult.receipt, result: { text: latestAgentServiceResult.text ?? "", toolTrace: latestAgentServiceResult.toolTrace ?? [], team: latestAgentServiceResult.team ?? null, teamReports: latestAgentServiceResult.teamReports ?? null } }; downloadJsonArtifact(`ckbuilder-agent-job-${latestAgentServiceResult.receipt.jobId}.json`, pack); setFormStatus(status, "Evidence pack exported locally. It contains no BYOK API key or server connector secret.", "success"); } catch (error) { setFormStatus(status, error.message, "error"); }
 });

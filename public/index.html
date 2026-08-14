@@ -78,7 +78,7 @@
       <section class="view active" id="view-overview" data-title="Project overview">
         <div class="hero-card">
           <div class="hero-copy">
-            <span class="hero-kicker">CKBuilder Agent Economy + Mission Control v<span id="hero-version">8.0.0</span></span>
+            <span class="hero-kicker">CKBuilder Agent Economy + Mission Control v<span id="hero-version">9.0.0</span></span>
             <h2>Build a portable, CKB-verifiable passport for learning, projects, and real contributions.</h2>
             <p>Learn, submit evidence, receive human-reviewed credentials, and let anyone independently verify your signed credential and CKB Cell state. AI is optional and never decides validity.</p>
             <div class="hero-actions">
@@ -377,7 +377,7 @@
 
             <section class="mission-control panel" id="agent-economy-hub">
               <div class="mission-control-head">
-                <div><p class="eyebrow">CKB Agent Service Hub · AI × blockchain</p><h2>Delegate work, simulate payment, keep a verifiable receipt</h2><p>Inspired by current agent-commerce systems, CKBuilder v8 treats CKB agents as services rather than chat personas. Choose a service or specialist team, attach live CKB/Fiber evidence, optionally simulate a Fiber payment quote, and receive a cryptographic job receipt that a wallet can later anchor on CKB.</p></div>
+                <div><p class="eyebrow">CKB Agent Service Hub · AI × blockchain</p><h2>Delegate work, simulate payment, keep a verifiable receipt</h2><p>Inspired by current agent-commerce systems, CKBuilder v9 treats CKB agents as services rather than chat personas. Choose a service or specialist team, attach live CKB/Fiber evidence, optionally simulate a Fiber payment quote, and receive a cryptographic job receipt that a wallet can later anchor on CKB.</p></div>
                 <span class="privacy-badge">Human-controlled settlement</span>
               </div>
               <div id="agent-service-grid" class="application-grid"><span class="muted">Loading agent services…</span></div>
@@ -388,6 +388,7 @@
                   <label>Optional job context<textarea id="agent-service-context" class="short-textarea" maxlength="24000" placeholder="Architecture, repository facts, tx hash, release target, business constraints, etc."></textarea></label>
                   <div class="form-actions"><button class="button primary" type="submit">Delegate agent job</button></div>
                   <p id="agent-service-status" class="form-status">Choose a service. Multi-agent services coordinate specialist roles automatically.</p>
+                  <pre id="agent-service-agreement-preview" class="ai-output receipt-output hidden"></pre>
                 </form>
                 <form id="fiber-quote-form" class="application-runner fiber-quote-panel">
                   <div><p class="eyebrow">Fiber payment simulation</p><h3>Quote before any agent payment</h3><p class="muted">Uses FNN <code>send_payment</code> with <code>dry_run=true</code> forced server-side. It cannot spend funds.</p></div>
@@ -402,6 +403,24 @@
               <div id="agent-service-output" class="ai-output hidden"></div>
               <div id="agent-service-trace" class="agent-trace hidden"></div>
               <pre id="agent-service-receipt" class="ai-output receipt-output hidden"></pre>
+              <div class="two-column agent-ops-grid">
+                <section class="application-runner">
+                  <p class="eyebrow">Runtime doctor + receipt verifier</p><h3>Prove the agent stack is runnable</h3>
+                  <p class="muted">Checks plugin configuration without exposing RPC URLs, workspace paths, GitHub tokens, or wallet secrets. Completed receipts can be re-hashed independently.</p>
+                  <div class="form-actions"><button id="agent-runtime-doctor" class="button ghost" type="button">Run agent doctor</button><button id="verify-latest-agent-receipt" class="button ghost" type="button">Verify latest receipt</button><button id="export-latest-agent-pack" class="button ghost" type="button">Export evidence pack</button></div>
+                  <div><p class="eyebrow">Recent private jobs · this tab only</p><div id="recent-agent-jobs" class="recent-agent-jobs"><span class="muted">No jobs saved in this browser tab yet.</span></div></div>
+                  <pre id="agent-runtime-doctor-output" class="ai-output receipt-output hidden"></pre>
+                </section>
+                <form id="ckb-tx-preflight-form" class="application-runner">
+                  <p class="eyebrow">Deterministic transaction guard</p><h3>CKB transaction preflight</h3>
+                  <p class="muted">Validates transaction structure, duplicate inputs, Scripts, witness/dependency warnings and output capacity. When CKB RPC is configured it adds <code>dry_run_transaction</code> evidence; it never signs or broadcasts.</p>
+                  <label>Raw CKB transaction JSON<textarea id="ckb-tx-preflight-json" class="short-textarea" maxlength="120000" placeholder='{"version":"0x0","cell_deps":[],"header_deps":[],"inputs":[],"outputs":[],"outputs_data":[],"witnesses":[]}'></textarea></label>
+                  <label class="checkbox-row"><input id="ckb-tx-preflight-dryrun" type="checkbox" checked> Add live CKB dry-run evidence when configured</label>
+                  <div class="form-actions"><button class="button primary" type="submit">Run transaction preflight</button></div>
+                  <p id="ckb-tx-preflight-status" class="form-status">Deterministic checks run even when no CKB RPC is configured.</p>
+                  <pre id="ckb-tx-preflight-output" class="ai-output receipt-output hidden"></pre>
+                </form>
+              </div>
             </section>
 
             <section class="mission-control panel" id="ckb-mission-control">
@@ -437,7 +456,7 @@
             <section class="ai-settings-bar panel" id="ai-settings-panel"><div><p class="eyebrow">Optional AI · BYOK</p><h2>Use your own API key</h2><p>The key is kept only in this browser tab and forwarded only when you click an AI action. Auto-detect recognizes common OpenAI, Gemini, Anthropic, Groq, and OpenRouter key formats. The selected provider receives only the content required for that request; CKBuilder never writes the key to server storage.</p></div><div class="ai-settings-grid"><label>Provider<select id="ai-provider"></select></label><label>Model<input id="ai-model" autocomplete="off" placeholder="Leave blank to use provider default"></label><label>API key<input id="ai-key" type="password" autocomplete="off" placeholder="Enter only if you want AI"></label><button id="save-ai-settings" class="button ghost" type="button">Use this session</button></div><p id="ai-settings-status" class="form-status"></p></section>
 
 <footer class="footer">
-        <p>CKBuilder v8.0.0 · CKB agent services, Fiber quote simulation, mission control + verification console</p>
+        <p>CKBuilder v9.0.0 · persistent agent jobs, CKB transaction preflight, service reputation + Mission Control</p>
         <p>Community formats are reference artifacts, not an official CKB standard.</p>
       </footer>
     </main>

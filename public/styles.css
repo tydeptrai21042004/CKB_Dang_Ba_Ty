@@ -566,3 +566,6 @@ label { color: var(--ink); }
 
 /* v8 agent service / agent-commerce layer */
 .service-card .service-outcome{padding:10px 12px;border-radius:12px;background:var(--green-soft);color:var(--green-dark);font-size:.82rem}.service-workbench{align-items:start;gap:16px}.fiber-quote-panel{border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--surface-raised)}.fiber-quote-panel h3{margin:.25rem 0}.micro-textarea{min-height:62px}.receipt-output{font-size:.74rem;overflow:auto;max-height:360px}.service-card code{font-size:.7rem}@media(max-width:900px){.service-workbench{grid-template-columns:1fr}}
+/* v9 operations / verification layer */
+.agent-ops-grid{margin-top:16px;align-items:start}.agent-ops-grid h3{margin:.25rem 0}.checkbox-row{display:flex;align-items:center;gap:9px}.checkbox-row input{width:auto;margin:0}.service-reputation{display:block;margin-top:8px;font-size:.72rem;color:var(--muted)}
+.recent-agent-jobs{display:grid;gap:7px;margin-top:8px}.recent-agent-job{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:10px}.recent-agent-job small{color:var(--muted);overflow:hidden;text-overflow:ellipsis}.recent-agent-job button{white-space:nowrap}
