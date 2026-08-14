@@ -1,8 +1,8 @@
-# CKBuilder Passport v5.0
+# CKBuilder Passport v6.0
 
-CKBuilder Passport v5 keeps deterministic Ed25519, document-hash, and CKB verification authoritative while adding safe browser-document support and private evidence attachments. AI remains optional and **bring-your-own-key (BYOK)**.
+CKBuilder Passport v6 keeps deterministic Ed25519, document-hash, and CKB verification authoritative while upgrading optional BYOK AI into a bounded **tool-using CKB agent runtime** with built-in CKB tools and community MCP plugins.
 
-## v5 services and commands
+## v6 services and commands
 
 - `npm run inspector:serve` — public Passport, verification, safe document inspection, evidence submission/attachments, QR/portable credentials, learning, and optional BYOK AI. This process does **not** load issuer signing keys.
 - `npm run issuer:serve` — private reviewer/issuer portal with safe attachment preview/download, issue/revoke operations, audits, webhooks, and operational diagnostics.
@@ -10,6 +10,9 @@ CKBuilder Passport v5 keeps deterministic Ed25519, document-hash, and CKB verifi
 - `npm run backup:export` — metadata/ledger JSON backup.
 - `npm run backup:export:full` — full private backup directory including raw evidence attachments after a successful integrity audit.
 - `npm run test:v5` — dedicated v5 HTML/document/storage/security suite.
+- `npm run test:v6` — MCP, plugin, tool-calling, approval-boundary, and agent-loop regression suite.
+- `npm run plugins:check` — validates data-only community MCP plugin manifests before contribution/deployment.
+- `npm run test:ai` — combined provider + CKB agent + plugin tests.
 
 ### Safe HTML and document support
 
@@ -26,7 +29,13 @@ HTML is always treated as hostile input. Script/style/frame/object/SVG/MathML/fo
 
 ### Optional AI — user supplies the API key
 
-OpenAI, OpenRouter, Groq, and Google Gemini remain available. HTML/TXT/Markdown/JSON can now be converted to bounded untrusted text for field extraction; PNG/JPEG/WebP use vision input. PDF intentionally stays deterministic-only in the provider-neutral AI path. Document text is explicitly treated as data so embedded prompt-injection instructions cannot authorize issuance or change cryptographic results.
+The BYOK layer supports **OpenAI, Google Gemini, Anthropic Claude, Mistral AI, DeepSeek, OpenRouter, and Groq**, plus an `auto` mode that recognizes common unambiguous key prefixes. Provider defaults are isolated, so switching providers cannot accidentally reuse another provider's model name. OpenAI-compatible, Gemini, and Anthropic request/response shapes are normalized behind one service, including provider-appropriate image payloads.
+
+CKBuilder exposes a **tool-using CKB agent workbench** through `POST /api/ai/agent`. `agent: "auto"` routes a task to one of seven specialists, and the selected specialist can make bounded multi-step calls to enabled plugins before producing its answer. Built-in plugins cover the official CKB LLM docs map, recent Nervos Talk community topics/resources, and a deployment-configured read-only CKB JSON-RPC connection. A fourth built-in integration connects to the community CKB AI MCP server when explicitly enabled.
+
+Community projects can add MCP integrations as data-only `plugins/community/*.json` manifests. Remote community plugins are disabled by default. MCP tools explicitly marked read-only may execute when enabled; unannotated tools require a visible one-time user approval, while signing, broadcast, mnemonic, seed, and private-key style tools are hard-blocked regardless of approval. Each run returns a `toolTrace` so users can see exactly which plugin/tool was used. AI never approves credentials or overrides deterministic verification.
+
+HTML/TXT/Markdown/JSON can be converted to bounded untrusted text for field extraction; PNG/JPEG/WebP use vision input. PDF intentionally stays deterministic-only in the provider-neutral AI path. Document text, logs, RPC output, transaction JSON, and agent context are explicitly treated as data so embedded prompt-injection instructions cannot authorize issuance or change cryptographic results.
 
 ### Portable HTML credentials
 
@@ -42,7 +51,7 @@ The page contains the credential ID, award, issuer, recipient Lock Script hash, 
 
 Applicants can attach up to 10 files (5 MB each) while a submission is editable. Attachment metadata is visible through the tracking-token workflow; raw files remain private to the issuer portal. Reviewers get a separate **Safe preview** and **Download raw** action.
 
-See **[V5.0_IMPLEMENTATION.md](V5.0_IMPLEMENTATION.md)** and **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)**.
+See **[V6.0_IMPLEMENTATION.md](V6.0_IMPLEMENTATION.md)**, **[V5.0_IMPLEMENTATION.md](V5.0_IMPLEMENTATION.md)**, and **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)**.
 
 ---
 

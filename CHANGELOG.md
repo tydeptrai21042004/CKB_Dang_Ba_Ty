@@ -1,5 +1,17 @@
 # Changelog
 
+## 6.0.0 — 2026-08-14
+
+- Upgraded optional BYOK AI from prompt routing to a bounded multi-step CKB tool-using agent runtime.
+- Added native tool/function schemas and tool-call parsing for OpenAI-compatible providers, Anthropic, and Gemini.
+- Added built-in official CKB docs, Nervos community, and read-only CKB JSON-RPC plugins.
+- Added MCP Streamable HTTP support with current stateless requests, JSON/SSE responses, and legacy session fallback.
+- Added the community CKB AI MCP integration, disabled by default behind explicit plugin selection and tool approval rules.
+- Added data-only `plugins/community/*.json` manifests, a JSON Schema, example manifest, and `npm run plugins:check`.
+- Added per-tool audit traces, hard step/call limits, untrusted tool-output isolation, and hard blocks for signing/broadcast/private-key style MCP tools.
+- Added Agent Workbench plugin selection, step budget, one-run approval UI, and audit-trace rendering.
+- Expanded v6 AI/plugin/runtime/HTTP/UI regression coverage while preserving deterministic CKB credential verification authority.
+
 ## 5.0.0 — 2026-08-08
 
 - Added safe HTML/TXT/Markdown/JSON/PDF/image document handling and deterministic document inspection.

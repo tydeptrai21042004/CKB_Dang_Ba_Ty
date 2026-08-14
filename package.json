@@ -1,9 +1,9 @@
 {
   "name": "ckbuilder-passport",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "private": true,
   "type": "module",
-  "description": "CKBuilder Passport v5: production-oriented CKB-verifiable credentials with safe HTML/document support, private evidence attachments, BYOK AI, signed webhooks, and operational tooling.",
+  "description": "CKBuilder Passport v6: tool-using CKB AI agents with safe community/MCP plugins, CKB-verifiable credentials, evidence workflows, and BYOK providers.",
   "engines": {
     "node": ">=22"
   },
@@ -37,7 +37,7 @@
     "proof:verify": "node src/cli/verify-public-proof.js",
     "syntax:check": "bash -c 'while IFS= read -r -d \"\" file; do node --check \"$file\"; done < <(find src test public scripts community -name \"*.js\" -print0)'",
     "community:check": "npm run test:vectors && node --test test/community-vectors.test.js",
-    "ci:local": "npm run syntax:check && npm run learning:check && npm run exercises:run && npm run learning:test && npm test && npm run community:check && bash scripts/audit-release.sh",
+    "ci:local": "npm run syntax:check && npm run plugins:check && npm run learning:check && npm run exercises:run && npm run learning:test && npm test && npm run community:check && bash scripts/audit-release.sh",
     "test:rust": "cd digital-credentials-workspace && make test",
     "manifest:export": "node src/cli/export-decoder-manifest.js",
     "inspector:health": "bash scripts/check-inspector-health.sh",
@@ -56,7 +56,10 @@
     "test:v4": "node --test --test-reporter=spec test/v4-product.test.js test/v4-http.test.js test/v4-ai.test.js test/v4-webhook.test.js test/v4-issuer.test.js test/v4-ui.test.js test/v4-env.test.js",
     "attachments:audit": "node src/cli/audit-attachments.js",
     "backup:export:full": "node src/cli/export-full-backup.js",
-    "test:v5": "node --test --test-reporter=spec test/v5-document.test.js test/v5-http.test.js test/v5-issuer.test.js test/v5-ui.test.js test/v5-storage.test.js"
+    "test:v5": "node --test --test-reporter=spec test/v5-document.test.js test/v5-http.test.js test/v5-issuer.test.js test/v5-ui.test.js test/v5-storage.test.js",
+    "test:ai": "node --test --test-reporter=spec test/v4-ai.test.js test/v5-ai-agents.test.js test/v6-agent-runtime.test.js test/v6-http-ui.test.js test/v4-http.test.js",
+    "test:v6": "node --test --test-reporter=spec test/v6-agent-runtime.test.js test/v6-http-ui.test.js",
+    "plugins:check": "node scripts/check-ai-plugins.js"
   },
   "dependencies": {
     "@ckb-ccc/core": "1.16.1"
