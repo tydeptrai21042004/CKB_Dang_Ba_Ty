@@ -4,7 +4,7 @@ import http from "node:http";
 import path from "node:path";
 import { AppError, formatError } from "./errors.js";
 import { readJsonBody, safeStaticPath, securityHeaders, sendJson, validatePublicSubmission } from "./inspector-http.js";
-import { analyzeEvidence, aiProviderCatalog } from "./ai-service.js";
+import { aiAgentCatalog, analyzeEvidence, aiProviderCatalog } from "./ai-service.js";
 import {
   audit, createOperation, createSubmission, ensureBootstrapAdmin, exportOperationalSnapshot, findUserByEmail,
   getAdminStats, getSubmission, listAudit, listOperations, listSubmissionsFiltered, listWebhookDeliveries,
@@ -125,7 +125,7 @@ export function createIssuerServer({ config, publicDir, db, logger = console }) 
     try {
       const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
       if (request.method === "GET" && url.pathname === "/api/health") {
-        sendJson(response, 200, { ok: true, service: "CKBuilder Issuer Portal", version: "5.0.0", network: config.APP_NETWORK, chainWriteMode: config.CHAIN_WRITE_MODE, signingKeysLoaded: true, htmlSupport: true, submissionAttachments: true }, requestId); return;
+        sendJson(response, 200, { ok: true, service: "CKBuilder Issuer Portal", version: "6.0.0", network: config.APP_NETWORK, chainWriteMode: config.CHAIN_WRITE_MODE, signingKeysLoaded: true, htmlSupport: true, submissionAttachments: true }, requestId); return;
       }
       if (request.method === "POST" && url.pathname === "/api/auth/login") {
         checkLoginRate(request);
@@ -226,7 +226,7 @@ export function createIssuerServer({ config, publicDir, db, logger = console }) 
           try { const preview = previewSubmissionAttachment(config, db, meta.id); return { ...meta, textExcerpt: preview?.inspected?.textExcerpt?.slice(0, 10000) ?? null }; }
           catch { return { ...meta, textExcerpt: null }; }
         });
-        const result = await analyzeEvidence(request.headers, { ...evidenceInput, deterministicEvidence, attachments }, config.AI_DEFAULT_MODEL);
+        const result = await analyzeEvidence(request.headers, { ...evidenceInput, deterministicEvidence, attachments }, config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER);
         const saved = { ...result, deterministicEvidence }; updateSubmission(db, id, { ai: saved }); sendJson(response, 200, saved, requestId); return;
       }
       if (request.method === "POST" && /^\/api\/admin\/submissions\/[^/]+\/review$/.test(url.pathname)) {
@@ -255,7 +255,7 @@ export function createIssuerServer({ config, publicDir, db, logger = console }) 
         sendJson(response, 200, { credentials: Object.values(ledger.credentials).map((r) => portableCredential(r, config.PUBLIC_BASE_URL)) }, requestId); return;
       }
       if (request.method === "GET" && url.pathname === "/api/config") {
-        sendJson(response, 200, { network: config.APP_NETWORK, chainWriteMode: config.CHAIN_WRITE_MODE, publicBaseUrl: config.PUBLIC_BASE_URL ?? "", aiProviders: aiProviderCatalog(config.AI_DEFAULT_PROVIDER, config.AI_DEFAULT_MODEL), aiDefaultProvider: config.AI_DEFAULT_PROVIDER, aiDefaultModel: config.AI_DEFAULT_MODEL, webhookEnabled: Boolean(config.WEBHOOK_URL), htmlSupport: true, submissionAttachments: true }, requestId); return;
+        sendJson(response, 200, { network: config.APP_NETWORK, chainWriteMode: config.CHAIN_WRITE_MODE, publicBaseUrl: config.PUBLIC_BASE_URL ?? "", aiProviders: aiProviderCatalog(config.AI_DEFAULT_PROVIDER, config.AI_DEFAULT_MODEL), aiAgents: aiAgentCatalog(), aiDefaultProvider: config.AI_DEFAULT_PROVIDER, aiDefaultModel: config.AI_DEFAULT_MODEL, webhookEnabled: Boolean(config.WEBHOOK_URL), htmlSupport: true, submissionAttachments: true }, requestId); return;
       }
       if (request.method !== "GET") { sendJson(response, 405, { error: "METHOD_NOT_ALLOWED" }, requestId); return; }
       const file = safeStaticPath(publicDir, url.pathname); if (!file || !fs.existsSync(file) || !fs.statSync(file).isFile()) { sendJson(response, 404, { error: "NOT_FOUND" }, requestId); return; }

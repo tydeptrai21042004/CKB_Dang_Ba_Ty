@@ -8,7 +8,8 @@ import { inspectPublicCredential } from "./public-inspector.js";
 import { buildLearningOverview } from "./learning-progress.js";
 import { verifyPublicProof } from "./proof-verifier.js";
 import { decodeRevocationRecordJson } from "./revocation-binary.js";
-import { aiProviderCatalog, analyzeCredentialDocument, analyzeEvidence, explainVerification, tutor } from "./ai-service.js";
+import { aiAgentCatalog, aiProviderCatalog, analyzeCredentialDocument, analyzeEvidence, explainVerification, runCkbAgent, tutor } from "./ai-service.js";
+import { aiPluginCatalog } from "./plugin-service.js";
 import { createSubmission, getTrackedSubmission, getTrackedSubmissionWithTimeline, resubmitTrackedSubmission, cancelTrackedSubmission } from "./product-db.js";
 import { getPassport } from "./passport-service.js";
 import { loadLedger } from "./ledger.js";
@@ -195,7 +196,7 @@ export function createInspectorServer(options) {
         sendJson(response, 200, {
           ok: true,
           service: "CKBuilder Passport Public Verifier",
-          version: "5.0.0",
+          version: "6.0.0",
           network: config.APP_NETWORK,
           readOnly: true,
           privateKeyRequired: false,
@@ -236,6 +237,8 @@ export function createInspectorServer(options) {
           appName: config.PUBLIC_APP_NAME ?? "CKBuilder Passport", network: config.APP_NETWORK,
           publicBaseUrl: config.PUBLIC_BASE_URL ?? null, aiEnabled: config.AI_ENABLED !== false,
           aiProviders: aiProviderCatalog(config.AI_DEFAULT_PROVIDER, config.AI_DEFAULT_MODEL),
+          aiAgents: aiAgentCatalog(),
+          aiPlugins: aiPluginCatalog(config.ROOT_DIR ?? path.resolve(publicDir, "..")),
           aiDefaultProvider: config.AI_DEFAULT_PROVIDER ?? "openai", aiDefaultModel: config.AI_DEFAULT_MODEL ?? "gpt-4.1-mini",
           publicDirectoryEnabled: config.PUBLIC_DIRECTORY_ENABLED === true,
           supportedDocuments: supportedDocumentTypes(),
@@ -369,14 +372,14 @@ export function createInspectorServer(options) {
         rateLimit(request, "ai");
         if (config.AI_ENABLED === false) throw new AppError("AI_DISABLED", "AI features are disabled by this deployment.");
         const body = await readJsonBody(request, Math.min(maxBodyBytes, 8 * 1024 * 1024));
-        sendJson(response, 200, await analyzeCredentialDocument(request.headers, body, config.AI_DEFAULT_MODEL), requestId); return;
+        sendJson(response, 200, await analyzeCredentialDocument(request.headers, body, config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER), requestId); return;
       }
 
       if (request.method === "POST" && url.pathname === "/api/ai/explain") {
         rateLimit(request, "ai");
         if (config.AI_ENABLED === false) throw new AppError("AI_DISABLED", "AI features are disabled by this deployment.");
         const body = await readJsonBody(request, Math.min(maxBodyBytes, 512 * 1024));
-        sendJson(response, 200, await explainVerification(request.headers, body.proof, config.AI_DEFAULT_MODEL), requestId); return;
+        sendJson(response, 200, await explainVerification(request.headers, body.proof, config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER), requestId); return;
       }
 
       if (request.method === "POST" && url.pathname === "/api/evidence/check") {
@@ -392,7 +395,7 @@ export function createInspectorServer(options) {
         const body = await readJsonBody(request, Math.min(maxBodyBytes, 256 * 1024));
         const input = validatePublicSubmission(body);
         const deterministicEvidence = await verifyEvidenceReferences(config, input);
-        const ai = await analyzeEvidence(request.headers, { ...input, deterministicEvidence }, config.AI_DEFAULT_MODEL);
+        const ai = await analyzeEvidence(request.headers, { ...input, deterministicEvidence }, config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER);
         sendJson(response, 200, { ...ai, deterministicEvidence }, requestId); return;
       }
 
@@ -401,7 +404,17 @@ export function createInspectorServer(options) {
         if (config.AI_ENABLED === false) throw new AppError("AI_DISABLED", "AI features are disabled by this deployment.");
         const body = await readJsonBody(request, Math.min(maxBodyBytes, 64 * 1024));
         const question = cleanText(body.question, "question", 3000);
-        sendJson(response, 200, await tutor(request.headers, question, learningOverview(), config.AI_DEFAULT_MODEL), requestId); return;
+        sendJson(response, 200, await tutor(request.headers, question, learningOverview(), config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER), requestId); return;
+      }
+
+      if (request.method === "POST" && url.pathname === "/api/ai/agent") {
+        rateLimit(request, "ai");
+        if (config.AI_ENABLED === false) throw new AppError("AI_DISABLED", "AI features are disabled by this deployment.");
+        const body = await readJsonBody(request, Math.min(maxBodyBytes, 128 * 1024));
+        sendJson(response, 200, await runCkbAgent(request.headers, body, config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER, {
+          rootDir: config.ROOT_DIR ?? path.resolve(publicDir, ".."),
+          rpcUrl: config.CKB_RPC_URL
+        }), requestId); return;
       }
 
       if (request.method === "POST" && url.pathname === "/api/inspect") {
