@@ -31,7 +31,7 @@ test("v7 config exposes mission readiness but never server-only connection secre
 }));
 
 test("v7 health identifies Mission Control release", async () => withInspector(async (base) => {
-  const body = await (await fetch(`${base}/api/health`)).json(); assert.equal(body.version, "8.0.0"); assert.equal(body.readOnly, true);
+  const body = await (await fetch(`${base}/api/health`)).json(); assert.equal(body.version, "9.0.0"); assert.equal(body.readOnly, true);
 }));
 
 test("v7 HTTP mission endpoint performs transaction evidence call then returns an audit trail", async () => {
