@@ -1,0 +1,48 @@
+CKBuilder v10 AgentOS - Final Validation Summary
+Date: 2026-08-15
+
+Repository version: 10.0.0
+
+Main regression suite
+- Tests:   344
+- Passed:  343
+- Failed:  0
+- Skipped: 1
+
+The single skipped test is the optional @ckb-ccc/core integration test. npm dependency installation in the validation container timed out before a usable CCC package was fully materialized. Core/local tests do not require that package and all non-optional tests pass.
+
+npm run ci:local: PASS
+- syntax:check: PASS
+- plugins:check: PASS
+- learning:check: PASS
+- exercises:run: 5/5 PASS
+- learning:test: 23/23 PASS
+- npm test: 343 PASS / 0 FAIL / 1 SKIP
+- community test vectors: 6 verified
+- community corpus tests: 2/2 PASS
+- scripts/audit-release.sh: PASS
+
+v10-specific regression suite
+- 11/11 PASS
+- persistent Ed25519 service identity and signed receipt verification
+- SQLite agent jobs and signed-receipt reputation
+- unsigned balanced CKB capacity-transfer intent builder
+- exact tool+argument-hash MCP approval
+- read-only Fiber get_payment settlement verification
+- MCP private-network endpoint policy
+- transaction/Fiber UI surfaces
+- transaction/Fiber HTTP routes
+- parallel-specialist workflow DAG + receipt binding
+- MCP server/discover current request
+- live official CKB Dev Skills grounding surface
+
+Release packaging requirements validated
+- .env.example present
+- .env.public.example present
+- .env.issuer.example present
+- .gitignore present
+- .dockerignore present
+- run-full-project.sh executable
+- stop-full-project.sh executable
+- node_modules excluded from release
+- no generated secrets/.env/state/PID artifacts in release

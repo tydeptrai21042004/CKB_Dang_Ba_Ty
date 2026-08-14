@@ -1,0 +1,60 @@
+CKBuilder AgentOS v10.0.1 — Week 5 validation summary
+Date: 2026-08-15
+
+RESULT: PASS
+
+Focused AI/provider/agent suite
+- npm run test:ai: PASS
+- tests: 144
+- passed: 144
+- failed: 0
+- skipped: 0
+- includes Gemini 3 current request-shape regression
+- includes Gemini thoughtSignature replay + matching functionResponse ID regression
+- includes sanitized upstream Gemini HTTP 400 -> local HTTP 502 regression
+
+Full Node.js regression suite
+- npm test: PASS
+- tests: 347
+- passed: 346
+- failed: 0
+- skipped: 1
+- skipped case: optional @ckb-ccc/core integration is not installed in this validation container
+
+Runtime CI
+- npm run syntax:check: PASS
+- npm run plugins:check: PASS (1 community plugin manifest validated)
+- npm run learning:check: PASS
+  - learning evidence: 22/61 tracked (36%)
+  - included Rustlings sources: deterministic source checks PASS
+  - rustc unavailable in this validation container, so no fresh compiler claim is made here
+- npm run exercises:run: PASS (5/5)
+- npm run learning:test: PASS (23/23)
+- npm test: PASS (346 passed, 0 failed, 1 skipped of 347)
+- npm run community:check: PASS
+  - 6 cross-implementation vectors verified
+  - community vector tests: 2/2 PASS
+- npm run ci:runtime: PASS
+
+Clean release audit
+- bash scripts/audit-release.sh: PASS
+- no generated .env, secrets directory, stale PID state, or disallowed private-key/seed assignment pattern found
+- evidence/community JSON files validated
+
+Week 5 screenshot evidence
+- screenshots/week-05/01-regression-tests-running.png
+- screenshots/week-05/02-ckbuilder-ready-status.png
+- screenshots/week-05/03-agent-plugins.png
+- screenshots/week-05/04-advanced-agent-workbench.png
+- screenshots/week-05/05-gemini-byok-session.png
+- screenshots/week-05/06-mission-control-contribution-finder.png
+- screenshots/week-05/07-mission-control-applications.png
+
+Gemini live-provider boundary
+- No user API key is stored in the repository or test fixtures.
+- Provider protocol behavior is validated with deterministic mocked Gemini responses.
+- A real live Gemini request still depends on the user's valid key, quota/billing, model access, and network availability.
+
+Release/runtime CI distinction
+- ci:runtime is the correct validation target for a running local project that legitimately contains runtime state.
+- ci:local adds scripts/audit-release.sh and is reserved for a clean release copy/archive.

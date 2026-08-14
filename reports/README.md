@@ -8,6 +8,7 @@ The reports below are organized as contemporaneous weekly entries and link direc
 - [Week 2 — Public Credential Inspector and automatic end-to-end workflow](week-02-report.md)
 - [Week 3 — Structured CKB learning and FiberGuard community testing](week-03-report.md)
 - [Week 4 — CKBuilder Passport v5, BYOK AI, WSL validation, and Fiber Atlas testing](week-04-report.md)
+- [Week 5 — CKBuilder AgentOS v10.0.1, Mission Control, verifiable agent workflows, and Gemini reliability](week-05-report.md)
 
 ## Templates
 
