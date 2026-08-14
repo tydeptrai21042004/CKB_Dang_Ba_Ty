@@ -167,3 +167,14 @@
 - Added optional NEAR AI Cloud BYOK provider through its OpenAI-compatible API.
 - Added v8 HTTP/UI surfaces and dedicated agent-commerce regression coverage.
 - Retained hard blocks on signing, CKB broadcast, Fiber real payments, and channel mutation.
+
+## 9.0.0 - 2026-08-14
+
+- Added a private persistent agent-job ledger with per-job retrieval tokens and no public objective listing.
+- Added evidence-derived service reputation statistics to Agent Service Hub cards.
+- Added pre-execution, objective-bound service agreements and server-side tamper rejection before AI execution.
+- Added independent receipt/agreement/fulfillment verification over HTTP and via `agent:receipt:verify` CLI.
+- Added deterministic raw CKB transaction preflight with optional `dry_run_transaction`; signing and broadcast remain impossible from this layer.
+- Added Agent Runtime Doctor to distinguish installed plugins from actually configured/runnable integrations without leaking secrets.
+- Added tab-scoped private job reopen UX and portable agent evidence-pack export.
+- Added dedicated v9 unit, HTTP, security, CLI and browser-contract regression coverage.

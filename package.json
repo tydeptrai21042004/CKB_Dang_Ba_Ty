@@ -1,9 +1,9 @@
 {
   "name": "ckbuilder-passport",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "private": true,
   "type": "module",
-  "description": "CKBuilder v8: CKB agent-service hub, multi-agent launch gate, Fiber dry-run commerce, verifiable job receipts, Mission Control, safe community/MCP plugins, credentials, and BYOK AI.",
+  "description": "CKBuilder v9: persistent private agent jobs, evidence-derived service reputation, independent receipt verification, deterministic CKB transaction preflight, runtime doctor, agent service hub, Fiber dry-run commerce, Mission Control, MCP plugins, credentials, and BYOK AI.",
   "engines": {
     "node": ">=22"
   },
@@ -57,11 +57,14 @@
     "attachments:audit": "node src/cli/audit-attachments.js",
     "backup:export:full": "node src/cli/export-full-backup.js",
     "test:v5": "node --test --test-reporter=spec test/v5-document.test.js test/v5-http.test.js test/v5-issuer.test.js test/v5-ui.test.js test/v5-storage.test.js",
-    "test:ai": "node --test --test-reporter=spec test/v4-ai.test.js test/v5-ai-agents.test.js test/v6-agent-runtime.test.js test/v6-http-ui.test.js test/v4-http.test.js test/v7-application-service.test.js test/v7-plugin-runtime.test.js test/v7-http-ui.test.js test/v8-agent-commerce.test.js test/v8-http-ui.test.js",
+    "test:ai": "node --test --test-reporter=spec test/v4-ai.test.js test/v5-ai-agents.test.js test/v6-agent-runtime.test.js test/v6-http-ui.test.js test/v4-http.test.js test/v7-application-service.test.js test/v7-plugin-runtime.test.js test/v7-http-ui.test.js test/v8-agent-commerce.test.js test/v8-http-ui.test.js test/v9-agent-ops.test.js test/v9-http-ui.test.js",
     "test:v6": "node --test --test-reporter=spec test/v6-agent-runtime.test.js test/v6-http-ui.test.js",
     "plugins:check": "node scripts/check-ai-plugins.js",
     "test:v7": "node --test --test-reporter=spec test/v7-application-service.test.js test/v7-plugin-runtime.test.js test/v7-http-ui.test.js",
-    "test:v8": "node --test --test-reporter=spec test/v8-agent-commerce.test.js test/v8-http-ui.test.js"
+    "test:v8": "node --test --test-reporter=spec test/v8-agent-commerce.test.js test/v8-http-ui.test.js",
+    "test:v9": "node --test --test-reporter=spec test/v9-agent-ops.test.js test/v9-http-ui.test.js",
+    "agent:receipt:verify": "node src/cli/verify-agent-receipt.js",
+    "agent:tx:preflight": "node src/cli/preflight-ckb-transaction.js"
   },
   "dependencies": {
     "@ckb-ccc/core": "1.16.1"

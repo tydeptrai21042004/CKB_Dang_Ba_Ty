@@ -1,4 +1,20 @@
-# CKBuilder Agent Economy + Mission Control v8.0
+# CKBuilder Agent Operations + Mission Control v9.0
+
+CKBuilder v9 extends the v8 Agent Service Hub into an **operable CKB agent-service platform**: persistent private jobs, pre-execution service agreements, evidence-derived service reputation, deterministic CKB transaction preflight, independent receipt verification, runtime readiness diagnostics, Fiber dry-run commerce, MCP/community plugins, and multi-agent CKB workflows.
+
+## v9 additions
+
+- Private token-gated agent job ledger with session-only browser reopen tokens.
+- Aggregate service reputation based on real local fulfillment/tool evidence.
+- Human-reviewed service agreement generated and hash-bound before model execution.
+- Independent receipt/anchor verification via HTTP and offline CLI.
+- Deterministic raw CKB transaction preflight plus optional read-only `dry_run_transaction`.
+- Agent Runtime Doctor for real plugin readiness without leaking connector secrets.
+- Portable `ckbuilder-agent-evidence-pack/v1` export.
+
+See [`V9.0_OPERATIONS_AND_VERIFICATION.md`](./V9.0_OPERATIONS_AND_VERIFICATION.md) for the architecture, security boundaries, and validation commands.
+
+## Previous v8 platform
 
 CKBuilder v8 moves beyond a CKB chatbot/mission catalog into a **CKB agent-service platform**. The new Agent Service Hub lets users delegate bounded jobs to specialist or community agents, coordinate a multi-agent CKB launch-readiness review, simulate Fiber payment quotes without spending funds, and receive cryptographic service receipts that can later be anchored by a human-controlled wallet.
 
