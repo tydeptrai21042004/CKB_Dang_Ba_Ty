@@ -691,7 +691,11 @@ async function postJsonWithHeaders(url, body, headers = {}) {
 }
 function aiRequestHeaders() {
   if (!sessionAi.apiKey) throw new Error("Enter an AI API key in Optional AI settings first.");
-  return { "x-ai-api-key": sessionAi.apiKey, "x-ai-provider": sessionAi.provider, "x-ai-model": sessionAi.model };
+  return {
+    "x-ai-api-key": sessionAi.apiKey,
+    "x-ai-provider": sessionAi.provider || "auto",
+    ...(sessionAi.model ? { "x-ai-model": sessionAi.model } : {})
+  };
 }
 function submissionPayload() {
   return {
@@ -838,15 +842,69 @@ async function loadProductConfig() {
     try { const remembered = JSON.parse(sessionStorage.getItem("ckbuilder-ai-settings") ?? "null"); if (remembered) sessionAi = { ...sessionAi, ...remembered, apiKey: "" }; } catch {}
     const select = document.querySelector("#ai-provider"); select.replaceChildren();
     for (const provider of productConfig.aiProviders ?? []) { const option = document.createElement("option"); option.value = provider.id; option.textContent = provider.name; select.append(option); }
+    if (![...select.options].some((option) => option.value === sessionAi.provider)) sessionAi.provider = productConfig.aiDefaultProvider ?? "openai";
     select.value = sessionAi.provider; document.querySelector("#ai-model").value = sessionAi.model;
-    if (productConfig.aiEnabled === false) { document.querySelector("#ai-settings-panel")?.classList.add("hidden"); }
+    const agentSelect = document.querySelector("#ai-agent");
+    for (const agent of productConfig.aiAgents ?? []) { const option = document.createElement("option"); option.value = agent.id; option.textContent = agent.name; option.title = agent.description ?? ""; agentSelect?.append(option); }
+    const pluginList = document.querySelector("#ai-plugin-list"); pluginList?.replaceChildren();
+    for (const plugin of productConfig.aiPlugins ?? []) {
+      const label = document.createElement("label"); label.className = "plugin-option";
+      const check = document.createElement("input"); check.type = "checkbox"; check.value = plugin.id; check.dataset.aiPlugin = "1"; check.checked = plugin.enabledByDefault === true;
+      const text = document.createElement("span"); const title = document.createElement("strong"); title.textContent = plugin.name; const meta = document.createElement("small"); meta.textContent = `${plugin.description} · ${plugin.trust} · ${(plugin.permissions ?? []).join(", ")}`; text.append(title, meta); label.append(check, text); pluginList?.append(label);
+    }
+    if (productConfig.aiEnabled === false) { document.querySelector("#ai-settings-panel")?.classList.add("hidden"); document.querySelector("#ai-agent-panel")?.classList.add("hidden"); }
   } catch (error) { setFormStatus(document.querySelector("#ai-settings-status"), error.message, "error"); }
 }
+
+document.querySelector("#ai-provider")?.addEventListener("change", (event) => {
+  const provider = (productConfig.aiProviders ?? []).find((item) => item.id === event.currentTarget.value);
+  const model = document.querySelector("#ai-model");
+  if (model && provider) model.value = provider.defaultModel ?? "";
+});
 
 document.querySelector("#save-ai-settings")?.addEventListener("click", () => {
   sessionAi.provider = document.querySelector("#ai-provider").value; sessionAi.model = document.querySelector("#ai-model").value.trim(); sessionAi.apiKey = document.querySelector("#ai-key").value.trim();
   try { sessionStorage.setItem("ckbuilder-ai-settings", JSON.stringify({ provider: sessionAi.provider, model: sessionAi.model })); } catch {}
   setFormStatus(document.querySelector("#ai-settings-status"), sessionAi.apiKey ? "AI enabled for this browser tab. The API key was not persisted." : "Provider/model saved; AI remains off until you enter a key.", "success");
+});
+
+document.querySelector("#ai-agent-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const status = document.querySelector("#ai-agent-status");
+  const output = document.querySelector("#ai-agent-output");
+  const button = event.submitter;
+  setButtonBusy(button, true, "Running…");
+  try {
+    const task = document.querySelector("#ai-agent-task").value.trim();
+    if (!task) throw new Error("Enter a task for the CKB agent.");
+    const rawContext = document.querySelector("#ai-agent-context").value.trim();
+    let context = rawContext ? { raw: rawContext } : undefined;
+    if (rawContext && /^[\[{]/.test(rawContext)) { try { context = JSON.parse(rawContext); } catch {} }
+    const plugins = [...document.querySelectorAll("[data-ai-plugin='1']:checked")].map((item) => item.value);
+    const maxSteps = Number(document.querySelector("#ai-agent-max-steps")?.value ?? 4);
+    const payload = { agent: document.querySelector("#ai-agent").value, task, context, plugins, maxSteps };
+    let result = await postJsonWithHeaders("/api/ai/agent", payload, aiRequestHeaders());
+    if (result.approvalRequired) {
+      const approval = result.approvalRequired;
+      const approved = window.confirm(`Community plugin ${approval.pluginId} requests tool ${approval.tool}.
+
+Arguments:
+${JSON.stringify(approval.arguments ?? {}, null, 2)}
+
+This tool was not marked read-only by its MCP server. Run it once for this task?`);
+      if (approved) result = await postJsonWithHeaders("/api/ai/agent", { ...payload, approvedTools: [approval.tool] }, aiRequestHeaders());
+    }
+    output.textContent = result.text; output.classList.remove("hidden");
+    const trace = document.querySelector("#ai-agent-trace"); trace?.replaceChildren();
+    if ((result.toolTrace ?? []).length) {
+      const heading = document.createElement("h3"); heading.textContent = "Agent tool audit"; trace.append(heading);
+      for (const item of result.toolTrace) { const row = document.createElement("div"); row.className = "trace-row"; const step = document.createElement("span"); step.textContent = `#${item.step}`; const tool = document.createElement("code"); tool.textContent = item.tool; const plugin = document.createElement("span"); plugin.textContent = item.pluginId; const state = document.createElement("span"); state.textContent = item.status; row.append(step, tool, plugin, state); trace.append(row); }
+      trace.classList.remove("hidden");
+    } else trace?.classList.add("hidden");
+    const pluginSummary = (result.plugins ?? []).map((plugin) => plugin.id).join(", ") || "no plugins";
+    setFormStatus(status, `${result.agentName} · ${result.provider}/${result.model} · ${result.steps} step(s) · ${pluginSummary}`, result.approvalRequired ? "neutral" : "success");
+  } catch (error) { setFormStatus(status, error.message, "error"); }
+  finally { setButtonBusy(button, false); }
 });
 
 loadProductConfig();
