@@ -132,7 +132,8 @@ test("v6 Anthropic request includes native tools", () => {
 test("v6 Gemini request includes function declarations", () => {
   const p = { id: "gemini", kind: "gemini", endpoint: "https://generativelanguage.googleapis.com/v1beta/models" };
   const r = buildAiRequest(p, "key", "model", [{ role: "user", content: "x" }], 0.1, [{ name: "lookup", description: "read", inputSchema: { type: "object" } }]);
-  assert.equal(r.body.tools[0].function_declarations[0].name, "lookup");
+  assert.equal(r.body.tools[0].functionDeclarations[0].name, "lookup");
+  assert.deepEqual(r.body.tools[0].functionDeclarations[0].parametersJsonSchema, { type: "object" });
 });
 
 test("v6 callOptionalAi parses OpenAI tool calls", async () => {
@@ -148,6 +149,40 @@ test("v6 callOptionalAi parses Anthropic tool_use", async () => {
 test("v6 callOptionalAi parses Gemini functionCall", async () => {
   const result = await callOptionalAi({ headers: { "x-ai-api-key": "AIzaSy012345678901234567890123456789", "x-ai-provider": "gemini" }, messages: [{ role: "user", content: "x" }], fetchImpl: async () => jsonResponse({ candidates: [{ content: { parts: [{ functionCall: { name: "lookup", args: { q: "cell" } } }] } }] }) });
   assert.equal(result.toolCalls[0].name, "lookup");
+});
+
+ test("v10.0.1 Gemini request uses current REST JSON field names and default sampling", () => {
+  const p = { id: "gemini", kind: "gemini", endpoint: "https://generativelanguage.googleapis.com/v1beta/models" };
+  const r = buildAiRequest(p, "key", "gemini-3.7-flash", [
+    { role: "system", content: "system" },
+    { role: "user", content: [{ type: "image_data", mimeType: "image/png", base64: "YWJj" }] }
+  ], 0.1, [{ name: "lookup", description: "read", inputSchema: { type: "object", properties: { q: { type: "string" } }, additionalProperties: false } }]);
+  assert.equal(r.body.systemInstruction.parts[0].text, "system");
+  assert.deepEqual(r.body.contents[0].parts[0], { inlineData: { mimeType: "image/png", data: "YWJj" } });
+  assert.equal(r.body.tools[0].functionDeclarations[0].name, "lookup");
+  assert.equal(r.body.tools[0].functionDeclarations[0].parametersJsonSchema.additionalProperties, false);
+  assert.equal("generationConfig" in r.body, false);
+});
+
+ test("v10.0.1 Gemini tool loop replays thoughtSignature and matching functionResponse id", async () => {
+  let modelCalls = 0; let secondBody;
+  const toolName = "ckb-docs__ckb_docs_search";
+  const result = await runCkbAgent({ "x-ai-api-key": "AIzaSy012345678901234567890123456789", "x-ai-provider": "gemini" }, { task: "What do official docs say about CCC?", plugins: ["ckb-docs"] }, undefined, "openai", {
+    rootDir: tmpRoot(),
+    fetchImpl: async (_url, options) => {
+      modelCalls += 1;
+      if (modelCalls === 2) secondBody = JSON.parse(options.body);
+      if (modelCalls === 1) return jsonResponse({ candidates: [{ content: { role: "model", parts: [{ functionCall: { id: "call-1", name: toolName, args: { query: "CCC" } }, thoughtSignature: "sig-abc" }] } }] });
+      return jsonResponse({ candidates: [{ content: { role: "model", parts: [{ text: "CCC guidance retrieved." }] } }] });
+    },
+    toolFetchImpl: async () => new Response("CCC is the CKBers Codebase.", { status: 200 })
+  });
+  assert.equal(result.steps, 2);
+  assert.equal(secondBody.contents[1].role, "model");
+  assert.equal(secondBody.contents[1].parts[0].thoughtSignature, "sig-abc");
+  assert.equal(secondBody.contents[1].parts[0].functionCall.id, "call-1");
+  assert.equal(secondBody.contents[2].parts[0].functionResponse.id, "call-1");
+  assert.equal(secondBody.contents[2].parts[0].functionResponse.name, toolName);
 });
 
 test("v6 real agent loop executes a docs tool then synthesizes final answer", async () => {

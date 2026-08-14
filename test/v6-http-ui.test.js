@@ -37,7 +37,7 @@ async function withInspector(fn) {
 
 test("v6 health endpoint reports the real-agent release", async () => withInspector(async (base) => {
   const body = await (await fetch(`${base}/api/health`)).json();
-  assert.equal(body.version, "9.0.0");
+  assert.equal(body.version, "10.0.1");
   assert.equal(body.readOnly, true);
   assert.equal(body.privateKeyRequired, false);
 }));

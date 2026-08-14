@@ -34,7 +34,7 @@ test("v5 AI catalog exposes auto plus eight BYOK providers without secrets", () 
 test("v5 AI catalog keeps a custom model only on the configured default provider", () => {
   const catalog = aiProviderCatalog("openai", "custom-openai-model");
   assert.equal(catalog.find((item) => item.id === "openai").defaultModel, "custom-openai-model");
-  assert.equal(catalog.find((item) => item.id === "gemini").defaultModel, "gemini-3.5-flash");
+  assert.equal(catalog.find((item) => item.id === "gemini").defaultModel, "gemini-3.7-flash");
 });
 
 test("v5 agent catalog exposes seven CKB roles without internal prompts", () => {
@@ -69,8 +69,8 @@ test("v5 provider-specific model default prevents OpenAI model leakage into Gemi
     messages: [{ role: "user", content: "hello" }],
     fetchImpl: async (url, options) => { captured = { url, options }; return okGemini("gemini-ok"); }
   });
-  assert.equal(result.model, "gemini-3.5-flash");
-  assert.match(captured.url, /gemini-3\.5-flash:generateContent$/);
+  assert.equal(result.model, "gemini-3.7-flash");
+  assert.match(captured.url, /gemini-3\.7-flash:generateContent$/);
 });
 
 test("v5 provider-specific model default prevents OpenAI model leakage into Mistral", async () => {
@@ -113,9 +113,9 @@ test("v5 OpenAI-compatible vision request converts internal image_data into imag
 test("v5 Gemini vision request preserves base64 image content", () => {
   const req = buildAiRequest(
     { id: "gemini", kind: "gemini", endpoint: "https://generativelanguage.googleapis.com/v1beta/models" },
-    "secret", "gemini-3.5-flash", [{ role: "user", content: [{ type: "image_data", mimeType: "image/jpeg", base64: "YWJj" }] }]
+    "secret", "gemini-3.7-flash", [{ role: "user", content: [{ type: "image_data", mimeType: "image/jpeg", base64: "YWJj" }] }]
   );
-  assert.deepEqual(req.body.contents[0].parts[0], { inline_data: { mime_type: "image/jpeg", data: "YWJj" } });
+  assert.deepEqual(req.body.contents[0].parts[0], { inlineData: { mimeType: "image/jpeg", data: "YWJj" } });
 });
 
 test("v5 Anthropic vision request uses base64 image source", () => {
@@ -285,7 +285,7 @@ test("v5 agent can use Gemini via auto provider detection", async () => {
   );
   assert.equal(result.provider, "gemini");
   assert.equal(result.text, "cell lesson");
-  assert.match(url, /gemini-3\.5-flash/);
+  assert.match(url, /gemini-3\.7-flash/);
 });
 
 test("v5 provider catalog marks vision capability explicitly", () => {
