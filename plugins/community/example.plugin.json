@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "community-example",
+  "name": "Community Example MCP",
+  "description": "Template only. Replace the endpoint before enabling this plugin.",
+  "source": "CKB community",
+  "transport": "mcp",
+  "endpoint": "https://example.org/mcp",
+  "disabled": true
+}
