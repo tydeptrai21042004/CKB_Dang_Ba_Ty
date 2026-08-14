@@ -51,6 +51,13 @@ const PROVIDERS = {
     endpoint: "https://api.groq.com/openai/v1/chat/completions",
     model: "llama-3.3-70b-versatile",
     vision: false
+  },
+  nearai: {
+    name: "NEAR AI Cloud",
+    kind: "openai-compatible",
+    endpoint: "https://cloud-api.near.ai/v1/chat/completions",
+    model: "z-ai/glm-5.2",
+    vision: false
   }
 };
 
@@ -375,6 +382,9 @@ export async function runCkbAgent(headers, input, defaultModel, defaultProvider 
   const runtime = await resolveAgentTools(input?.plugins, {
     rootDir: options.rootDir,
     rpcUrl: options.rpcUrl,
+    fiberRpcUrl: options.fiberRpcUrl,
+    workspaceDir: options.workspaceDir,
+    githubToken: options.githubToken,
     fetchImpl: options.toolFetchImpl ?? options.fetchImpl ?? fetch,
     timeoutMs: Math.min(options.toolTimeoutMs ?? 12000, 30000),
     approvedTools: Array.isArray(input?.approvedTools) ? input.approvedTools.slice(0, 8) : []

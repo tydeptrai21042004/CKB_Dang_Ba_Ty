@@ -10,6 +10,8 @@ import { verifyPublicProof } from "./proof-verifier.js";
 import { decodeRevocationRecordJson } from "./revocation-binary.js";
 import { aiAgentCatalog, aiProviderCatalog, analyzeCredentialDocument, analyzeEvidence, explainVerification, runCkbAgent, tutor } from "./ai-service.js";
 import { aiPluginCatalog } from "./plugin-service.js";
+import { ckbApplicationCatalog, runCkbApplication } from "./application-service.js";
+import { agentServiceCatalog, createFiberPaymentQuote, runAgentService } from "./agent-commerce-service.js";
 import { createSubmission, getTrackedSubmission, getTrackedSubmissionWithTimeline, resubmitTrackedSubmission, cancelTrackedSubmission } from "./product-db.js";
 import { getPassport } from "./passport-service.js";
 import { loadLedger } from "./ledger.js";
@@ -182,7 +184,9 @@ export function createInspectorServer(options) {
     maxDocumentBytes = Math.min(maxBodyBytes, 8 * 1024 * 1024),
     logger = console,
     learningOverview = () => buildLearningOverview(config.ROOT_DIR ?? path.resolve(publicDir, "..")),
-    productDb = null
+    productDb = null,
+    aiFetchImpl = fetch,
+    toolFetchImpl = fetch
   } = options;
   const rateLimit = createRateLimiter();
   if (!config || !publicDir) throw new Error("config and publicDir are required.");
@@ -196,7 +200,7 @@ export function createInspectorServer(options) {
         sendJson(response, 200, {
           ok: true,
           service: "CKBuilder Passport Public Verifier",
-          version: "6.0.0",
+          version: "8.0.0",
           network: config.APP_NETWORK,
           readOnly: true,
           privateKeyRequired: false,
@@ -239,6 +243,8 @@ export function createInspectorServer(options) {
           aiProviders: aiProviderCatalog(config.AI_DEFAULT_PROVIDER, config.AI_DEFAULT_MODEL),
           aiAgents: aiAgentCatalog(),
           aiPlugins: aiPluginCatalog(config.ROOT_DIR ?? path.resolve(publicDir, "..")),
+          ckbApplications: ckbApplicationCatalog(config),
+          agentServices: agentServiceCatalog(config, config.ROOT_DIR ?? path.resolve(publicDir, "..")),
           aiDefaultProvider: config.AI_DEFAULT_PROVIDER ?? "openai", aiDefaultModel: config.AI_DEFAULT_MODEL ?? "gpt-4.1-mini",
           publicDirectoryEnabled: config.PUBLIC_DIRECTORY_ENABLED === true,
           supportedDocuments: supportedDocumentTypes(),
@@ -407,13 +413,52 @@ export function createInspectorServer(options) {
         sendJson(response, 200, await tutor(request.headers, question, learningOverview(), config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER), requestId); return;
       }
 
+      if (request.method === "POST" && url.pathname === "/api/agent-commerce/fiber-quote") {
+        rateLimit(request, "agent-commerce-fiber-quote");
+        if (config.AI_ENABLED === false) throw new AppError("AI_DISABLED", "Agent commerce features are disabled by this deployment.");
+        const body = await readJsonBody(request, Math.min(maxBodyBytes, 64 * 1024));
+        sendJson(response, 200, await createFiberPaymentQuote(body, config, {
+          fetchImpl: options.aiFetchImpl ?? fetch, toolFetchImpl: options.toolFetchImpl ?? fetch, toolTimeoutMs: options.aiToolTimeoutMs
+        }), requestId); return;
+      }
+
+      if (request.method === "POST" && url.pathname === "/api/agent-commerce/run") {
+        rateLimit(request, "agent-commerce-run");
+        if (config.AI_ENABLED === false) throw new AppError("AI_DISABLED", "Agent commerce features are disabled by this deployment.");
+        const body = await readJsonBody(request, Math.min(maxBodyBytes, 128 * 1024));
+        sendJson(response, 200, await runAgentService(request.headers, body, config, {
+          rootDir: config.ROOT_DIR ?? path.resolve(publicDir, ".."), fetchImpl: options.aiFetchImpl ?? fetch, toolFetchImpl: options.toolFetchImpl ?? fetch,
+          timeoutMs: options.aiTimeoutMs, toolTimeoutMs: options.aiToolTimeoutMs
+        }), requestId); return;
+      }
+
+      if (request.method === "POST" && url.pathname === "/api/ai/application") {
+        rateLimit(request, "ai");
+        if (config.AI_ENABLED === false) throw new AppError("AI_DISABLED", "AI features are disabled by this deployment.");
+        const body = await readJsonBody(request, Math.min(maxBodyBytes, 128 * 1024));
+        sendJson(response, 200, await runCkbApplication(request.headers, body, config, {
+          rootDir: config.ROOT_DIR ?? path.resolve(publicDir, ".."),
+          rpcUrl: config.CKB_RPC_URL,
+          fiberRpcUrl: config.FIBER_RPC_URL,
+          workspaceDir: config.CKB_AGENT_WORKSPACE,
+          githubToken: config.CKB_GITHUB_TOKEN,
+          fetchImpl: aiFetchImpl,
+          toolFetchImpl
+        }), requestId); return;
+      }
+
       if (request.method === "POST" && url.pathname === "/api/ai/agent") {
         rateLimit(request, "ai");
         if (config.AI_ENABLED === false) throw new AppError("AI_DISABLED", "AI features are disabled by this deployment.");
         const body = await readJsonBody(request, Math.min(maxBodyBytes, 128 * 1024));
         sendJson(response, 200, await runCkbAgent(request.headers, body, config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER, {
           rootDir: config.ROOT_DIR ?? path.resolve(publicDir, ".."),
-          rpcUrl: config.CKB_RPC_URL
+          rpcUrl: config.CKB_RPC_URL,
+          fiberRpcUrl: config.FIBER_RPC_URL,
+          workspaceDir: config.CKB_AGENT_WORKSPACE,
+          githubToken: config.CKB_GITHUB_TOKEN,
+          fetchImpl: aiFetchImpl,
+          toolFetchImpl
         }), requestId); return;
       }
 
