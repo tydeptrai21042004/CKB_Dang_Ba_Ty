@@ -62,12 +62,29 @@ function validateResubmission(body) {
   if (!evidence.length && !notes) throw new AppError("EVIDENCE_REQUIRED", "Provide at least one evidence URL/item or explanatory note.");
   return { evidence, notes };
 }
-function createRateLimiter(limit = 45, windowMs = 60_000) {
+function clientAddress(request, trustProxy = false) {
+  const peer = String(request.socket?.remoteAddress ?? "unknown").trim();
+  if (!trustProxy) return peer;
+  const forwarded = String(request.headers["x-forwarded-for"] ?? "").split(",")[0].trim();
+  return forwarded || peer;
+}
+
+function createRateLimiter(limit = 45, windowMs = 60_000, { trustProxy = false, maxBuckets = 10_000 } = {}) {
   const buckets = new Map();
   return (request, key = "default") => {
-    const ip = String(request.headers["x-forwarded-for"] ?? request.socket?.remoteAddress ?? "unknown").split(",")[0].trim();
-    const id = `${ip}:${key}`; const ts = Date.now(); const bucket = buckets.get(id);
-    if (!bucket || ts - bucket.start > windowMs) { buckets.set(id, { start: ts, count: 1 }); return; }
+    const id = `${clientAddress(request, trustProxy)}:${key}`;
+    const ts = Date.now();
+    const bucket = buckets.get(id);
+    if (!bucket || ts - bucket.start > windowMs) {
+      buckets.set(id, { start: ts, count: 1 });
+      if (buckets.size > maxBuckets) {
+        for (const [bucketId, value] of buckets) {
+          if (ts - value.start > windowMs) buckets.delete(bucketId);
+        }
+        while (buckets.size > maxBuckets) buckets.delete(buckets.keys().next().value);
+      }
+      return;
+    }
     bucket.count += 1;
     if (bucket.count > limit) throw new AppError("RATE_LIMITED", "Too many requests. Try again shortly.");
   };
@@ -190,8 +207,8 @@ export function createInspectorServer(options) {
     aiFetchImpl = fetch,
     toolFetchImpl = fetch
   } = options;
-  const rateLimit = createRateLimiter();
   if (!config || !publicDir) throw new Error("config and publicDir are required.");
+  const rateLimit = createRateLimiter(45, 60_000, { trustProxy: config.TRUST_PROXY === true });
 
   return http.createServer(async (request, response) => {
     const requestId = crypto.randomUUID();
@@ -212,6 +229,7 @@ export function createInspectorServer(options) {
       }
 
       if (request.method === "GET" && url.pathname === "/api/learning") {
+        rateLimit(request, "learning");
         sendJson(response, 200, learningOverview(), requestId);
         return;
       }
@@ -239,6 +257,7 @@ export function createInspectorServer(options) {
       }
 
       if (request.method === "GET" && url.pathname === "/api/config") {
+        rateLimit(request, "config");
         sendJson(response, 200, {
           appName: config.PUBLIC_APP_NAME ?? "CKBuilder Passport", network: config.APP_NETWORK,
           publicBaseUrl: config.PUBLIC_BASE_URL ?? null, aiEnabled: config.AI_ENABLED !== false,
@@ -249,8 +268,9 @@ export function createInspectorServer(options) {
           agentServices: agentServiceCatalog(config, config.ROOT_DIR ?? path.resolve(publicDir, "..")).map((service) => ({ ...service, reputation: serviceReputation(config.DATA_DIR)[service.id] ?? { jobs: 0, fulfilled: 0, gaps: 0, blocked: 0, fulfillmentRate: null, evidenceSuccessRate: null, latestAt: null } })),
           aiDefaultProvider: config.AI_DEFAULT_PROVIDER ?? "openai", aiDefaultModel: config.AI_DEFAULT_MODEL ?? "gpt-4.1-mini",
           publicDirectoryEnabled: config.PUBLIC_DIRECTORY_ENABLED === true,
+          submissionEnabled: Boolean(productDb),
           supportedDocuments: supportedDocumentTypes(),
-          htmlSupport: true, submissionAttachments: true
+          htmlSupport: true, submissionAttachments: Boolean(productDb)
         }, requestId); return;
       }
 
@@ -291,7 +311,6 @@ export function createInspectorServer(options) {
 
       if (request.method === "GET" && url.pathname.startsWith("/api/passport/")) {
         rateLimit(request, "passport");
-        if (!productDb) throw new AppError("PRODUCT_DB_UNAVAILABLE", "Passport storage is not enabled on this service.");
         const lockHash = decodeURIComponent(url.pathname.slice("/api/passport/".length));
         sendJson(response, 200, getPassport(config, productDb, lockHash), requestId); return;
       }
@@ -511,6 +530,7 @@ export function createInspectorServer(options) {
       }
 
       if (request.method === "POST" && url.pathname === "/api/inspect") {
+        rateLimit(request, "inspect");
         const body = await readJsonBody(request, maxBodyBytes);
         const proof = await inspectFromRequest({ body, config, inspectCredential, maxDocumentBytes });
         sendJson(response, 200, proof, requestId);
@@ -518,6 +538,7 @@ export function createInspectorServer(options) {
       }
 
       if (request.method === "POST" && url.pathname === "/api/decode-cell") {
+        rateLimit(request, "decode-cell");
         const body = await readJsonBody(request, maxBodyBytes);
         const decoded = decodeRevocationRecordJson(body.cellData, {
           expectedCredentialHash: body.expectedCredentialHash,
@@ -528,6 +549,7 @@ export function createInspectorServer(options) {
       }
 
       if (request.method === "POST" && url.pathname === "/api/verify-proof") {
+        rateLimit(request, "verify-proof");
         const body = await readJsonBody(request, maxBodyBytes);
         const result = verifyPublicProof(body.proof ?? body);
         sendJson(response, result.valid ? 200 : 422, result, requestId);

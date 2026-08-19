@@ -21,7 +21,16 @@ import { auditAttachmentStorage, listAttachmentMetadata, previewSubmissionAttach
 const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml" };
 function headers(response, status, extra = {}) { response.writeHead(status, { ...securityHeaders(), ...extra }); }
 function clean(value, name, max = 500) { const text = String(value ?? "").trim(); if (!text) throw new AppError("INPUT_INVALID", `${name} is required.`); if (text.length > max) throw new AppError("INPUT_TOO_LONG", `${name} is too long.`); return text; }
-function secureRequest(request) { return request.socket?.encrypted || String(request.headers["x-forwarded-proto"] ?? "").split(",")[0].trim() === "https"; }
+function secureRequest(request, trustProxy = false) {
+  if (request.socket?.encrypted) return true;
+  return trustProxy && String(request.headers["x-forwarded-proto"] ?? "").split(",")[0].trim() === "https";
+}
+function clientAddress(request, trustProxy = false) {
+  const peer = String(request.socket?.remoteAddress ?? "unknown").trim();
+  if (!trustProxy) return peer;
+  const forwarded = String(request.headers["x-forwarded-for"] ?? "").split(",")[0].trim();
+  return forwarded || peer;
+}
 function currentUser(request, secret) { return verifySessionToken(parseCookies(request.headers.cookie).ckbuilder_session, secret); }
 function requireAdmin(request, secret) { const user = currentUser(request, secret); if (!user || user.role !== "admin") throw new AppError("AUTH_REQUIRED", "Administrator sign-in is required."); return user; }
 function ensureIssuerConfig(config) {
@@ -115,9 +124,16 @@ export function createIssuerServer({ config, publicDir, db, logger = console }) 
   }
   const loginAttempts = new Map();
   function checkLoginRate(request) {
-    const ip = String(request.headers["x-forwarded-for"] ?? request.socket?.remoteAddress ?? "unknown").split(",")[0].trim();
+    const ip = clientAddress(request, config.TRUST_PROXY === true);
     const ts = Date.now(); const item = loginAttempts.get(ip);
-    if (!item || ts - item.start > 10 * 60 * 1000) { loginAttempts.set(ip, { start: ts, count: 1 }); return; }
+    if (!item || ts - item.start > 10 * 60 * 1000) {
+      loginAttempts.set(ip, { start: ts, count: 1 });
+      if (loginAttempts.size > 5000) {
+        for (const [key, value] of loginAttempts) if (ts - value.start > 10 * 60 * 1000) loginAttempts.delete(key);
+        while (loginAttempts.size > 5000) loginAttempts.delete(loginAttempts.keys().next().value);
+      }
+      return;
+    }
     item.count += 1; if (item.count > 8) throw new AppError("RATE_LIMITED", "Too many sign-in attempts. Try again later.");
   }
   return http.createServer(async (request, response) => {
@@ -133,11 +149,11 @@ export function createIssuerServer({ config, publicDir, db, logger = console }) 
         if (!user || !verifyPassword(String(body.password ?? ""), user.password_hash)) throw new AppError("AUTH_INVALID", "Invalid email or password.");
         const token = createSessionToken(user, config.SESSION_SECRET);
         const payload = `${JSON.stringify({ ok: true, user: { email: user.email, displayName: user.display_name, role: user.role } }, null, 2)}\n`;
-        headers(response, 200, { "content-type": "application/json; charset=utf-8", "content-length": Buffer.byteLength(payload), "cache-control": "no-store", "x-request-id": requestId, "set-cookie": sessionCookie(token, secureRequest(request)) });
+        headers(response, 200, { "content-type": "application/json; charset=utf-8", "content-length": Buffer.byteLength(payload), "cache-control": "no-store", "x-request-id": requestId, "set-cookie": sessionCookie(token, secureRequest(request, config.TRUST_PROXY === true)) });
         response.end(payload); return;
       }
       if (request.method === "POST" && url.pathname === "/api/auth/logout") {
-        headers(response, 200, { "content-type": "application/json; charset=utf-8", "set-cookie": clearSessionCookie(secureRequest(request)) }); response.end('{"ok":true}\n'); return;
+        headers(response, 200, { "content-type": "application/json; charset=utf-8", "set-cookie": clearSessionCookie(secureRequest(request, config.TRUST_PROXY === true)) }); response.end('{"ok":true}\n'); return;
       }
       if (request.method === "GET" && url.pathname === "/api/admin/me") {
         const user = requireAdmin(request, config.SESSION_SECRET); sendJson(response, 200, user, requestId); return;

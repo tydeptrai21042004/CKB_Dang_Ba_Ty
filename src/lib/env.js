@@ -98,6 +98,14 @@ function validateCommon(env) {
   if (!["0", "1"].includes(String(env.REQUIRE_CKB_RPC ?? "0"))) {
     throw new AppError("ENV_RPC_FLAG_INVALID", "REQUIRE_CKB_RPC must be 0 or 1.");
   }
+
+  if (!["0", "1"].includes(String(env.TRUST_PROXY ?? "0"))) {
+    throw new AppError("ENV_PROXY_FLAG_INVALID", "TRUST_PROXY must be 0 or 1.");
+  }
+
+  if (!["disabled", "optional", "required"].includes(String(env.CHAIN_WRITE_MODE ?? "optional"))) {
+    throw new AppError("ENV_CHAIN_WRITE_MODE_INVALID", "CHAIN_WRITE_MODE must be disabled, optional, or required.");
+  }
 }
 
 export function validateEnv(env) {
@@ -125,6 +133,7 @@ function resolveEnvPaths(env, rootDir) {
     OFFCKB_DEPLOYMENT_SCRIPTS: resolve(env.OFFCKB_DEPLOYMENT_SCRIPTS),
     OFFCKB_CHAIN_STATE: resolve(env.OFFCKB_CHAIN_STATE),
     REQUIRE_CKB_RPC: String(env.REQUIRE_CKB_RPC ?? "0") === "1",
+    TRUST_PROXY: String(env.TRUST_PROXY ?? "0") === "1",
     FIBER_RPC_URL: env.FIBER_RPC_URL ?? "",
     CKB_AGENT_WORKSPACE: env.CKB_AGENT_WORKSPACE ? resolve(env.CKB_AGENT_WORKSPACE) : "",
     CKB_GITHUB_TOKEN: env.CKB_GITHUB_TOKEN ?? "",
@@ -162,6 +171,7 @@ function resolvePublicEnvPaths(env, rootDir) {
     OFFCKB_DEPLOYMENT_SCRIPTS: resolve(env.OFFCKB_DEPLOYMENT_SCRIPTS),
     OFFCKB_CHAIN_STATE: resolve(env.OFFCKB_CHAIN_STATE),
     REQUIRE_CKB_RPC: String(env.REQUIRE_CKB_RPC ?? "0") === "1",
+    TRUST_PROXY: String(env.TRUST_PROXY ?? "0") === "1",
     PRODUCT_DB_PATH: resolve(env.PRODUCT_DB_PATH ?? "./data/ckbuilder-passport.sqlite"),
     PUBLIC_BASE_URL: env.PUBLIC_BASE_URL ?? "http://127.0.0.1:4173",
     PUBLIC_APP_NAME: env.PUBLIC_APP_NAME ?? "CKBuilder Passport",

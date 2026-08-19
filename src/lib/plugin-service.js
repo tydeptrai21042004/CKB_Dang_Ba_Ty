@@ -202,7 +202,7 @@ function workspaceRoot(runtime) {
   if (!runtime.workspaceDir) throw new AppError("CKB_WORKSPACE_NOT_CONFIGURED", "Set CKB_AGENT_WORKSPACE to an explicitly approved CKB project directory to enable source inspection.");
   const root = path.resolve(String(runtime.workspaceDir));
   if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) throw new AppError("CKB_WORKSPACE_INVALID", "CKB_AGENT_WORKSPACE does not point to a readable directory.");
-  return root;
+  return fs.realpathSync(root);
 }
 
 const BLOCKED_DIRS = new Set([".git", "node_modules", "target", "dist", "build", ".next", "coverage", "data", "secrets", ".ssh"]);
@@ -230,12 +230,18 @@ function walkWorkspace(root, maxFiles = 500) {
 
 function safeWorkspaceFile(root, relative) {
   const rel = String(relative ?? "").replaceAll("\\", "/").replace(/^\/+/, "");
-  if (!rel || rel.includes("..") || BLOCKED_FILE.test(rel)) throw new AppError("CKB_WORKSPACE_FILE_BLOCKED", "That workspace path is invalid or secret-sensitive.");
+  if (!rel || rel.split("/").includes("..") || BLOCKED_FILE.test(rel)) throw new AppError("CKB_WORKSPACE_FILE_BLOCKED", "That workspace path is invalid or secret-sensitive.");
   const full = path.resolve(root, rel);
   if (full !== root && !full.startsWith(`${root}${path.sep}`)) throw new AppError("CKB_WORKSPACE_FILE_BLOCKED", "Workspace reads cannot escape CKB_AGENT_WORKSPACE.");
-  if (!fs.existsSync(full) || !fs.statSync(full).isFile()) throw new AppError("CKB_WORKSPACE_FILE_NOT_FOUND", "Workspace file was not found.");
-  if (fs.statSync(full).size > 256 * 1024) throw new AppError("CKB_WORKSPACE_FILE_TOO_LARGE", "Workspace file is too large for agent inspection.");
-  return full;
+  if (!fs.existsSync(full)) throw new AppError("CKB_WORKSPACE_FILE_NOT_FOUND", "Workspace file was not found.");
+  const lst = fs.lstatSync(full);
+  if (lst.isSymbolicLink()) throw new AppError("CKB_WORKSPACE_FILE_BLOCKED", "Symbolic links are not readable through the workspace tool.");
+  const real = fs.realpathSync(full);
+  if (real !== root && !real.startsWith(`${root}${path.sep}`)) throw new AppError("CKB_WORKSPACE_FILE_BLOCKED", "Workspace reads cannot escape CKB_AGENT_WORKSPACE.");
+  const stat = fs.statSync(real);
+  if (!stat.isFile()) throw new AppError("CKB_WORKSPACE_FILE_NOT_FOUND", "Workspace file was not found.");
+  if (stat.size > 256 * 1024) throw new AppError("CKB_WORKSPACE_FILE_TOO_LARGE", "Workspace file is too large for agent inspection.");
+  return real;
 }
 
 function readWorkspaceText(root, relative, max = 50000) {
