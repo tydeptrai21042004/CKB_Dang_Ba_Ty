@@ -704,7 +704,7 @@ async function postJsonWithHeaders(url, body, headers = {}) {
   return value;
 }
 function aiRequestHeaders() {
-  if (!sessionAi.apiKey) throw new Error("Enter an AI API key in Optional AI settings first.");
+  if (!sessionAi.apiKey) throw new Error("Add a model API key in Model access first.");
   return {
     "x-ai-api-key": sessionAi.apiKey,
     "x-ai-provider": sessionAi.provider || "auto",
@@ -758,17 +758,18 @@ function renderAgentServices() {
   for (const service of productConfig.agentServices ?? []) {
     const card = document.createElement("article"); card.className = "application-card service-card"; card.dataset.serviceId = service.id;
     const top = document.createElement("div"); top.className = "application-card-top";
-    const badge = document.createElement("span"); badge.className = `application-readiness ${service.ready ? "ready" : "needs-config"}`; badge.textContent = service.kind === "team" ? "Multi-agent team" : service.kind === "community" ? "Community MCP" : "Agent service";
+    const badge = document.createElement("span"); badge.className = `application-readiness ${service.ready ? "ready" : "needs-config"}`; badge.textContent = service.kind === "team" ? "Team" : service.kind === "community" ? "Community" : "Service";
     const category = document.createElement("small"); category.textContent = service.category; top.append(badge, category);
     const title = document.createElement("h3"); title.textContent = service.title;
     const desc = document.createElement("p"); desc.textContent = service.description;
     const outcome = document.createElement("p"); outcome.className = "service-outcome"; outcome.textContent = `Produces: ${service.outcome}`;
+    const workflow = document.createElement("p"); workflow.className = "application-workflow"; workflow.textContent = `Stages: ${(service.workflow ?? []).map((stage) => stage.title).join(" → ") || "bounded evidence review"}`;
     const meta = document.createElement("div"); meta.className = "application-meta";
     const audience = document.createElement("span"); audience.textContent = service.audience;
     const pay = document.createElement("code"); pay.textContent = `${service.payment?.rail ?? "no rail"} · ${service.payment?.mode ?? "n/a"}`; meta.append(audience, pay);
     const reputation = document.createElement("small"); reputation.className = "service-reputation"; reputation.textContent = service.reputation?.jobs ? `${service.reputation.jobs} local job(s) · ${Math.round((service.reputation.fulfillmentRate ?? 0) * 100)}% fully evidence-fulfilled · tool success ${service.reputation.evidenceSuccessRate == null ? "n/a" : `${Math.round(service.reputation.evidenceSuccessRate * 100)}%`}` : "No local execution history yet"; meta.append(reputation);
-    const use = document.createElement("button"); use.type = "button"; use.className = "button ghost application-use"; use.textContent = "Delegate to service"; use.addEventListener("click", () => selectAgentService(service));
-    card.append(top, title, desc, outcome, meta, use); box.append(card);
+    const use = document.createElement("button"); use.type = "button"; use.className = "button ghost application-use"; use.textContent = "Select service"; use.addEventListener("click", () => selectAgentService(service));
+    card.append(top, title, desc, workflow, outcome, meta, use); box.append(card);
   }
 }
 
@@ -776,22 +777,26 @@ function renderCkbApplications() {
   const box = document.querySelector("#ckb-application-grid");
   if (!box) return;
   box.replaceChildren();
-  for (const app of productConfig.ckbApplications ?? []) {
+  const query = document.querySelector("#ckb-application-filter")?.value.trim().toLowerCase() ?? "";
+  const applications = (productConfig.ckbApplications ?? []).filter((app) => !query || [app.title, app.audience, app.description, ...(app.deliverables ?? []), ...(app.workflow ?? []).map((stage) => stage.title)].join(" ").toLowerCase().includes(query));
+  for (const app of applications) {
     const card = document.createElement("article"); card.className = "application-card"; card.dataset.applicationId = app.id;
     const top = document.createElement("div"); top.className = "application-card-top";
-    const badge = document.createElement("span"); badge.className = `application-readiness ${app.ready ? "ready" : "needs-config"}`; badge.textContent = app.ready ? "Live evidence ready" : "Needs config for live data";
+    const badge = document.createElement("span"); badge.className = `application-readiness ${app.ready ? "ready" : "needs-config"}`; badge.textContent = app.ready ? "Ready" : "Needs configuration";
     const audience = document.createElement("small"); audience.textContent = app.audience; top.append(badge, audience);
     const title = document.createElement("h3"); title.textContent = app.title;
     const desc = document.createElement("p"); desc.textContent = app.description;
+    const workflow = document.createElement("p"); workflow.className = "application-workflow"; workflow.textContent = `Stages: ${(app.workflow ?? []).map((stage) => stage.title).join(" → ") || "evidence-backed review"}`;
     const outputs = document.createElement("ul"); outputs.className = "application-deliverables";
     for (const item of (app.deliverables ?? []).slice(0, 4)) { const li = document.createElement("li"); li.textContent = item; outputs.append(li); }
     const meta = document.createElement("div"); meta.className = "application-meta";
     const agent = document.createElement("code"); agent.textContent = app.agent;
     const plugins = document.createElement("span"); plugins.textContent = (app.plugins ?? []).join(" + "); meta.append(agent, plugins);
     if (!app.ready && (app.missingConfig ?? []).length) { const config = document.createElement("small"); config.className = "application-config"; config.textContent = `Configure ${app.missingConfig.join(", ")}`; meta.append(config); }
-    const use = document.createElement("button"); use.type = "button"; use.className = "button ghost application-use"; use.textContent = "Use this workflow"; use.addEventListener("click", () => selectCkbApplication(app));
-    card.append(top, title, desc, outputs, meta, use); box.append(card);
+    const use = document.createElement("button"); use.type = "button"; use.className = "button ghost application-use"; use.textContent = "Select workflow"; use.addEventListener("click", () => selectCkbApplication(app));
+    card.append(top, title, desc, workflow, outputs, meta, use); box.append(card);
   }
+  if (!applications.length) { const empty = document.createElement("article"); empty.className = "empty-state"; empty.textContent = "No workflows match this filter."; box.append(empty); }
 }
 
 function submissionPayload() {
@@ -823,8 +828,9 @@ function renderPassport(passport) {
     verify.addEventListener("click", () => { document.querySelector("#credential-id").value = credential.credentialId; activateView("inspector"); document.querySelector("#credential-id").focus(); });
     const download = document.createElement("a"); download.className = "button ghost small"; download.href = `/api/certificate/${encodeURIComponent(credential.credentialId)}`; download.target = "_blank"; download.rel = "noopener"; download.textContent = "Credential JSON";
     const html = document.createElement("a"); html.className = "button ghost small"; html.href = `/api/certificate/${encodeURIComponent(credential.credentialId)}/html`; html.target = "_blank"; html.rel = "noopener"; html.textContent = "HTML certificate";
-    const qr = document.createElement("a"); qr.className = "button ghost small"; qr.href = `/api/qr?credentialId=${encodeURIComponent(credential.credentialId)}`; qr.target = "_blank"; qr.rel = "noopener"; qr.textContent = "QR";
-    actions.append(verify, download, html, qr); card.append(badge, title, meta, issuer, document.createElement("br"), id, actions); grid.append(card);
+    actions.append(verify, download, html);
+    if (productConfig?.qrEnabled !== false) { const qr = document.createElement("a"); qr.className = "button ghost small"; qr.href = `/api/qr?credentialId=${encodeURIComponent(credential.credentialId)}`; qr.target = "_blank"; qr.rel = "noopener"; qr.textContent = "QR"; actions.append(qr); }
+    card.append(badge, title, meta, issuer, document.createElement("br"), id, actions); grid.append(card);
   }
   if (!(passport.credentials ?? []).length) { const empty = document.createElement("article"); empty.className = "empty-state"; empty.textContent = "No public credentials are attached to this Lock Script hash yet."; grid.append(empty); }
 }
@@ -865,7 +871,7 @@ document.querySelector("#submission-form")?.addEventListener("submit", async (ev
 
 document.querySelector("#ai-triage-submission")?.addEventListener("click", async (event) => {
   const status = document.querySelector("#submission-status"); const output = document.querySelector("#submission-ai-output"); setButtonBusy(event.currentTarget, true, "Analyzing…");
-  try { const result = await postJsonWithHeaders("/api/ai/evidence", submissionPayload(), aiRequestHeaders()); output.textContent = result.text; setFormStatus(status, `AI pre-check from ${result.provider}/${result.model}. Human review is still required.`, "success"); }
+  try { const result = await postJsonWithHeaders("/api/ai/evidence", submissionPayload(), aiRequestHeaders()); output.textContent = result.text; setFormStatus(status, `Pre-check complete with ${result.provider}/${result.model}. Human review is still required.`, "success"); }
   catch (error) { setFormStatus(status, error.message, "error"); } finally { setButtonBusy(event.currentTarget, false); }
 });
 
@@ -1045,7 +1051,7 @@ document.querySelector("#ckb-application-form")?.addEventListener("submit", asyn
   const button = event.submitter;
   setButtonBusy(button, true, "Running mission…");
   try {
-    if (!selectedCkbApplication) throw new Error("Choose a CKB Mission Control workflow first.");
+    if (!selectedCkbApplication) throw new Error("Choose a workflow first.");
     const objective = document.querySelector("#ckb-application-objective")?.value.trim();
     if (!objective) throw new Error("Describe the real CKB problem you need solved.");
     const rawContext = document.querySelector("#ckb-application-context")?.value.trim();
@@ -1104,6 +1110,8 @@ This tool was not marked read-only by its MCP server. Run it once for this task?
   } catch (error) { setFormStatus(status, error.message, "error"); }
   finally { setButtonBusy(button, false); }
 });
+
+document.querySelector("#ckb-application-filter")?.addEventListener("input", renderCkbApplications);
 
 loadProductConfig();
 const verifyParam = new URLSearchParams(location.search).get("credentialId");

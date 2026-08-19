@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Read-only CKB credential verification, Cell-data decoding, proof validation, and learning evidence tracking.">
-  <title>CKBuilder Console</title>
+  <meta name="description" content="Public CKB credential verification, builder passports, proof inspection, and operational CKB workflows.">
+  <meta name="theme-color" content="#111915">
+  <meta name="color-scheme" content="light dark">
+  <title>CKBuilder Passport — CKB Credential Verification</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -12,10 +14,11 @@
     <aside class="sidebar" aria-label="Primary navigation">
       <a class="brand" href="#overview" aria-label="CKBuilder Console home">
         <span class="brand-mark" aria-hidden="true">CK</span>
-        <span><strong>CKBuilder</strong><small>Passport & Credential Proof</small></span>
+        <span><strong>CKBuilder</strong><small>CKB credential infrastructure</small></span>
       </a>
 
       <nav class="nav-list">
+        <span class="nav-section">Core</span>
         <button class="nav-item active" type="button" data-view="overview" aria-current="page">
           <span class="nav-icon" aria-hidden="true">◇</span><span>Overview</span>
         </button>
@@ -31,6 +34,7 @@
         <button class="nav-item" type="button" data-view="submit">
           <span class="nav-icon" aria-hidden="true">＋</span><span>Submit evidence</span>
         </button>
+        <span class="nav-section">Tools</span>
         <button class="nav-item" type="button" data-view="decoder">
           <span class="nav-icon" aria-hidden="true">{ }</span><span>Cell decoder</span>
         </button>
@@ -40,14 +44,18 @@
         <button class="nav-item" type="button" data-view="learning">
           <span class="nav-icon" aria-hidden="true">↗</span><span>Learning hub</span>
         </button>
+        <span class="nav-section">Operations</span>
+        <button class="nav-item" type="button" data-scroll="agent-economy-hub">
+          <span class="nav-icon" aria-hidden="true">AS</span><span>Agent services</span>
+        </button>
         <button class="nav-item" type="button" data-scroll="ckb-mission-control">
-          <span class="nav-icon" aria-hidden="true">◎</span><span>Mission control</span>
+          <span class="nav-icon" aria-hidden="true">WF</span><span>Workflows</span>
         </button>
         <button class="nav-item" type="button" data-scroll="ai-agent-panel">
-          <span class="nav-icon" aria-hidden="true">AI</span><span>Advanced agents</span>
+          <span class="nav-icon" aria-hidden="true">AG</span><span>Custom analysis</span>
         </button>
         <button class="nav-item" type="button" data-scroll="ai-settings-panel">
-          <span class="nav-icon" aria-hidden="true">⚙</span><span>AI settings</span>
+          <span class="nav-icon" aria-hidden="true">MD</span><span>Model access</span>
         </button>
       </nav>
 
@@ -59,13 +67,13 @@
         <span class="status-dot" id="sidebar-status-dot" aria-hidden="true"></span>
         <div><strong id="sidebar-status">Checking service</strong><small>Read-only local console</small></div>
       </div>
-      <p class="sidebar-foot">No issuer private key is loaded by this interface.</p>
+      <p class="sidebar-foot">Public verifier · signing keys are never loaded here.</p>
     </aside>
 
     <main class="workspace">
       <header class="topbar">
         <div>
-          <p class="eyebrow">CKB credential infrastructure</p>
+          <p class="eyebrow">CKBuilder Passport</p>
           <h1 id="page-title">Project overview</h1>
         </div>
         <div class="topbar-meta">
@@ -78,25 +86,25 @@
       <section class="view active" id="view-overview" data-title="Project overview">
         <div class="hero-card">
           <div class="hero-copy">
-            <span class="hero-kicker">CKBuilder Agent Economy + Mission Control v<span id="hero-version">10.0.1</span></span>
-            <h2>Build a portable, CKB-verifiable passport for learning, projects, and real contributions.</h2>
-            <p>Learn, submit evidence, receive human-reviewed credentials, and let anyone independently verify your signed credential and CKB Cell state. AI is optional and never decides validity.</p>
+            <span class="hero-kicker">Public verification console · v<span id="hero-version">10.1.0</span></span>
+            <h2>Verify credentials and inspect CKB-backed builder activity.</h2>
+            <p>Inspect signed credentials, compare public evidence, review CKB Cell state, and open builder passports from one read-only interface. Automated analysis is optional and never changes verification results.</p>
             <div class="hero-actions">
-              <button class="button primary" type="button" data-go="inspector">Inspect a credential</button>
-              <button class="button ghost" type="button" data-go="passport">Open a builder passport</button>
+              <button class="button primary" type="button" data-go="inspector">Verify credential</button>
+              <button class="button ghost" type="button" data-go="passport">View builder passport</button>
             </div>
           </div>
           <div class="hero-visual" aria-label="Credential lifecycle diagram">
             <div class="chain-node">
-              <span>01</span><strong>Issue</strong><small>Signed off-chain credential</small>
+              <span>01</span><strong>Signed</strong><small>Issuer-authenticated credential</small>
             </div>
             <div class="chain-line"></div>
             <div class="chain-node active-state">
-              <span>02</span><strong>ACTIVE</strong><small>Canonical CKB Cell</small>
+              <span>02</span><strong>Active</strong><small>Current CKB Cell state</small>
             </div>
             <div class="chain-line"></div>
             <div class="chain-node revoked-state">
-              <span>03</span><strong>REVOKED</strong><small>Irreversible lineage state</small>
+              <span>03</span><strong>Revoked</strong><small>Recorded terminal state</small>
             </div>
           </div>
         </div>
@@ -119,7 +127,7 @@
         <div class="content-grid overview-grid">
           <article class="panel">
             <div class="panel-head">
-              <div><p class="eyebrow">Verification workflow</p><h2>Four independent checks</h2></div>
+              <div><p class="eyebrow">Verification model</p><h2>Four checks, one result</h2></div>
             </div>
             <div class="feature-list">
               <div class="feature-row"><span>01</span><div><strong>Issuer authenticity</strong><p>Validate the trusted issuer, Ed25519 key binding, and credential signature.</p></div></div>
@@ -131,7 +139,7 @@
 
           <article class="panel compact-panel">
             <div class="panel-head">
-              <div><p class="eyebrow">Quick tools</p><h2>Open a workspace</h2></div>
+              <div><p class="eyebrow">Core tools</p><h2>Common actions</h2></div>
             </div>
             <button class="tool-link" type="button" data-go="inspector"><span><strong>Credential inspector</strong><small>Public verification by credential ID</small></span><b>→</b></button>
             <button class="tool-link" type="button" data-go="decoder"><span><strong>Cell decoder</strong><small>Interpret canonical 75-byte output data</small></span><b>→</b></button>
@@ -209,7 +217,7 @@
       </section>
 
       <section class="view" id="view-submit" data-title="Submit evidence">
-        <div class="section-intro"><div><p class="eyebrow">Human-reviewed credential workflow</p><h2>Submit builder evidence</h2><p>Submit project, learning, contribution, or event evidence. AI can optionally triage it; only an authenticated human reviewer can approve issuance.</p></div><span class="privacy-badge">No AI key required</span></div>
+        <div class="section-intro"><div><p class="eyebrow">Credential request</p><h2>Submit builder evidence</h2><p>Provide project, learning, contribution, or event evidence for human review. Optional model-assisted screening can help organize the submission; only an authenticated reviewer can approve issuance.</p></div><span class="privacy-badge">Human approval required</span></div>
         <div class="content-grid"><article class="panel"><form id="submission-form">
           <div class="two-column"><label>Your name<input id="submission-name" required maxlength="160"></label><label>Email<input id="submission-email" type="email" required maxlength="254"></label></div>
           <label>Recipient Lock Script hash<input id="submission-lock" required maxlength="66" placeholder="0x…"></label>
@@ -218,8 +226,8 @@
           <label>Evidence URLs or references <span>one per line</span><textarea id="submission-evidence" placeholder="https://github.com/...&#10;CKB transaction: 0x..."></textarea></label>
           <label>Evidence files <span>optional · up to 10 files / 5 MB each</span><input id="submission-files" type="file" multiple accept=".html,.htm,.txt,.md,.markdown,.json,.pdf,.png,.jpg,.jpeg,.webp,text/html,text/plain,text/markdown,application/json,application/pdf,image/png,image/jpeg,image/webp"><small>HTML is stored as raw evidence but only shown through a sanitized preview to reviewers.</small></label>
           <label>Notes <span>optional</span><textarea id="submission-notes" class="short-textarea" placeholder="What did you build or complete?"></textarea></label>
-          <div class="form-actions"><button id="check-submission" class="button ghost" type="button">Check GitHub / CKB evidence</button><button id="ai-triage-submission" class="button ghost" type="button">AI pre-check</button><button class="button primary" type="submit">Submit for human review</button></div><p id="submission-status" class="form-status">AI is optional.</p>
-        </form></article><article class="panel"><p class="eyebrow">AI pre-check</p><h2>Evidence triage</h2><div id="submission-ai-output" class="ai-output"><p>Enter your own API key in AI Settings if you want an optional pre-check. CKBuilder never stores that key on the server.</p></div><hr><h3>Track a submission</h3><form id="tracking-form"><label>Submission ID<input id="tracking-id"></label><label>Tracking token<input id="tracking-token" type="password"></label><button class="button ghost">Check status</button><p id="tracking-status" class="form-status"></p></form><div id="tracking-details" class="hidden"><h3>Uploaded evidence files</h3><ul id="tracking-attachments" class="attachment-list"></ul><h3>Timeline</h3><ol id="tracking-timeline" class="history"></ol><div id="tracking-actions" class="form-actions"><button id="tracking-resubmit" type="button" class="button ghost hidden">Resubmit updated evidence</button><button id="tracking-cancel" type="button" class="button danger hidden">Cancel submission</button></div></div></article></div>
+          <div class="form-actions"><button id="check-submission" class="button ghost" type="button">Check GitHub / CKB evidence</button><button id="ai-triage-submission" class="button ghost" type="button">Optional pre-check</button><button class="button primary" type="submit">Submit for human review</button></div><p id="submission-status" class="form-status">Ready for evidence submission.</p>
+        </form></article><article class="panel"><p class="eyebrow">Optional screening</p><h2>Submission pre-check</h2><div id="submission-ai-output" class="ai-output"><p>Use your own model key only if you want an automated pre-check. CKBuilder does not persist the key on the server.</p></div><hr><h3>Track a submission</h3><form id="tracking-form"><label>Submission ID<input id="tracking-id"></label><label>Tracking token<input id="tracking-token" type="password"></label><button class="button ghost">Check status</button><p id="tracking-status" class="form-status"></p></form><div id="tracking-details" class="hidden"><h3>Uploaded evidence files</h3><ul id="tracking-attachments" class="attachment-list"></ul><h3>Timeline</h3><ol id="tracking-timeline" class="history"></ol><div id="tracking-actions" class="form-actions"><button id="tracking-resubmit" type="button" class="button ghost hidden">Resubmit updated evidence</button><button id="tracking-cancel" type="button" class="button danger hidden">Cancel submission</button></div></div></article></div>
       </section>
 
       <section class="view" id="view-decoder" data-title="Cell decoder">
@@ -356,7 +364,7 @@
           </div>
         </article>
 
-        <article class="panel ai-tutor"><div><p class="eyebrow">Optional AI tutor</p><h2>Ask about the CKB learning path</h2><p>Uses your API key and the repository curriculum context. It cannot mark modules complete.</p></div><form id="tutor-form"><label>Question<textarea id="tutor-question" class="short-textarea" placeholder="Why does a Type Script run on both inputs and outputs?"></textarea></label><button class="button ghost">Ask AI</button><p id="tutor-status" class="form-status"></p></form><div id="tutor-output" class="ai-output hidden"></div></article>
+        <article class="panel ai-tutor"><div><p class="eyebrow">Optional study assistant</p><h2>Ask about the CKB learning path</h2><p>Uses your model key and the repository curriculum context. It cannot mark modules complete or create evidence.</p></div><form id="tutor-form"><label>Question<textarea id="tutor-question" class="short-textarea" placeholder="Why does a Type Script run on both inputs and outputs?"></textarea></label><button class="button ghost">Ask assistant</button><p id="tutor-status" class="form-status"></p></form><div id="tutor-output" class="ai-output hidden"></div></article>
 
         <dialog id="lesson-dialog" class="lesson-dialog" aria-labelledby="lesson-dialog-title">
           <form method="dialog" class="dialog-close-row"><button class="icon-button" value="close" aria-label="Close lesson details">×</button></form>
@@ -377,7 +385,7 @@
 
             <section class="mission-control panel" id="agent-economy-hub">
               <div class="mission-control-head">
-                <div><p class="eyebrow">CKB Agent Service Hub · AI × blockchain</p><h2>Delegate work, simulate payment, keep a verifiable receipt</h2><p>Inspired by current agent-commerce systems, CKBuilder v10 treats CKB agents as services rather than chat personas. Choose a service or specialist team, attach live CKB/Fiber evidence, optionally simulate a Fiber payment quote, and receive a cryptographic job receipt that a wallet can later anchor on CKB.</p></div>
+                <div><p class="eyebrow">Agent services</p><h2>Run bounded CKB analysis with verifiable receipts</h2><p>Choose a defined service or specialist team, attach CKB/Fiber evidence, and receive an auditable job receipt. Payment remains a dry-run quote or external human-approved action; this interface never signs or spends funds.</p></div>
                 <span class="privacy-badge">Human-controlled settlement</span>
               </div>
               <div id="agent-service-grid" class="application-grid"><span class="muted">Loading agent services…</span></div>
@@ -386,8 +394,8 @@
                   <div class="two-column"><label>Selected service<input id="agent-service-selected" disabled value="Choose a service above"></label><label>Settlement policy<input value="Quote / intent only · human executes" disabled></label></div>
                   <label>Job objective<textarea id="agent-service-objective" class="short-textarea" maxlength="6000" placeholder="Example: run a production-readiness gate for my CKB + Fiber application before testnet launch."></textarea></label>
                   <label>Optional job context<textarea id="agent-service-context" class="short-textarea" maxlength="24000" placeholder="Architecture, repository facts, tx hash, release target, business constraints, etc."></textarea></label>
-                  <div class="form-actions"><button class="button primary" type="submit">Delegate agent job</button></div>
-                  <p id="agent-service-status" class="form-status">Choose a service. Multi-agent services coordinate specialist roles automatically.</p>
+                  <div class="form-actions"><button class="button primary" type="submit">Run service</button></div>
+                  <p id="agent-service-status" class="form-status">Select a service to review its scope and execution policy.</p>
                   <pre id="agent-service-agreement-preview" class="ai-output receipt-output hidden"></pre>
                 </form>
                 <form id="fiber-quote-form" class="application-runner fiber-quote-panel">
@@ -443,38 +451,39 @@
 
             <section class="mission-control panel" id="ckb-mission-control">
               <div class="mission-control-head">
-                <div><p class="eyebrow">CKB Mission Control · real-world workflows</p><h2>Start with a CKB job, not an empty chatbot</h2><p>Choose an operational or developer mission. CKBuilder selects the specialist agent, evidence plugins, and expected deliverables automatically. Live workflows show whether the required CKB/Fiber/workspace connection is configured before you run them.</p></div>
+                <div><p class="eyebrow">Operational workflows</p><h2>Run a defined CKB workflow</h2><p>Select a workflow for development, launch review, incident response, credentials, assets, or Fiber operations. Each workflow declares its stages, evidence sources, required configuration, and expected outputs before execution.</p></div>
                 <span class="privacy-badge">Read-only evidence first</span>
               </div>
+              <label class="workflow-filter">Search workflows<input id="ckb-application-filter" autocomplete="off" placeholder="Wallet, xUDT, incident, Fiber, credential"></label>
               <div id="ckb-application-grid" class="application-grid"><span class="muted">Loading CKB applications…</span></div>
               <form id="ckb-application-form" class="application-runner">
                 <div class="two-column"><label>Selected workflow<input id="ckb-application-selected" disabled value="Choose a mission above"></label><label>Agent policy<input value="Evidence-backed · no signing/broadcast" disabled></label></div>
                 <label>What do you need solved?<textarea id="ckb-application-objective" class="short-textarea" maxlength="6000" placeholder="Select a workflow above to load a real CKB example."></textarea></label>
                 <label>Optional evidence / context<textarea id="ckb-application-context" class="short-textarea" maxlength="24000" placeholder="Transaction hash or JSON, out point, error log, contributor skills, research question details, etc."></textarea></label>
-                <div class="form-actions"><button id="ckb-application-run" class="button primary" type="submit">Run CKB mission</button></div>
-                <p id="ckb-application-status" class="form-status">Select one of the workflows above.</p>
+                <div class="form-actions"><button id="ckb-application-run" class="button primary" type="submit">Run workflow</button></div>
+                <p id="ckb-application-status" class="form-status">Select a workflow to review its scope and requirements.</p>
               </form>
               <div id="ckb-application-output" class="ai-output hidden"></div>
               <div id="ckb-application-trace" class="agent-trace hidden"></div>
             </section>
 
             <section class="ai-agent-workbench panel" id="ai-agent-panel">
-              <div><p class="eyebrow">Advanced agent workbench</p><h2>Build a custom CKB agent run</h2><p>For tasks that do not fit a Mission Control workflow, choose Auto or a specialist and manually select the evidence plugins. The specialist can discover and call enabled read-only tools. Built-in plugins cover official CKB docs, Nervos Talk, and configured CKB JSON-RPC; community MCP plugins can extend the runtime. Every tool call is audited, and signing/broadcasting remains outside the AI agent.</p></div>
+              <div><p class="eyebrow">Custom analysis</p><h2>Configure a one-off CKB analysis</h2><p>Use this when no predefined workflow fits. Select a specialist and the read-only evidence sources it may use. Every tool call is recorded; transaction signing and broadcast remain outside this runtime.</p></div>
               <form id="ai-agent-form">
                 <div class="two-column"><label>Agent<select id="ai-agent"><option value="auto">Auto-route</option></select></label><label>Mode<input value="Read-only advisory" disabled></label></div>
                 <label>Task<textarea id="ai-agent-task" class="short-textarea" maxlength="6000" placeholder="Example: Why does this CKB transaction fail after I add a Type Script output?"></textarea></label>
                 <label>Optional deterministic context<textarea id="ai-agent-context" class="short-textarea" maxlength="24000" placeholder='Paste transaction JSON, RPC output, Cell data, logs, or repository facts. This is treated as untrusted context.'></textarea></label>
                 <fieldset class="plugin-picker"><legend>Agent plugins</legend><div id="ai-plugin-list" class="plugin-list"><span class="muted">Loading plugins…</span></div><small>Community MCP plugins are disabled by default. Tools not explicitly marked read-only stop at the approval boundary.</small></fieldset>
                 <div class="two-column"><label>Maximum reasoning/tool steps<input id="ai-agent-max-steps" type="number" min="1" max="6" value="4"></label><label>Signing boundary<input value="No signing / no broadcast" disabled></label></div>
-                <div class="form-actions"><button class="button primary" type="submit">Run tool-using agent</button></div><p id="ai-agent-status" class="form-status">Uses your BYOK settings below.</p>
+                <div class="form-actions"><button class="button primary" type="submit">Run analysis</button></div><p id="ai-agent-status" class="form-status">Uses the optional model connection configured below.</p>
               </form>
               <div id="ai-agent-output" class="ai-output hidden"></div><div id="ai-agent-trace" class="agent-trace hidden"></div>
             </section>
 
-            <section class="ai-settings-bar panel" id="ai-settings-panel"><div><p class="eyebrow">Optional AI · BYOK</p><h2>Use your own API key</h2><p>The key is kept only in this browser tab and forwarded only when you click an AI action. Auto-detect recognizes common OpenAI, Gemini, Anthropic, Groq, and OpenRouter key formats. The selected provider receives only the content required for that request; CKBuilder never writes the key to server storage.</p></div><div class="ai-settings-grid"><label>Provider<select id="ai-provider"></select></label><label>Model<input id="ai-model" autocomplete="off" placeholder="Leave blank to use provider default"></label><label>API key<input id="ai-key" type="password" autocomplete="off" placeholder="Enter only if you want AI"></label><button id="save-ai-settings" class="button ghost" type="button">Use this session</button></div><p id="ai-settings-status" class="form-status"></p></section>
+            <section class="ai-settings-bar panel" id="ai-settings-panel"><div><p class="eyebrow">Model access · optional</p><h2>Connect a model for assisted analysis</h2><p>Your key stays in this browser tab and is sent only for an action you start. CKBuilder does not persist it on the server. Deterministic credential and CKB checks remain independent of model output.</p></div><div class="ai-settings-grid"><label>Provider<select id="ai-provider"></select></label><label>Model<input id="ai-model" autocomplete="off" placeholder="Leave blank to use provider default"></label><label>API key<input id="ai-key" type="password" autocomplete="off" placeholder="Enter only if you want AI"></label><button id="save-ai-settings" class="button ghost" type="button">Save for this tab</button></div><p id="ai-settings-status" class="form-status"></p></section>
 
 <footer class="footer">
-        <p>CKBuilder v10.0.1 · signed agent receipts, SQLite jobs, transaction intents, Fiber settlement verification + Mission Control</p>
+        <p>CKBuilder v10.1.0 · public credential verification and CKB workflow tooling</p>
         <p>Community formats are reference artifacts, not an official CKB standard.</p>
       </footer>
     </main>
