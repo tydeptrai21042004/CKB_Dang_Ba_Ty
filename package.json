@@ -1,11 +1,11 @@
 {
   "name": "ckbuilder-passport",
-  "version": "10.0.1",
+  "version": "10.1.0",
   "private": true,
   "type": "module",
   "description": "CKBuilder v10 AgentOS: signed service identity/receipts, SQLite agent jobs, exact-argument approvals, hardened MCP 2026 transport, CKB transaction intents + preflight, Fiber quote/settlement verification, Mission Control, credentials, and BYOK AI.",
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "scripts": {
     "env:check": "bash scripts/check-env.sh",
@@ -67,7 +67,10 @@
     "agent:receipt:verify": "node src/cli/verify-agent-receipt.js",
     "agent:tx:preflight": "node src/cli/preflight-ckb-transaction.js",
     "test:v10": "node --test --test-reporter=spec test/v10-agentos.test.js",
-    "agent:tx:build": "node src/cli/build-ckb-transaction.js"
+    "test:workflows": "node --test --test-reporter=spec test/v10-expanded-workflows.test.js",
+    "agent:tx:build": "node src/cli/build-ckb-transaction.js",
+    "vercel:check": "node scripts/check-vercel-deploy.js",
+    "test:ui:production": "node --test --test-reporter=spec test/v10-production-ui.test.js"
   },
   "dependencies": {
     "@ckb-ccc/core": "1.16.1"

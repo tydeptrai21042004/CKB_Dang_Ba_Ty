@@ -1,5 +1,29 @@
 # Changelog
 
+## 10.1.0 — 2026-08-19
+
+### Expanded real-world workflows
+
+- Expanded Mission Control from 7 to 15 CKB workflows with explicit ordered stages exposed in `/api/config` and rendered in the browser.
+- Added Testnet Launch Gate, CCC Wallet Integration, xUDT Token Launch, Spore/DOB Creator Launch, RGB++ Integration Review, Credential Trust Audit, RPC Incident Response, and Fiber Liquidity/Routing Planner workflows.
+- Added CKB Production Incident Team, Credential Trust Auditor, Wallet & Transaction Flow Reviewer, and Asset Launch Reviewer services to the Agent Service Hub.
+- Added service workflow stages to the execution contract while preserving no-signing, no-broadcast, no-autonomous-spend boundaries.
+- Added an incident-command synthesis path for the production incident multi-agent team.
+
+### Production UI refresh
+
+- Reworked the public interface into a restrained product-console style: flatter surfaces, smaller radii, reduced shadow/gradient use, denser information hierarchy, and grouped navigation.
+- Replaced marketing-heavy/AI-first labels with task-oriented product language while preserving all existing workflow IDs, routes, and safety boundaries.
+- Added direct navigation for Agent services, Workflows, Custom analysis, and Model access.
+- Added browser metadata and a dedicated production-UI regression suite to prevent the old generated-marketing copy from returning.
+
+### Verification
+
+- Added 11 focused workflow/use-case regression tests, including mocked end-to-end CKB RPC, Fiber, CKB docs, HTTP configuration, signed receipt, and multi-agent incident flows.
+- Full Node.js regression suite: 364 total, 363 passed, 0 failed, 1 optional CCC integration skipped in the validation environment.
+- `npm run ci:local` and `npm run vercel:check` pass.
+
+
 ## 10.0.1 — 2026-08-15
 
 ### Fixed

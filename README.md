@@ -1,5 +1,7 @@
 # CKBuilder AgentOS v10.0.1
 
+> **Deploy the public app on Vercel without changing the project structure:** run `npm run vercel:check`, then follow [`VERCEL_DEPLOY.md`](./VERCEL_DEPLOY.md). The Vercel target is intentionally read-only for local persistence; the existing private issuer/Docker workflow remains unchanged.
+
 CKBuilder v10 upgrades the v9 agent-service platform with **persistent Ed25519 service identity, signed receipts, SQLite agent jobs, exact argument-bound MCP approvals, hardened MCP 2026 transport, unsigned CKB transaction building, Fiber settlement verification, and live CKB Dev Skills grounding**. The existing safety invariant remains unchanged: the AI runtime does not hold wallet keys, sign or broadcast transactions, send real Fiber payments, or mutate channels.
 
 ## Week 5 / v10.0.1 reliability update
@@ -90,17 +92,27 @@ See **[V8.0_AI_BLOCKCHAIN_DIRECTION.md](V8.0_AI_BLOCKCHAIN_DIRECTION.md)** for t
 
 CKBuilder v7 turns the optional BYOK AI layer into a **real-world CKB mission-control copilot**. Instead of starting from a generic chat box, users choose a concrete CKB job and CKBuilder automatically binds the right specialist, read-only evidence plugins, runtime connections, and output contract. Deterministic credential/CKB verification remains authoritative.
 
-## v7 real-world CKB applications
+## Real-world CKB applications (15 workflows)
 
-| Mission | Who it serves | Live evidence | Main output |
+| Mission | Primary use | Live evidence | Main output |
 |---|---|---|---|
-| Fiber Node Operator Diagnostics | Fiber operators/payment apps | `FIBER_RPC_URL` | peer/channel/payment/graph diagnosis + safe operator actions |
-| CKB Transaction Failure Lab | dApp/wallet/Script builders | `CKB_RPC_URL` | transaction/Cell/dry-run evidence + ranked root causes |
-| CKB Script Debug & Test Lab | Rust/CKB-VM developers | `CKB_AGENT_WORKSPACE` + optional RPC | source/test/debugger reproduction plan |
-| xUDT / Spore / RGB++ Asset Investigator | wallets/explorers/marketplaces | `CKB_RPC_URL` | Cell/type-script provenance and protocol-fit evidence |
-| CKB Community Contribution Finder | CKBuilders/new contributors | GitHub + Nervos Talk + docs | current issues matched to skills + first milestone |
-| Protocol & Ecosystem Research Brief | researchers/proposal teams | docs + repositories + community | source-backed alternatives, unknowns, research agenda |
-| CKB dApp Architecture Advisor | teams/startups/hackathons | current docs + community | CKB-native component map and MVP boundaries |
+| Fiber Node Operator Diagnostics | Fiber incident diagnosis | `FIBER_RPC_URL` | peer/channel/payment/graph diagnosis |
+| CKB Transaction Failure Lab | rejected/failing transactions | `CKB_RPC_URL` | transaction/Cell/dry-run root causes |
+| CKB Script Debug & Test Lab | Lock/Type Script debugging | `CKB_AGENT_WORKSPACE` | reproduction + test/debugger plan |
+| xUDT / Spore / RGB++ Asset Investigator | existing asset provenance | `CKB_RPC_URL` | Cell/type/provenance evidence |
+| CKB Community Contribution Finder | contributor onboarding | public docs/community | current work matched to skills |
+| Protocol & Ecosystem Research Brief | technical research | public docs/community | evidence-backed architecture brief |
+| CKB dApp Architecture Advisor | product architecture | public docs/community | component/state/MVP map |
+| CKB Testnet Launch Gate | release readiness | `CKB_RPC_URL` + optional workspace | GO/CONDITIONAL GO/NO-GO checklist |
+| CCC Wallet Integration Readiness | wallet UX + signing boundaries | optional workspace | wallet state machine + tests |
+| xUDT Token Launch Planner | new token launch | optional `CKB_RPC_URL` | issuance/transfer/test workflow |
+| Spore / DOB Creator Launch | digital object product | public docs/community | create/transfer/provenance workflow |
+| RGB++ Integration Review | Bitcoin-linked asset design | public docs/community | cross-chain trust/state map |
+| CKBuilder Credential Trust Audit | credential issuer/verifier | optional `CKB_RPC_URL` | issuance/revocation/privacy audit |
+| CKB RPC Incident Response | production RPC/indexer incident | `CKB_RPC_URL` | severity, hypotheses, recovery checks |
+| Fiber Liquidity & Routing Planner | payment routing/liquidity | `FIBER_RPC_URL` | bottleneck + human-approved action plan |
+
+Each mission now publishes an ordered workflow (`workflow[]`) in `/api/config`. The browser shows these stages before execution, and the same stages are bound into the specialist task sent to the BYOK agent.
 
 Mission Control is exposed through `POST /api/ai/application`; the lower-level `POST /api/ai/agent` workbench remains available for custom tasks. A workflow reports **live evidence ready** only when its required runtime connection is configured; otherwise it stays in advisory mode and names what is missing.
 

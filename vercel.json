@@ -6,7 +6,7 @@
       "src": "vercel-entry.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": "{public,data,deployment,learning,plugins,community}/**"
+        "includeFiles": "{public/**,data/ledger.json,data/trusted-issuers.json,data/offckb-chain-state.json,deployment/*.json,learning/**,plugins/**,community/**}"
       }
     }
   ],
@@ -15,5 +15,6 @@
       "src": "/(.*)",
       "dest": "/vercel-entry.js"
     }
-  ]
+  ],
+  "installCommand": "npm ci --omit=dev"
 }

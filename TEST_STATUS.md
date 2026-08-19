@@ -1,6 +1,6 @@
-# Test status — CKBuilder AgentOS v10.0.1
+# Test status — CKBuilder AgentOS v10.1.0
 
-Validated on **15 August 2026** after the Week 5 Gemini/runtime-CI reliability patch and documentation/screenshot integration.
+Validated on **19 August 2026** after the expanded workflow and production-UI regression pass.
 
 ## Current automated checks
 
@@ -8,8 +8,8 @@ Validated on **15 August 2026** after the Week 5 Gemini/runtime-CI reliability p
 |---|---:|
 | JavaScript syntax | **Passed** |
 | AI/provider/agent regression subset | **144/144 passed** |
-| Full Node.js regression suite | **347 total** |
-| Passed | **346** |
+| Full Node.js regression suite | **364 total** |
+| Passed | **363** |
 | Failed | **0** |
 | Skipped | **1 optional CCC integration** |
 | Learning tests | **23/23 passed** |
@@ -23,6 +23,43 @@ Validated on **15 August 2026** after the Week 5 Gemini/runtime-CI reliability p
 The single skipped Node.js test is the optional `@ckb-ccc/core` integration. That package is not installed in this validation container, so the case is recorded as skipped rather than falsely reported as passed.
 
 `rustc` is also unavailable in this validation container. `npm run learning:check` therefore performed the deterministic Rust source checks but did not make a fresh compiler claim. Historical/local WSL Rust contract evidence remains separate from this fresh v10.0.1 Node/runtime validation.
+
+
+## Production UI regression coverage
+
+The public interface now has a focused UI regression suite that checks:
+
+- restrained product copy replaces the previous marketing-heavy AI-first headings;
+- navigation is grouped into Core, Tools, and Operations;
+- direct navigation exists for Agent services, Workflows, Custom analysis, and Model access;
+- browser theme/color metadata is present;
+- the final CSS layer uses flat hero/application surfaces and disables decorative lift animations;
+- workflow/service cards use concise status and stage language.
+
+Run it with:
+
+```bash
+npm run test:ui:production
+```
+
+## v10.1 workflow expansion coverage
+
+The release now publishes **15 Mission Control workflows** and additional Agent Service Hub services for production incidents, credential trust, wallet/transaction review, and asset launch review. The new focused suite covers:
+
+- ordered workflow-stage contracts and browser rendering;
+- Testnet launch, CCC wallet, xUDT, Spore/DOB, RGB++, credential, RPC incident, and Fiber liquidity use cases;
+- real mocked CKB RPC read-only calls (`get_tip_block_number`, `get_tip_header`) with no broadcast;
+- read-only Fiber operator snapshots with no channel/payment mutation;
+- CKB docs grounding for asset-launch work;
+- signed receipt verification for wallet-flow review;
+- three-specialist production incident triage plus incident-command synthesis;
+- public config secret non-disclosure and non-custodial safety invariants.
+
+Run the focused suite with:
+
+```bash
+npm run test:workflows
+```
 
 ## Week 5 Gemini regression coverage
 
