@@ -1,0 +1,4 @@
+
+> ckbuilder-passport@10.2.0 syntax:check
+> bash -c 'while IFS= read -r -d "" file; do node --check "$file"; done < <(find src test public scripts community -name "*.js" -print0)'
+

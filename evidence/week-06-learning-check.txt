@@ -1,0 +1,13 @@
+
+> ckbuilder-passport@10.2.0 learning:check
+> node scripts/check-learning.js
+
+Learning evidence: 61/61 tracked items (100%).
+- Rustlings foundations: 22/22 [complete]
+- CKB Academy modules: 8/8 [complete]
+- Official basic CKB tutorials: 5/5 [complete]
+- CCC learning path: 4/4 [complete]
+- Cell Model explanations: 8/8 [complete]
+- Structured CKB curriculum: 14/14 [complete]
+Curriculum validation: 14 modules and 14 quizzes available.
+Rust validation: rustc unavailable; deterministic source checks passed.

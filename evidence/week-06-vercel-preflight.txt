@@ -1,0 +1,18 @@
+
+> ckbuilder-passport@10.2.0 vercel:check
+> node scripts/check-vercel-deploy.js
+
+PASS: Required Vercel/public runtime files are present.
+PASS: Deployment JSON files parse successfully.
+PASS: Node runtime is pinned to 22.x.
+PASS: vercel.json includes the public runtime assets needed by the existing server.
+PASS: No real .env, secrets, private agent state, or runtime SQLite database is present.
+PASS: Vercel adapter /api/health returns HTTP 200.
+PASS: Vercel adapter /api/ready confirms the bundled public ledger.
+PASS: Serverless capability flags correctly disable persistent submissions, QR binary use, and local agent-job storage.
+PASS: Public credential inspection works through the Vercel adapter without a private key or SQLite database.
+PASS: QR capability degrades gracefully when qrencode is unavailable on Vercel.
+PASS: Persistent agent-job lookup degrades gracefully on serverless storage.
+PASS: Vercel smoke test left bundled data read-only.
+
+Vercel deployment preflight PASSED.

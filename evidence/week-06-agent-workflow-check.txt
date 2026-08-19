@@ -1,0 +1,16 @@
+
+> ckbuilder-passport@10.2.0 test:v10.2
+> node --test --test-reporter=spec test/v10.2-agent-workflow.test.js
+
+✔ v10.2 workflow planner creates dependency-aware stages and human approval gates (2.376784ms)
+✔ v10.2 workflow evaluation scores evidence and creates an independently verifiable checkpoint (0.684919ms)
+✔ v10.2 catalog adds the checkpointed CKB Agent Workflow Orchestrator (1.034869ms)
+✔ v10.2 completed agent service returns plan, evidence control, checkpoint, and receipt bindings (24.848296ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 118.535886
