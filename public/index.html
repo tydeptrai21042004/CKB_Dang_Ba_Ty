@@ -86,7 +86,7 @@
       <section class="view active" id="view-overview" data-title="Project overview">
         <div class="hero-card">
           <div class="hero-copy">
-            <span class="hero-kicker">Public verification console · v<span id="hero-version">10.1.0</span></span>
+            <span class="hero-kicker">Public verification console · v<span id="hero-version">10.2.0</span></span>
             <h2>Verify credentials and inspect CKB-backed builder activity.</h2>
             <p>Inspect signed credentials, compare public evidence, review CKB Cell state, and open builder passports from one read-only interface. Automated analysis is optional and never changes verification results.</p>
             <div class="hero-actions">
@@ -385,7 +385,7 @@
 
             <section class="mission-control panel" id="agent-economy-hub">
               <div class="mission-control-head">
-                <div><p class="eyebrow">Agent services</p><h2>Run bounded CKB analysis with verifiable receipts</h2><p>Choose a defined service or specialist team, attach CKB/Fiber evidence, and receive an auditable job receipt. Payment remains a dry-run quote or external human-approved action; this interface never signs or spends funds.</p></div>
+                <div><p class="eyebrow">Agent services</p><h2>Run checkpointed CKB agent workflows with verifiable receipts</h2><p>Choose a defined service or specialist team, preview a dependency-aware plan, collect CKB/Fiber evidence, apply deterministic confidence and human-approval gates, and receive a resumable checkpoint plus auditable job receipt. Payment remains a dry-run quote or external human-approved action; this interface never signs or spends funds.</p></div>
                 <span class="privacy-badge">Human-controlled settlement</span>
               </div>
               <div id="agent-service-grid" class="application-grid"><span class="muted">Loading agent services…</span></div>
@@ -415,7 +415,7 @@
                 <section class="application-runner">
                   <p class="eyebrow">Runtime doctor + receipt verifier</p><h3>Prove the agent stack is runnable</h3>
                   <p class="muted">Checks plugin configuration without exposing RPC URLs, workspace paths, GitHub tokens, or wallet secrets. Completed receipts can be re-hashed independently.</p>
-                  <div class="form-actions"><button id="agent-runtime-doctor" class="button ghost" type="button">Run agent doctor</button><button id="verify-latest-agent-receipt" class="button ghost" type="button">Verify latest receipt</button><button id="export-latest-agent-pack" class="button ghost" type="button">Export evidence pack</button></div>
+                  <div class="form-actions"><button id="agent-runtime-doctor" class="button ghost" type="button">Run agent doctor</button><button id="verify-latest-agent-receipt" class="button ghost" type="button">Verify latest receipt</button><button id="verify-latest-agent-checkpoint" class="button ghost" type="button">Verify checkpoint</button><button id="export-latest-agent-pack" class="button ghost" type="button">Export evidence pack</button></div>
                   <div><p class="eyebrow">Recent private jobs · this tab only</p><div id="recent-agent-jobs" class="recent-agent-jobs"><span class="muted">No jobs saved in this browser tab yet.</span></div></div>
                   <pre id="agent-runtime-doctor-output" class="ai-output receipt-output hidden"></pre>
                 </section>
@@ -483,7 +483,7 @@
             <section class="ai-settings-bar panel" id="ai-settings-panel"><div><p class="eyebrow">Model access · optional</p><h2>Connect a model for assisted analysis</h2><p>Your key stays in this browser tab and is sent only for an action you start. CKBuilder does not persist it on the server. Deterministic credential and CKB checks remain independent of model output.</p></div><div class="ai-settings-grid"><label>Provider<select id="ai-provider"></select></label><label>Model<input id="ai-model" autocomplete="off" placeholder="Leave blank to use provider default"></label><label>API key<input id="ai-key" type="password" autocomplete="off" placeholder="Enter only if you want AI"></label><button id="save-ai-settings" class="button ghost" type="button">Save for this tab</button></div><p id="ai-settings-status" class="form-status"></p></section>
 
 <footer class="footer">
-        <p>CKBuilder v10.1.0 · public credential verification and CKB workflow tooling</p>
+        <p>CKBuilder v10.2.0 · public credential verification and checkpointed CKB agent workflows</p>
         <p>Community formats are reference artifacts, not an official CKB standard.</p>
       </footer>
     </main>

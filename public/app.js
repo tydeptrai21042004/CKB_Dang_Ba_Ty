@@ -993,7 +993,7 @@ async function reopenAgentJob(item) {
   const output = document.querySelector("#agent-service-output"), receipt = document.querySelector("#agent-service-receipt");
   if (output) { output.textContent = result.text ?? ""; output.classList.remove("hidden"); }
   renderToolTrace("#agent-service-trace", result.toolTrace, "Persisted job evidence trail");
-  if (receipt) { receipt.textContent = JSON.stringify({ agreement: result.agreement ?? null, fulfillment: result.fulfillment ?? null, receipt: result.receipt ?? null }, null, 2); receipt.classList.remove("hidden"); }
+  if (receipt) { receipt.textContent = JSON.stringify({ agreement: result.agreement ?? null, workflowPlan: result.workflowPlan ?? null, workflowControl: result.workflowControl ?? null, workflowCheckpoint: result.workflowCheckpoint ?? null, fulfillment: result.fulfillment ?? null, receipt: result.receipt ?? null }, null, 2); receipt.classList.remove("hidden"); }
   setFormStatus(document.querySelector("#agent-service-status"), `Reopened private job ${item.jobId} · ${result.verdict ?? result.fulfillment?.verdict ?? "stored"}`, "success");
 }
 function renderRecentAgentJobs() {
@@ -1026,7 +1026,7 @@ document.querySelector("#agent-service-form")?.addEventListener("submit", async 
     const objective = document.querySelector("#agent-service-objective")?.value.trim(); if (!objective) throw new Error("Enter the job objective.");
     const rawContext = document.querySelector("#agent-service-context")?.value.trim(); let context = rawContext || undefined; if (rawContext && /^[\[{]/.test(rawContext)) { try { context = JSON.parse(rawContext); } catch {} }
     const agreementPreview = await postJson("/api/agent-commerce/agreement", { serviceId: selectedAgentService.id, objective, maxSteps: 5 });
-    const agreementBox = document.querySelector("#agent-service-agreement-preview"); if (agreementBox) { agreementBox.textContent = JSON.stringify(agreementPreview.agreement, null, 2); agreementBox.classList.remove("hidden"); }
+    const agreementBox = document.querySelector("#agent-service-agreement-preview"); if (agreementBox) { agreementBox.textContent = JSON.stringify({ agreement: agreementPreview.agreement, workflowPlan: agreementPreview.workflowPlan }, null, 2); agreementBox.classList.remove("hidden"); }
     const terms = agreementPreview.agreement.executionTerms; const accepted = window.confirm(`Accept service agreement ${agreementPreview.agreement.agreementId}?\n\nStep budget: ${terms.maxSteps}\nPayment mode: ${terms.paymentMode}\nAutonomous spend: ${terms.autonomousSpend}\nSigning: ${terms.signingAuthority}\nBroadcast: ${terms.broadcastAuthority}\n\nCKBuilder will reject this job if these terms are altered.`); if (!accepted) throw new Error("Service agreement was not accepted; no agent job was executed.");
     const payload = { serviceId: selectedAgentService.id, objective, context, maxSteps: 5, agreement: agreementPreview.agreement, ...(latestFiberQuote ? { paymentQuote: latestFiberQuote } : {}) };
     let result = await postJsonWithHeaders("/api/agent-commerce/run", payload, aiRequestHeaders());
@@ -1034,7 +1034,7 @@ document.querySelector("#agent-service-form")?.addEventListener("submit", async 
     latestAgentServiceResult = result; rememberAgentJobAccess(result);
     output.textContent = result.text; output.classList.remove("hidden"); renderToolTrace("#agent-service-trace", result.toolTrace, "Delegation evidence trail");
     if (result.receipt || result.agreement || result.fulfillment) {
-      receipt.textContent = JSON.stringify({ agreement: result.agreement ?? null, fulfillment: result.fulfillment ?? null, receipt: result.receipt ?? null }, null, 2);
+      receipt.textContent = JSON.stringify({ agreement: result.agreement ?? null, workflowPlan: result.workflowPlan ?? null, workflowControl: result.workflowControl ?? null, workflowCheckpoint: result.workflowCheckpoint ?? null, fulfillment: result.fulfillment ?? null, receipt: result.receipt ?? null }, null, 2);
       receipt.classList.remove("hidden");
     }
     const team = result.team ? ` · ${result.team.roles.length} specialist agents` : "";
@@ -1150,6 +1150,12 @@ document.querySelector("#verify-latest-agent-receipt")?.addEventListener("click"
 });
 
 
+document.querySelector("#verify-latest-agent-checkpoint")?.addEventListener("click", async (event) => {
+  const output = document.querySelector("#agent-runtime-doctor-output"); setButtonBusy(event.currentTarget, true, "Checking checkpoint…");
+  try { if (!latestAgentServiceResult?.workflowCheckpoint) throw new Error("Run an agent service first so there is a workflow checkpoint to verify."); const result = await postJson("/api/agent-commerce/verify-checkpoint", { checkpoint: latestAgentServiceResult.workflowCheckpoint }); output.textContent = JSON.stringify(result, null, 2); output.classList.remove("hidden"); } catch (error) { output.textContent = error.message; output.classList.remove("hidden"); } finally { setButtonBusy(event.currentTarget, false); }
+});
+
+
 
 document.querySelector("#fiber-payment-status-form")?.addEventListener("submit", async (event) => {
   event.preventDefault(); const status = document.querySelector("#fiber-payment-status-status"); const output = document.querySelector("#fiber-payment-status-output"); const button = event.submitter; setButtonBusy(button, true, "Verifying…");
@@ -1168,5 +1174,5 @@ document.querySelector("#ckb-tx-preflight-form")?.addEventListener("submit", asy
 
 document.querySelector("#export-latest-agent-pack")?.addEventListener("click", () => {
   const status = document.querySelector("#agent-service-status");
-  try { if (!latestAgentServiceResult?.receipt) throw new Error("Run or reopen a completed agent job first."); const pack = { schema: "ckbuilder-agent-evidence-pack/v1", exportedAt: new Date().toISOString(), service: latestAgentServiceResult.service ?? null, agreement: latestAgentServiceResult.agreement ?? null, fulfillment: latestAgentServiceResult.fulfillment ?? null, receipt: latestAgentServiceResult.receipt, result: { text: latestAgentServiceResult.text ?? "", toolTrace: latestAgentServiceResult.toolTrace ?? [], team: latestAgentServiceResult.team ?? null, teamReports: latestAgentServiceResult.teamReports ?? null, workflow: latestAgentServiceResult.workflow ?? null } }; downloadJsonArtifact(`ckbuilder-agent-job-${latestAgentServiceResult.receipt.jobId}.json`, pack); setFormStatus(status, "Evidence pack exported locally. It contains no BYOK API key or server connector secret.", "success"); } catch (error) { setFormStatus(status, error.message, "error"); }
+  try { if (!latestAgentServiceResult?.receipt) throw new Error("Run or reopen a completed agent job first."); const pack = { schema: "ckbuilder-agent-evidence-pack/v1", exportedAt: new Date().toISOString(), service: latestAgentServiceResult.service ?? null, agreement: latestAgentServiceResult.agreement ?? null, fulfillment: latestAgentServiceResult.fulfillment ?? null, receipt: latestAgentServiceResult.receipt, result: { text: latestAgentServiceResult.text ?? "", toolTrace: latestAgentServiceResult.toolTrace ?? [], team: latestAgentServiceResult.team ?? null, teamReports: latestAgentServiceResult.teamReports ?? null, workflow: latestAgentServiceResult.workflow ?? null, workflowPlan: latestAgentServiceResult.workflowPlan ?? null, workflowControl: latestAgentServiceResult.workflowControl ?? null, workflowCheckpoint: latestAgentServiceResult.workflowCheckpoint ?? null } }; downloadJsonArtifact(`ckbuilder-agent-job-${latestAgentServiceResult.receipt.jobId}.json`, pack); setFormStatus(status, "Evidence pack exported locally. It contains no BYOK API key or server connector secret.", "success"); } catch (error) { setFormStatus(status, error.message, "error"); }
 });

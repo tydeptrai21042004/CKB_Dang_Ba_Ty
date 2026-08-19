@@ -572,7 +572,7 @@ label { color: var(--ink); }
 .agent-ops-grid{margin-top:16px;align-items:start}.agent-ops-grid h3{margin:.25rem 0}.checkbox-row{display:flex;align-items:center;gap:9px}.checkbox-row input{width:auto;margin:0}.service-reputation{display:block;margin-top:8px;font-size:.72rem;color:var(--muted)}
 .recent-agent-jobs{display:grid;gap:7px;margin-top:8px}.recent-agent-job{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:10px}.recent-agent-job small{color:var(--muted);overflow:hidden;text-overflow:ellipsis}.recent-agent-job button{white-space:nowrap}
 
-/* v10.1 production UI pass -------------------------------------------------
+/* v10.2 production UI pass -------------------------------------------------
    Purpose: restrained product UI for public submission/deployment.
    Existing selectors and DOM IDs are intentionally preserved. */
 :root {
