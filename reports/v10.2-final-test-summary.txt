@@ -1,0 +1,554 @@
+# CKBuilder v10.2.0 final validation
+
+## npm run ci:runtime
+
+
+> ckbuilder-passport@10.2.0 ci:runtime
+> npm run syntax:check && npm run plugins:check && npm run learning:check && npm run exercises:run && npm run learning:test && npm test && npm run community:check
+
+
+> ckbuilder-passport@10.2.0 syntax:check
+> bash -c 'while IFS= read -r -d "" file; do node --check "$file"; done < <(find src test public scripts community -name "*.js" -print0)'
+
+
+> ckbuilder-passport@10.2.0 plugins:check
+> node scripts/check-ai-plugins.js
+
+OK  example.plugin.json (disabled template)
+Validated 1 community plugin manifest(s).
+
+> ckbuilder-passport@10.2.0 learning:check
+> node scripts/check-learning.js
+
+Learning evidence: 61/61 tracked items (100%).
+- Rustlings foundations: 22/22 [complete]
+- CKB Academy modules: 8/8 [complete]
+- Official basic CKB tutorials: 5/5 [complete]
+- CCC learning path: 4/4 [complete]
+- Cell Model explanations: 8/8 [complete]
+- Structured CKB curriculum: 14/14 [complete]
+Curriculum validation: 14 modules and 14 quizzes available.
+Rust validation: rustc unavailable; deterministic source checks passed.
+
+> ckbuilder-passport@10.2.0 exercises:run
+> node scripts/run-basic-exercises.js
+
+Basic exercise suite: 5/5 passed.
+- transfer-ckb: PASS
+- store-data-on-cell: PASS
+- create-fungible-token: PASS
+- create-dob: PASS
+- build-simple-lock: PASS
+
+> ckbuilder-passport@10.2.0 learning:test
+> node --test --test-reporter=spec test/learning-catalog.test.js test/learning-progress.test.js test/learning-quiz.test.js
+
+✔ learning catalog exposes all five official beginner tutorials (1.294344ms)
+✔ every tutorial uses HTTPS and has three or more screenshot requirements (0.279266ms)
+✔ every tutorial has an evidence template and a non-placeholder completion record (0.557079ms)
+✔ resource catalog covers CCC, SDKs, developer tools, Fiber, and Perun (0.167729ms)
+✔ all resource links are HTTPS and uniquely titled within a group (0.139708ms)
+✔ screenshot policy explicitly blocks secret capture (0.102122ms)
+✔ structured curriculum contains fourteen ordered, unique modules (1.161196ms)
+✔ curriculum prerequisites reference earlier modules only (0.249501ms)
+✔ every curriculum module has lesson, quiz, evidence template, and a completed repository record (1.058944ms)
+✔ every curriculum quiz is structurally valid (0.782414ms)
+✔ study plan support files are present (0.180628ms)
+✔ learning overview exposes the completed tutorial, CCC, and curriculum tracks (2.343274ms)
+✔ learning overview reports all repository-tracked completion evidence (4.197692ms)
+✔ curriculum summary reports the fourteen-module path complete (1.600971ms)
+✔ curriculum states preserve prerequisite guidance without hiding modules (1.181637ms)
+✔ quiz registry exposes all fourteen modules (8.453649ms)
+✔ every quiz loads through the validated loader (0.908561ms)
+✔ quiz grader reports a perfect answer set (0.876703ms)
+✔ quiz grader explains incorrect answers (0.186568ms)
+✔ quiz grader rejects missing answers (0.490139ms)
+✔ quiz loader rejects unsafe IDs and unknown modules (0.148861ms)
+✔ quiz CLI lists the full learning path (40.924659ms)
+✔ quiz CLI supports deterministic non-interactive grading (25.981491ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 130.000051
+
+> ckbuilder-passport@10.2.0 test
+> node --test --test-reporter=spec
+
+✔ root one-command launcher and stop wrapper are executable (0.96852ms)
+✔ launcher help promises only local automatic account setup (7.645167ms)
+✔ status mode is read-only and succeeds before setup (133.146404ms)
+✔ inspector health parser accepts the pretty JSON returned by the API (21.605254ms)
+✔ launcher uses the shared whitespace-tolerant health checker (0.411882ms)
+✔ health checker accepts the actual pretty HTTP response format (26.248673ms)
+✔ launcher reuses compatible tools and installs only when missing (0.23552ms)
+✔ automatic launcher forces a loopback-only CKB RPC (0.281949ms)
+✔ launcher manages only project-owned services through PID files (0.409038ms)
+✔ service shutdown verifies process identity before sending signals (0.304563ms)
+✔ local chain runner persists its node when requested (0.192476ms)
+✔ automatic wallet setup extracts a local prefunded account and protects the key (0.116503ms)
+✔ one credential ID is used for both off-chain and on-chain lifecycle steps (0.254268ms)
+✔ launcher exports and independently verifies the integrated public proof (0.129503ms)
+✔ environment files are parsed as data rather than executed as shell code (0.262901ms)
+✔ runtime keys, logs, deployment files and PID files remain Git ignored (0.180568ms)
+✔ CKB decimal conversion supports whole and fractional amounts (1.580991ms)
+✔ CKB decimal conversion rejects excess precision and negative values (0.487275ms)
+✔ transfer planner preserves capacity with change and fee (0.786108ms)
+✔ transfer planner supports exact spending with no change (0.160779ms)
+✔ transfer planner rejects insufficient and malformed inputs (0.37668ms)
+✔ UTF-8 Cell data round-trips ASCII and Unicode (0.318914ms)
+✔ Cell data helper reports encoded byte length (0.272054ms)
+✔ hex decoder rejects incomplete or non-hex data (0.191885ms)
+✔ u128 little-endian encoding handles boundary values (0.740051ms)
+✔ u128 encoding rejects overflow and malformed data (0.518221ms)
+✔ token transfer conserves amount and emits xUDT-compatible data (0.273957ms)
+✔ token transfer rejects overspending and zero transfer (0.178005ms)
+✔ canonical JSON is independent of object insertion order (0.204685ms)
+✔ DOB exercise produces deterministic metadata checksum (0.736486ms)
+✔ DOB exercise checksum changes with content (0.26889ms)
+✔ DOB exercise requires core metadata fields (0.14802ms)
+✔ hash-lock accepts the correct preimage (0.216151ms)
+✔ hash-lock rejects an incorrect preimage (0.186106ms)
+✔ hash-lock validates expected hash and preimage (0.19536ms)
+✔ all five local basic exercise models run successfully (0.392203ms)
+✔ Cell decoder CLI returns canonical JSON for a valid vector (59.154935ms)
+✔ Cell decoder CLI returns non-zero for non-canonical data (41.138867ms)
+✔ proof verifier CLI accepts a valid proof and rejects a modified one (83.781941ms)
+✔ test-vector generator is deterministic (36.756602ms)
+✔ community JSON Schemas declare draft 2020-12 and stable identifiers (0.880699ms)
+✔ decoder manifest is explicitly an example and requires deployment replacement (0.214018ms)
+✔ community corpus has stable metadata and both valid and invalid vectors (0.642375ms)
+✔ application and standalone community decoders agree on every vector (2.56261ms)
+✔ valid credential passes all requested checks and omits raw identity (7.626139ms)
+✔ modified document is rejected (2.649409ms)
+✔ tampered signed payload is rejected (3.114451ms)
+✔ unknown issuer is rejected (2.84498ms)
+✔ revoked credential is rejected and binary matches Rust layout (4.642392ms)
+✔ duplicate mint and second revocation are rejected (4.013828ms)
+✔ local verifier detects attempted reactivation after a signed revocation (3.655025ms)
+✔ invalid revocation timestamp leaves the ledger unchanged (3.065258ms)
+✔ revocation event from another credential is rejected (6.748198ms)
+✔ invalid calendar date is rejected during mint (1.440281ms)
+✔ decoder manifest binds recognition to a deployed Type Script (1.715661ms)
+✔ decoder manifest includes RPC only when explicitly requested (0.316921ms)
+✔ decoder manifest rejects malformed deployment metadata (0.3903ms)
+✔ environment parser handles comments and quoted values (1.193254ms)
+✔ environment validator rejects missing and malformed lock hash (0.507654ms)
+✔ public inspector environment does not require private-key settings (1.701249ms)
+(node:10160) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ static path resolver blocks traversal and accepts files inside public root (0.796174ms)
+✔ health endpoint advertises read-only community formats and security headers (22.47703ms)
+✔ learning endpoint exposes accurate read-only progress (8.499457ms)
+✔ inspect endpoint accepts canonical JSON and handles an uploaded document (12.311786ms)
+✔ API rejects non-JSON requests and invalid base64 (6.605261ms)
+✔ API enforces decoded document and request-body limits (6.607804ms)
+✔ Cell decoder endpoint returns canonical and validation-error states (6.567074ms)
+✔ proof endpoint accepts untampered proof and rejects modified proof (7.779136ms)
+✔ static files are served but unsupported methods and missing paths are rejected (4.232944ms)
+(node:10169) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ issuer portal requires login and human approval creates an off-chain credential when chain writes are disabled (298.016097ms)
+✔ learning catalog exposes all five official beginner tutorials (1.482795ms)
+✔ every tutorial uses HTTPS and has three or more screenshot requirements (0.290382ms)
+✔ every tutorial has an evidence template and a non-placeholder completion record (0.572721ms)
+✔ resource catalog covers CCC, SDKs, developer tools, Fiber, and Perun (0.164144ms)
+✔ all resource links are HTTPS and uniquely titled within a group (0.137174ms)
+✔ screenshot policy explicitly blocks secret capture (0.102202ms)
+✔ structured curriculum contains fourteen ordered, unique modules (0.841901ms)
+✔ curriculum prerequisites reference earlier modules only (0.133228ms)
+✔ every curriculum module has lesson, quiz, evidence template, and a completed repository record (1.579889ms)
+✔ every curriculum quiz is structurally valid (1.113365ms)
+✔ study plan support files are present (0.259516ms)
+✔ learning overview exposes the completed tutorial, CCC, and curriculum tracks (2.652193ms)
+✔ learning overview reports all repository-tracked completion evidence (5.129918ms)
+✔ curriculum summary reports the fourteen-module path complete (2.021546ms)
+✔ curriculum states preserve prerequisite guidance without hiding modules (1.305951ms)
+✔ quiz registry exposes all fourteen modules (11.504426ms)
+✔ every quiz loads through the validated loader (1.166425ms)
+✔ quiz grader reports a perfect answer set (1.045064ms)
+✔ quiz grader explains incorrect answers (0.217703ms)
+✔ quiz grader rejects missing answers (0.392764ms)
+✔ quiz loader rejects unsafe IDs and unknown modules (0.149022ms)
+✔ quiz CLI lists the full learning path (36.257405ms)
+✔ quiz CLI supports deterministic non-interactive grading (29.014716ms)
+﹣ CCC derives the expected first OffCKB account Lock Script hash (1.603985ms) # @ckb-ccc/core is not installed; run npm ci for this integration test.
+✔ OffCKB system-script parser produces CCC-compatible known Script keys (0.996612ms)
+✔ OffCKB parser rejects missing required system Scripts (0.447345ms)
+✔ deployment parser accepts the OffCKB scripts.json structure (0.738217ms)
+✔ deployment parser accepts a binary-suffixed contract name (0.535876ms)
+(node:10259) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ product DB persists submissions and protects tracking tokens (29.669869ms)
+✔ bootstrap admin uses a one-way password hash (268.002996ms)
+(node:10275) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ public product config never exposes an AI key (85.716684ms)
+✔ evidence submission returns a tracking token but status requires it (69.653499ms)
+✔ passport endpoint returns an empty public passport for a valid lock hash (86.362899ms)
+✔ proof verifier accepts an untampered canonical proof (1.983039ms)
+✔ proof verifier detects content tampering (0.270392ms)
+✔ proof verifier detects unsupported schema (0.273266ms)
+✔ proof verifier reports sensitive fields and local absolute paths (0.382028ms)
+✔ proof verifier rejects invalid timestamps and non-object inputs (0.275169ms)
+✔ public inspector verifies an active credential without private-key settings (7.037153ms)
+✔ public inspector reports a revoked but cryptographically intact credential (4.815139ms)
+✔ public inspector detects duplicate live chain records (3.110715ms)
+✔ public inspector can inspect metadata without a document but does not call it fully valid (2.592935ms)
+✔ public proof export writes the same proof object (3.461046ms)
+✔ offline mode never claims complete on-chain validation (2.235274ms)
+✔ public proof removes RPC credentials and internal error details (2.45509ms)
+✔ on-chain record without a public credential is reported explicitly (1.939975ms)
+✔ record summary distinguishes active, revoked, invalid and duplicate states (1.851643ms)
+✔ record validator enforces state-specific fields and issuer binding (0.589216ms)
+✔ credential hash is deterministic and trims surrounding whitespace (1.124072ms)
+✔ active record round-trips through Buffer and hex (1.020056ms)
+✔ revoked record exposes reason name and ISO timestamp (0.622145ms)
+✔ hash-based encoder matches credential-ID encoder (0.274548ms)
+✔ validator reports expected credential and issuer mismatches (1.105614ms)
+✔ validator rejects non-canonical state fields (0.489137ms)
+✔ decoder rejects malformed hex and incorrect length (0.436078ms)
+✔ encoder rejects invalid status, hash, reason and timestamp (0.247098ms)
+✔ reason registry distinguishes standard and extension codes (0.235791ms)
+(node:10330) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ public rate limiting does not trust spoofed X-Forwarded-For by default (53.93634ms)
+✔ trusted Vercel proxy rate limiting prefers the platform-owned client IP header (29.899836ms)
+✔ signed admin session cannot be modified (1.086025ms)
+✔ session cookie is HttpOnly and Strict (0.284403ms)
+✔ dashboard exposes every read-only workspace and learning view (0.831145ms)
+✔ learning UI has roadmap search, filters, next-module guidance, and details dialog (0.338383ms)
+✔ dashboard supports persisted light and dark themes (0.119268ms)
+✔ learning commands are copyable without unsafe HTML rendering (0.216592ms)
+✔ dashboard IDs are unique and dynamic errors are rendered as text (0.35025ms)
+(node:10359) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v10 service identity persists and signs independently verifiable receipts (4.809702ms)
+✔ v10 agent jobs use SQLite and reputation counts signed receipts (65.986747ms)
+✔ v10 transaction builder returns an unsigned balanced intent with change (1.368805ms)
+✔ v10 exact MCP approval is bound to tool arguments even when a legacy tool name is also present (11.280117ms)
+✔ v10 Fiber settlement verifier performs a read-only get_payment lookup (1.309868ms)
+✔ v10 MCP endpoint validation rejects direct private-network HTTPS targets (0.460114ms)
+✔ v10 UI exposes transaction building, Fiber settlement verification, and exact approval hashes (0.482097ms)
+✔ v10 HTTP exposes safe transaction-build and Fiber settlement verification endpoints (28.996344ms)
+✔ v10 multi-agent team exposes a parallel-specialist workflow DAG bound into its receipt (6.423641ms)
+✔ v10 MCP discovery uses the current stateless server/discover request (1.019516ms)
+✔ v10 official CKB docs plugin exposes live CKB Dev Skills grounding (1.153676ms)
+(node:10374) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ expanded Mission Control publishes fifteen concrete use cases with ordered workflow stages (1.700138ms)
+✔ expanded workflows report live-evidence requirements without requiring secrets (0.306015ms)
+✔ workflow preparation binds ordered stages and deliverables into the agent contract (0.406775ms)
+✔ xUDT launch workflow can execute a grounded docs step and synthesize a result (5.99261ms)
+✔ RPC incident workflow gathers only read-only tip evidence (1.814868ms)
+✔ Fiber liquidity workflow uses a read-only operator snapshot and never mutates channels or payments (3.434893ms)
+✔ Agent Service Hub exposes four additional real-world services with bounded workflows (1.841087ms)
+✔ wallet-flow review service runs without signing authority and returns a verifiable signed receipt (5.583722ms)
+✔ production incident team runs three specialists plus incident-command synthesis (3.85436ms)
+✔ public config and browser expose workflow stages without leaking runtime connection values (76.944886ms)
+✔ all expanded workflows preserve non-custodial safety boundaries (0.634183ms)
+✔ production UI uses restrained product copy instead of generated marketing language (0.672099ms)
+✔ production UI groups navigation around core, tools, and operations (0.18844ms)
+✔ production UI ships explicit browser metadata and a final visual override layer (0.266016ms)
+✔ workflow cards expose concise status and stage language (0.133158ms)
+✔ v10.2 workflow planner creates dependency-aware stages and human approval gates (1.89648ms)
+✔ v10.2 workflow evaluation scores evidence and creates an independently verifiable checkpoint (0.718458ms)
+✔ v10.2 catalog adds the checkpointed CKB Agent Workflow Orchestrator (0.950643ms)
+✔ v10.2 completed agent service returns plan, evidence control, checkpoint, and receipt bindings (30.018363ms)
+(node:10407) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ mainnet is accepted by production environment validation (0.806759ms)
+✔ network-aware deployment parser supports mainnet sections (0.702264ms)
+✔ portable builder credential exposes VC 2.0 context without raw student identity (0.379113ms)
+✔ v4 BYOK catalog includes Gemini without any API key (0.699521ms)
+✔ v4 Gemini request uses x-goog-api-key and generateContent (0.438642ms)
+✔ v4 Gemini parser joins text parts (0.156753ms)
+✔ v4 OpenAI-compatible parser remains backward compatible (0.083805ms)
+✔ v4 optional AI still requires a user supplied key (0.479052ms)
+✔ v4 Gemini call can be tested without network and does not persist key (2.12525ms)
+✔ v4 process-environment-only mode boots the public service without a physical .env (36.946504ms)
+✔ v4 issuer service can also boot from an injected environment (29.232464ms)
+✔ v4 local mode still fails clearly when .env is absent and process-only mode is not enabled (27.842077ms)
+(node:10440) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v4 readiness and public stats endpoints are operational (67.187437ms)
+[DIRECTORY_DISABLED] The public credential directory is disabled by this deployment.
+✔ v4 public directory is privacy-disabled by default (46.203107ms)
+✔ v4 enabled directory supports search filters and pagination (57.374397ms)
+✔ v4 tracking response includes timeline and applicant can cancel (60.692361ms)
+Error: Only a submission with requested changes can be resubmitted.
+    at resubmitTrackedSubmission (file:///mnt/data/week6_update/CKB_Dang_Ba_Ty-main/src/lib/product-db.js:124:63)
+    at Server.<anonymous> (file:///mnt/data/week6_update/CKB_Dang_Ba_Ty-main/src/lib/inspector-http.js:360:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+✔ v4 resubmission endpoint requires requested-changes state (75.92293ms)
+✔ v4 config advertises directory flag and BYOK providers only (67.622109ms)
+✔ v5 config advertises the CKB agent registry without exposing internal prompts (70.752885ms)
+[AI_API_KEY_REQUIRED] Enter an AI provider API key to use this optional feature.
+✔ v5 generic CKB agent endpoint remains BYOK and rejects missing keys before network use (49.223137ms)
+[AI_AGENT_INVALID] Unsupported CKB AI agent.
+✔ v5 generic CKB agent endpoint rejects unknown agent IDs before network use (25.587866ms)
+(node:10454) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v4 issuer bulk intake, search and stats require authenticated admin (224.731794ms)
+✔ v4 review state guard prevents acting twice without applicant resubmission (212.039582ms)
+✔ v4 admin export contains operational data but not auth hashes or tracking hashes (225.467232ms)
+✔ v4 operations and webhook delivery endpoints are available to admin (202.186556ms)
+✔ v4 bulk endpoint rejects oversized batches (196.432421ms)
+(node:10495) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v4 submission timeline records creation and status transitions (45.577487ms)
+✔ v4 applicant can resubmit only after changes are requested (56.432047ms)
+✔ v4 applicant can cancel pending work but not issued work (55.507221ms)
+✔ v4 wrong tracking token cannot resubmit or cancel (49.333161ms)
+✔ v4 filtered submission search is bounded and parameterized (53.105885ms)
+✔ v4 admin stats summarize workflow and operations (65.492267ms)
+✔ v4 operational export excludes password and tracking hashes (38.849002ms)
+✔ v4 password verifier rejects malformed or unreasonable iteration encodings (0.231134ms)
+✔ v4 public UI exposes opt-in directory and workflow timeline controls (0.87385ms)
+✔ v4 issuer UI exposes dashboard, bulk intake, operations and webhook tabs (0.150484ms)
+✔ v4 review UI renders approve controls only for submitted status (0.124486ms)
+✔ v4 AI API key remains browser-session only in both UIs (0.211154ms)
+✔ v4 dynamic product UI still avoids innerHTML assignment (0.173037ms)
+✔ v4 public and issuer HTML keep unique IDs (0.309951ms)
+✔ v4 production Compose separates public and issuer environment files (0.151224ms)
+✔ v4 public environment example contains no issuer, admin, session or webhook secrets (0.237463ms)
+✔ v4 split environment examples are explicitly allowed by gitignore (1.200275ms)
+✔ v4 Compose explicitly enables process-environment-only mode for both services (0.4172ms)
+✔ v4 Docker build context excludes runtime secrets and state (0.365062ms)
+✔ v4 Compose initializes issuer trust before starting public services (0.118646ms)
+✔ v4 long-running issuer gets a read-only secrets mount while bootstrap alone can create keys (0.176592ms)
+(node:10517) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v4 webhook URL policy rejects HTTP, credentials, localhost and private IPs (6.138688ms)
+✔ v4 webhook signatures are deterministic HMAC SHA-256 (0.73358ms)
+✔ v4 signed webhook records successful delivery (24.906993ms)
+✔ v4 webhook failure is recorded but returned as non-throwing delivery result (38.544656ms)
+✔ v4 webhook DNS rebinding protection rejects private resolved addresses (1.820798ms)
+✔ v5 AI catalog exposes auto plus eight BYOK providers without secrets (0.893589ms)
+✔ v5 AI catalog keeps a custom model only on the configured default provider (0.206898ms)
+✔ v5 agent catalog exposes seven CKB roles without internal prompts (0.17446ms)
+✔ v5 provider auto-detection recognizes common unambiguous API-key prefixes (0.242961ms)
+✔ v5 provider auto-detection falls back safely for unknown key formats (0.169292ms)
+✔ v5 provider-specific model default prevents OpenAI model leakage into Gemini (0.853559ms)
+✔ v5 provider-specific model default prevents OpenAI model leakage into Mistral (0.344101ms)
+✔ v5 auto provider chooses Anthropic and uses the native Messages API shape (0.409439ms)
+✔ v5 OpenAI-compatible vision request converts internal image_data into image_url (0.68544ms)
+✔ v5 Gemini vision request preserves base64 image content (0.325674ms)
+✔ v5 Anthropic vision request uses base64 image source (0.338443ms)
+✔ v5 parsers support Gemini, Anthropic, string ChatCompletions and chunked ChatCompletions (0.164825ms)
+✔ v5 malformed provider JSON becomes AI_RESPONSE_INVALID (0.48401ms)
+✔ v5 empty provider answer becomes AI_RESPONSE_INVALID (0.385904ms)
+✔ v5 upstream errors redact the user's API key from provider detail (0.238865ms)
+✔ v5 unsupported provider is rejected before network access (0.141721ms)
+✔ v5 invalid model characters are rejected before network access (0.123614ms)
+✔ v5 overlong API keys are rejected (0.21499ms)
+✔ v5 task router chooses transaction specialist (0.159207ms)
+✔ v5 task router chooses RPC specialist (0.070655ms)
+✔ v5 task router chooses security specialist (0.167268ms)
+✔ v5 task router chooses credential specialist (0.066969ms)
+✔ v5 task router chooses learning specialist (0.056303ms)
+✔ v5 task router falls back to developer agent for generic CKB engineering task (0.156793ms)
+✔ v5 explicit invalid agent is rejected before provider call (0.681964ms)
+✔ v5 agent requires a nonempty task (0.153348ms)
+✔ v5 agent rejects tasks above the hard limit (0.186608ms)
+✔ v5 auto agent returns selected specialist and never returns the API key (1.525318ms)
+✔ v5 agent treats prompt-injection-looking context as context rather than a system message (0.493884ms)
+✔ v5 agent clamps caller temperature to one (0.724247ms)
+✔ v5 agent can use Gemini via auto provider detection (0.434215ms)
+✔ v5 provider catalog marks vision capability explicitly (0.127048ms)
+(node:10539) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v5 HTML visible-text extraction removes executable and hidden blocks (2.54885ms)
+✔ v5 HTML sanitizer preserves safe structure but strips all attributes and active tags (0.609467ms)
+✔ v5 deterministic HTML inspection returns SHA-256 and sanitized preview (1.162939ms)
+✔ v5 Markdown, text and JSON are extracted without AI (0.43679ms)
+✔ v5 malformed JSON documents fail closed (0.450099ms)
+✔ v5 extension/MIME disagreement is rejected (0.143463ms)
+✔ v5 unsupported executable document types are rejected (0.150964ms)
+✔ v5 supported document catalog includes HTML, PDF, text and safe image formats (0.115252ms)
+✔ v5 printable credential HTML escapes attacker-controlled credential fields (0.993026ms)
+(node:10550) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v5 health and config advertise HTML/document support (115.580586ms)
+✔ v5 document inspection endpoint sanitizes hostile HTML without AI (93.63092ms)
+✔ v5 applicant can upload, list and remove an HTML evidence attachment (57.896353ms)
+✔ v5 wrong tracking token cannot list or upload attachments (91.498415ms)
+[DOCUMENT_TYPE_UNSUPPORTED] Supported documents: HTML, TXT, Markdown, JSON, PDF, PNG, JPEG, and WebP.
+✔ v5 attachment upload rejects SVG even when it contains only text (41.346266ms)
+✔ v5 HTML credential endpoint returns printable escaped HTML and strict CSP (65.838517ms)
+✔ v5 advertised 5 MB attachment boundary survives base64 JSON expansion (146.820476ms)
+✔ v5 original public inspector upload path handles a multi-megabyte canonical document without regex overflow (227.911541ms)
+(node:10561) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v5 issuer lists attachment metadata and sanitizes HTML preview (225.646619ms)
+✔ v5 raw HTML evidence is forced to attachment download with nosniff (277.208098ms)
+✔ v5 attachment integrity check detects storage tampering (181.222476ms)
+✔ v5 unauthenticated users cannot preview private submission attachments (149.229862ms)
+✔ v5 authenticated attachment audit endpoint reports storage health (246.714218ms)
+(node:10572) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v5 attachment storage audit is clean for intact evidence and stats count files (55.47245ms)
+✔ v5 attachment audit reports orphaned storage files (31.403372ms)
+✔ v5 attachment audit reports missing files (31.704721ms)
+✔ v5 public UI accepts HTML and companion document formats (1.134146ms)
+✔ v5 HTML preview uses sandboxed srcdoc rather than innerHTML (0.387877ms)
+✔ v5 applicant UI uploads attachments only after receiving a private tracking token (0.198525ms)
+✔ v5 issuer UI exposes safe preview and raw download as separate actions (0.10761ms)
+✔ v5 UI still does not persist BYOK AI keys (0.177905ms)
+✔ v5 issuer operations UI exposes evidence storage audit (0.189011ms)
+✔ v5 submission UI saves the tracking token before optional attachment upload (0.259455ms)
+✔ v6 plugin catalog exposes read-only builtins and CKB AI MCP (2.611252ms)
+✔ v6 disabled community manifest template is not auto-loaded (0.698499ms)
+✔ v6 community MCP manifest is loaded without executable code (4.771785ms)
+✔ v6 MCP URL policy requires HTTPS except localhost (2.119752ms)
+✔ v6 current MCP tools/list uses stateless 2026 headers and metadata (19.972316ms)
+✔ v6 MCP client parses request-scoped SSE replies (0.683426ms)
+✔ v6 MCP client falls back to legacy initialized session (1.103461ms)
+✔ v6 MCP tools/call forwards structured arguments (0.534695ms)
+✔ v6 official docs plugin searches llms.txt only when invoked (1.730423ms)
+✔ v6 community plugin reads latest Nervos Talk topics (1.348465ms)
+✔ v6 CKB RPC plugin is configuration-gated (0.722183ms)
+✔ v6 CKB RPC plugin exposes only read methods and not send_transaction (1.866875ms)
+✔ v6 OpenAI-compatible request includes function tools (0.357842ms)
+✔ v6 Anthropic request includes native tools (0.308489ms)
+✔ v6 Gemini request includes function declarations (0.279195ms)
+✔ v6 callOptionalAi parses OpenAI tool calls (1.173565ms)
+✔ v6 callOptionalAi parses Anthropic tool_use (1.557536ms)
+✔ v6 callOptionalAi parses Gemini functionCall (0.371072ms)
+✔ v10.1.0 Gemini request uses current REST JSON field names and default sampling (0.179076ms)
+✔ v10.1.0 Gemini tool loop replays thoughtSignature and matching functionResponse id (1.860266ms)
+✔ v6 real agent loop executes a docs tool then synthesizes final answer (1.6414ms)
+✔ v6 tool output is returned to the model as untrusted data, never a system message (1.646228ms)
+✔ v6 failed tool call is audited and agent can recover (1.151182ms)
+✔ v6 agent enforces a hard reasoning/tool step limit (1.46623ms)
+✔ v6 unannotated community MCP tool stops at approval boundary (2.096427ms)
+✔ v6 approved unannotated MCP tool can execute on the next run (1.929559ms)
+✔ v6 signing/broadcast-like MCP tools are hard blocked even with approval (1.918803ms)
+(node:10605) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v6 health endpoint reports the real-agent release (29.861951ms)
+✔ v6 config publishes safe plugin metadata without secrets or implementation functions (26.367525ms)
+✔ v6 plugin catalog keeps remote community MCP disabled by default (49.356085ms)
+✔ v6 public workbench exposes plugins, step budget, signing boundary, and audit trace (0.527534ms)
+✔ v6 browser sends selected plugins and bounded maxSteps to the agent API (0.30913ms)
+✔ v6 browser requires explicit one-run confirmation for untrusted MCP tools (0.366185ms)
+✔ v6 browser renders a tool audit trail instead of hiding plugin execution (0.172507ms)
+✔ v7 publishes concrete CKB missions with readiness and deliverables (1.27775ms)
+✔ v7 transaction mission deterministically selects the specialist, plugins, and output contract (0.389129ms)
+✔ v7 mission input validation rejects unknown workflows and empty objectives (0.339825ms)
+✔ v7 transaction mission runs end-to-end through live RPC evidence then synthesis (18.475696ms)
+✔ v7 mission step budgets are clamped to a useful multi-step range (0.230784ms)
+✔ v7 research and contribution missions work without privileged local configuration (0.146668ms)
+(node:10627) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v7 config exposes mission readiness but never server-only connection secrets (59.545365ms)
+✔ v7 health identifies Mission Control release (6.413777ms)
+✔ v7 HTTP mission endpoint performs transaction evidence call then returns an audit trail (11.872072ms)
+✔ v7 UI makes real applications primary and keeps generic workbench secondary (0.375959ms)
+✔ v7 browser renders application cards and calls the dedicated workflow API (0.165456ms)
+[CKB_APPLICATION_INPUT_REQUIRED] objective is required.
+✔ v7 workflow endpoint rejects an empty objective before any model or tool call (7.084643ms)
+[AI_PROVIDER_ERROR] Google Gemini returned HTTP 400.
+Details: {
+  "provider": "gemini",
+  "upstreamStatus": 400,
+  "detail": "{\"error\":{\"code\":400,\"message\":\"INVALID_ARGUMENT [REDACTED]\"}}"
+}
+✔ v10.2.0 HTTP exposes sanitized Gemini upstream errors as gateway failures (6.467025ms)
+✔ v7 config publishes new plugin capabilities without connection endpoints or workspace paths (31.955654ms)
+✔ v7 plugin catalog adds Fiber operations, project radar, and safe local workspace (1.252162ms)
+✔ v7 Fiber health snapshot performs only read-only operator RPC calls (21.083718ms)
+✔ v7 Fiber plugin reports configuration-required instead of pretending live evidence exists (0.933898ms)
+✔ v7 CKB dry-run tool never broadcasts the supplied transaction (1.409245ms)
+✔ v7 project radar returns current issue evidence but filters pull requests (1.504888ms)
+✔ v7 local workspace can inspect source while blocking env, keys, and traversal (3.422389ms)
+✔ v7 community MCP cannot smuggle Fiber payment/channel mutation through approval (8.25573ms)
+✔ v7 Fiber snapshot preserves partial evidence when one evolving RPC method fails (7.868028ms)
+✔ v7 workspace allows legitimate wallet integration source names while still blocking secrets (0.852878ms)
+✔ v7 project radar uses optional GitHub token only in the outbound GitHub request (0.766109ms)
+✔ v7 MCP open-channel mutation is hard blocked even after explicit approval (1.962267ms)
+✔ v8 service hub publishes multi-agent, Fiber commerce, service design, and verifiable research services (2.059542ms)
+✔ v8 automatically exposes a community MCP plugin as a delegatable service (3.872437ms)
+✔ v8 service agreement fixes safety, step, payment, and evidence terms before execution (1.189849ms)
+✔ v8 deterministic fulfillment evaluator distinguishes verified work from evidence gaps (0.585821ms)
+✔ v8 Fiber quote forces dry_run=true and never sends a non-simulated payment (16.842993ms)
+✔ v8 Fiber quote rejects malformed payment targets before calling FNN (0.808893ms)
+✔ v8 Fiber plugin exposes quote as a bounded read-risk tool but still blocks real payment tools (1.519249ms)
+✔ v8 job receipt binds objective, output, evidence, and an application-defined CKB anchor digest (0.492091ms)
+✔ v8 single agent service returns a verifiable receipt (3.635125ms)
+✔ v8 launch-readiness service coordinates three specialists then a release chair (3.612321ms)
+✔ v8 NEAR AI Cloud is available as an explicit BYOK private/verifiable inference provider (0.467545ms)
+(node:10660) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v8 config exposes agent services and NEAR AI without leaking server endpoints or tokens (41.840812ms)
+✔ v8 Fiber quote HTTP endpoint forces dry-run and returns human execution intent (11.572797ms)
+✔ v8 agent-commerce run endpoint returns cryptographic receipt (49.992171ms)
+✔ v8 UI presents agent services before generic Mission Control and includes Fiber quote + receipt surfaces (0.567154ms)
+✔ v8 browser calls agent-commerce APIs and renders delegation receipts (0.238504ms)
+(node:10671) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v9 private job ledger requires the per-job access token and derives reputation (26.188148ms)
+✔ v9 receipt verifier detects receipt and agreement tampering (1.484827ms)
+✔ v9 pre-execution service agreement is bound to objective and policy (0.352194ms)
+✔ v9 deterministic CKB transaction preflight reports structure and duplicate-input risk (0.801742ms)
+✔ v9 transaction live preflight calls only dry_run_transaction and never broadcast (19.949122ms)
+✔ v9 agent runtime doctor distinguishes installed from runnable integrations without exposing endpoints (0.595265ms)
+✔ v9 receipt and transaction preflight CLIs provide offline verification surfaces (89.137053ms)
+(node:10672) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ v9 agent run persists a private retrievable job and config exposes aggregate reputation only (59.173828ms)
+✔ v9 HTTP verifies receipts and preflights transactions without broadcast (61.416727ms)
+✔ v9 UI exposes runtime doctor, private job reopen/export, receipt verification and transaction preflight (0.520504ms)
+[AGENT_SERVICE_AGREEMENT_MISMATCH] The service agreement was modified or does not match this objective/service policy.
+✔ v9 HTTP exposes a pre-execution agreement and rejects tampering before model execution (7.241897ms)
+ℹ tests 368
+ℹ suites 0
+ℹ pass 367
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 3354.884767
+
+> ckbuilder-passport@10.2.0 community:check
+> npm run test:vectors && node --test test/community-vectors.test.js
+
+
+> ckbuilder-passport@10.2.0 test:vectors
+> node scripts/verify-test-vectors.js
+
+Verified 6 cross-implementation test vectors.
+TAP version 13
+# Subtest: community corpus has stable metadata and both valid and invalid vectors
+ok 1 - community corpus has stable metadata and both valid and invalid vectors
+  ---
+  duration_ms: 0.548766
+  type: 'test'
+  ...
+# Subtest: application and standalone community decoders agree on every vector
+ok 2 - application and standalone community decoders agree on every vector
+  ---
+  duration_ms: 2.983146
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 53.625564
+
+## bash scripts/audit-release.sh
+
+[PASS] No generated .env, secrets directory, private account listing, or stale PID file is present.
+[PASS] No unapproved private-key, seed-phrase, or mnemonic assignment pattern was found.
+[PASS] Public evidence paths and usernames are sanitized.
+[PASS] Reports, screenshots, logs, and machine-readable evidence are present.
+[PASS] Evidence and community test-vector JSON files are valid.
+[PASS] Release audit completed successfully.
