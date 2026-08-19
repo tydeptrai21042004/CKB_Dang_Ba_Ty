@@ -66,6 +66,11 @@ test("v7 local workspace can inspect source while blocking env, keys, and traver
   const found = await runtime.execute(search.name, { query: "ckb-testtool" }); assert.equal(found.matches[0].file, "src/main.rs");
   await assert.rejects(() => runtime.execute(read.name, { path: ".env" }), (error) => error.code === "CKB_WORKSPACE_FILE_BLOCKED");
   await assert.rejects(() => runtime.execute(read.name, { path: "../outside.txt" }), (error) => error.code === "CKB_WORKSPACE_FILE_BLOCKED");
+  const outside = path.join(path.dirname(root), `${path.basename(root)}-outside.txt`);
+  fs.writeFileSync(outside, "must not escape workspace\n");
+  fs.symlinkSync(outside, path.join(root, "src", "outside-link.txt"));
+  await assert.rejects(() => runtime.execute(read.name, { path: "src/outside-link.txt" }), (error) => error.code === "CKB_WORKSPACE_FILE_BLOCKED");
+  fs.rmSync(outside, { force: true });
 });
 
 test("v7 community MCP cannot smuggle Fiber payment/channel mutation through approval", async () => {
