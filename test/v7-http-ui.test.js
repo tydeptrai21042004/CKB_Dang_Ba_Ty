@@ -24,14 +24,14 @@ async function withInspector(fn, overrides = {}) {
 
 test("v7 config exposes mission readiness but never server-only connection secrets", async () => withInspector(async (base) => {
   const response = await fetch(`${base}/api/config`); const body = await response.json();
-  assert.equal(body.ckbApplications.length, 7);
+  assert.equal(body.ckbApplications.length, 15);
   assert.equal(body.ckbApplications.find((item) => item.id === "transaction-forensics").ready, true);
   assert.deepEqual(body.ckbApplications.find((item) => item.id === "fiber-operator-diagnostics").missingConfig, ["FIBER_RPC_URL"]);
   const serialized = JSON.stringify(body); assert.equal(serialized.includes("SERVER_ONLY_TOKEN"), false); assert.equal(serialized.includes("127.0.0.1:8114"), false);
 }));
 
 test("v7 health identifies Mission Control release", async () => withInspector(async (base) => {
-  const body = await (await fetch(`${base}/api/health`)).json(); assert.equal(body.version, "10.0.1"); assert.equal(body.readOnly, true);
+  const body = await (await fetch(`${base}/api/health`)).json(); assert.equal(body.version, "10.1.0"); assert.equal(body.readOnly, true);
 }));
 
 test("v7 HTTP mission endpoint performs transaction evidence call then returns an audit trail", async () => {
@@ -47,7 +47,7 @@ test("v7 HTTP mission endpoint performs transaction evidence call then returns a
 
 test("v7 UI makes real applications primary and keeps generic workbench secondary", () => {
   for (const id of ["ckb-mission-control", "ckb-application-grid", "ckb-application-form", "ckb-application-objective", "ckb-application-trace", "ai-agent-panel"]) assert.match(html, new RegExp(`id="${id}"`));
-  assert.match(html, /Start with a CKB job, not an empty chatbot/); assert.match(html, /Advanced agent workbench/); assert.match(html, /Run CKB mission/);
+  assert.match(html, /Run a defined CKB workflow/); assert.match(html, /Custom analysis/); assert.match(html, /Run workflow/);
 });
 
 test("v7 browser renders application cards and calls the dedicated workflow API", () => {
@@ -63,7 +63,7 @@ test("v7 workflow endpoint rejects an empty objective before any model or tool c
   assert.equal(calls, 0);
 });
 
- test("v10.0.1 HTTP exposes sanitized Gemini upstream errors as gateway failures", async () => {
+ test("v10.1.0 HTTP exposes sanitized Gemini upstream errors as gateway failures", async () => {
   const key = "AIzaSy012345678901234567890123456789";
   await withInspector(async (base) => {
     const response = await fetch(`${base}/api/ai/application`, { method: "POST", headers: { "content-type": "application/json", "x-ai-api-key": key, "x-ai-provider": "gemini", "x-ai-model": "gemini-3.7-flash" }, body: JSON.stringify({ applicationId: "research-brief", objective: "Summarize current CKB architecture" }) });

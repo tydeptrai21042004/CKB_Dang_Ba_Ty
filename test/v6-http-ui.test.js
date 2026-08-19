@@ -37,7 +37,7 @@ async function withInspector(fn) {
 
 test("v6 health endpoint reports the real-agent release", async () => withInspector(async (base) => {
   const body = await (await fetch(`${base}/api/health`)).json();
-  assert.equal(body.version, "10.0.1");
+  assert.equal(body.version, "10.1.0");
   assert.equal(body.readOnly, true);
   assert.equal(body.privateKeyRequired, false);
 }));
@@ -65,7 +65,7 @@ test("v6 plugin catalog keeps remote community MCP disabled by default", async (
 test("v6 public workbench exposes plugins, step budget, signing boundary, and audit trace", () => {
   for (const id of ["ai-plugin-list", "ai-agent-max-steps", "ai-agent-trace"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /No signing \/ no broadcast/);
-  assert.match(html, /Run tool-using agent/);
+  assert.match(html, /Run analysis/);
 });
 
 test("v6 browser sends selected plugins and bounded maxSteps to the agent API", () => {

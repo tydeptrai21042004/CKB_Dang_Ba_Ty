@@ -28,3 +28,18 @@ test("public rate limiting does not trust spoofed X-Forwarded-For by default", a
     assert.equal(response.status, 429);
   });
 });
+
+test("trusted Vercel proxy rate limiting prefers the platform-owned client IP header", async () => {
+  await withServer({ TRUST_PROXY: true }, async (base) => {
+    let response;
+    for (let i = 0; i < 46; i += 1) {
+      response = await fetch(`${base}/api/learning`, {
+        headers: {
+          "x-vercel-forwarded-for": "203.0.113.77",
+          "x-forwarded-for": `198.51.100.${(i % 200) + 1}`
+        }
+      });
+    }
+    assert.equal(response.status, 429);
+  });
+});

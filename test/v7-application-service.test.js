@@ -12,7 +12,7 @@ function config(extra = {}) { return { ROOT_DIR: process.cwd(), APP_NETWORK: "de
 
 test("v7 publishes concrete CKB missions with readiness and deliverables", () => {
   const apps = ckbApplicationCatalog(config());
-  assert.equal(apps.length, 7);
+  assert.equal(apps.length, 15);
   for (const id of ["fiber-operator-diagnostics", "transaction-forensics", "script-debug-lab", "asset-provenance", "contribution-finder", "research-brief", "dapp-architecture"]) assert.ok(apps.some((app) => app.id === id));
   assert.equal(apps.find((app) => app.id === "transaction-forensics").ready, true);
   assert.deepEqual(apps.find((app) => app.id === "fiber-operator-diagnostics").missingConfig, ["FIBER_RPC_URL"]);

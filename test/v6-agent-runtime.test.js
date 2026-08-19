@@ -151,7 +151,7 @@ test("v6 callOptionalAi parses Gemini functionCall", async () => {
   assert.equal(result.toolCalls[0].name, "lookup");
 });
 
- test("v10.0.1 Gemini request uses current REST JSON field names and default sampling", () => {
+ test("v10.1.0 Gemini request uses current REST JSON field names and default sampling", () => {
   const p = { id: "gemini", kind: "gemini", endpoint: "https://generativelanguage.googleapis.com/v1beta/models" };
   const r = buildAiRequest(p, "key", "gemini-3.7-flash", [
     { role: "system", content: "system" },
@@ -164,7 +164,7 @@ test("v6 callOptionalAi parses Gemini functionCall", async () => {
   assert.equal("generationConfig" in r.body, false);
 });
 
- test("v10.0.1 Gemini tool loop replays thoughtSignature and matching functionResponse id", async () => {
+ test("v10.1.0 Gemini tool loop replays thoughtSignature and matching functionResponse id", async () => {
   let modelCalls = 0; let secondBody;
   const toolName = "ckb-docs__ckb_docs_search";
   const result = await runCkbAgent({ "x-ai-api-key": "AIzaSy012345678901234567890123456789", "x-ai-provider": "gemini" }, { task: "What do official docs say about CCC?", plugins: ["ckb-docs"] }, undefined, "openai", {
