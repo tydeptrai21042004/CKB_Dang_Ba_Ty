@@ -65,6 +65,11 @@ function validateResubmission(body) {
 function clientAddress(request, trustProxy = false) {
   const peer = String(request.socket?.remoteAddress ?? "unknown").trim();
   if (!trustProxy) return peer;
+  // Vercel sets x-vercel-forwarded-for itself. Prefer that platform-owned
+  // header when present, then fall back to the conventional proxy header for
+  // Docker/Caddy and other explicitly trusted reverse proxies.
+  const vercelForwarded = String(request.headers["x-vercel-forwarded-for"] ?? "").split(",")[0].trim();
+  if (vercelForwarded) return vercelForwarded;
   const forwarded = String(request.headers["x-forwarded-for"] ?? "").split(",")[0].trim();
   return forwarded || peer;
 }
@@ -92,8 +97,11 @@ function createRateLimiter(limit = 45, windowMs = 60_000, { trustProxy = false, 
 export function securityHeaders() {
   return {
     "content-security-policy": "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+    "cross-origin-opener-policy": "same-origin",
+    "cross-origin-resource-policy": "same-origin",
     "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
     "referrer-policy": "no-referrer",
+    "strict-transport-security": "max-age=31536000",
     "x-content-type-options": "nosniff",
     "x-frame-options": "DENY"
   };
@@ -205,7 +213,12 @@ export function createInspectorServer(options) {
     learningOverview = () => buildLearningOverview(config.ROOT_DIR ?? path.resolve(publicDir, "..")),
     productDb = null,
     aiFetchImpl = fetch,
-    toolFetchImpl = fetch
+    toolFetchImpl = fetch,
+    qrEnabled = true,
+    chainInspectionEnabled = true,
+    agentJobStoreEnabled = true,
+    agentRuntimeDataDir = config?.DATA_DIR,
+    deploymentTarget = "node"
   } = options;
   if (!config || !publicDir) throw new Error("config and publicDir are required.");
   const rateLimit = createRateLimiter(45, 60_000, { trustProxy: config.TRUST_PROXY === true });
@@ -219,7 +232,7 @@ export function createInspectorServer(options) {
         sendJson(response, 200, {
           ok: true,
           service: "CKBuilder Passport Public Verifier",
-          version: "10.0.1",
+          version: "10.1.0",
           network: config.APP_NETWORK,
           readOnly: true,
           privateKeyRequired: false,
@@ -235,11 +248,17 @@ export function createInspectorServer(options) {
       }
 
       if (request.method === "GET" && url.pathname === "/api/ready") {
-        const checks = { ledger: false, productDb: false };
+        const checks = { ledger: false, productDb: false, chainInspection: chainInspectionEnabled };
         try { loadLedger(config.DATA_DIR); checks.ledger = true; } catch {}
         try { if (productDb) { productDb.prepare("SELECT 1 AS ok").get(); checks.productDb = true; } } catch {}
         const ok = checks.ledger && (!productDb || checks.productDb);
-        sendJson(response, ok ? 200 : 503, { ok, checks, network: config.APP_NETWORK }, requestId); return;
+        sendJson(response, ok ? 200 : 503, {
+          ok,
+          checks,
+          network: config.APP_NETWORK,
+          deploymentTarget,
+          storageMode: productDb ? "persistent" : "read-only"
+        }, requestId); return;
       }
 
       if (request.method === "GET" && url.pathname === "/api/stats") {
@@ -258,6 +277,7 @@ export function createInspectorServer(options) {
 
       if (request.method === "GET" && url.pathname === "/api/config") {
         rateLimit(request, "config");
+        const reputation = agentJobStoreEnabled ? serviceReputation(agentRuntimeDataDir) : {};
         sendJson(response, 200, {
           appName: config.PUBLIC_APP_NAME ?? "CKBuilder Passport", network: config.APP_NETWORK,
           publicBaseUrl: config.PUBLIC_BASE_URL ?? null, aiEnabled: config.AI_ENABLED !== false,
@@ -265,12 +285,18 @@ export function createInspectorServer(options) {
           aiAgents: aiAgentCatalog(),
           aiPlugins: aiPluginCatalog(config.ROOT_DIR ?? path.resolve(publicDir, "..")),
           ckbApplications: ckbApplicationCatalog(config),
-          agentServices: agentServiceCatalog(config, config.ROOT_DIR ?? path.resolve(publicDir, "..")).map((service) => ({ ...service, reputation: serviceReputation(config.DATA_DIR)[service.id] ?? { jobs: 0, fulfilled: 0, gaps: 0, blocked: 0, fulfillmentRate: null, evidenceSuccessRate: null, latestAt: null } })),
+          agentServices: agentServiceCatalog(config, config.ROOT_DIR ?? path.resolve(publicDir, "..")).map((service) => ({ ...service, reputation: reputation[service.id] ?? { jobs: 0, fulfilled: 0, gaps: 0, blocked: 0, fulfillmentRate: null, evidenceSuccessRate: null, latestAt: null } })),
           aiDefaultProvider: config.AI_DEFAULT_PROVIDER ?? "openai", aiDefaultModel: config.AI_DEFAULT_MODEL ?? "gpt-4.1-mini",
           publicDirectoryEnabled: config.PUBLIC_DIRECTORY_ENABLED === true,
           submissionEnabled: Boolean(productDb),
           supportedDocuments: supportedDocumentTypes(),
-          htmlSupport: true, submissionAttachments: Boolean(productDb)
+          htmlSupport: true,
+          submissionAttachments: Boolean(productDb),
+          qrEnabled,
+          chainInspectionEnabled,
+          agentJobStoreEnabled,
+          deploymentTarget,
+          storageMode: productDb ? "persistent" : "read-only"
         }, requestId); return;
       }
 
@@ -299,6 +325,7 @@ export function createInspectorServer(options) {
 
       if (request.method === "GET" && url.pathname === "/api/qr") {
         rateLimit(request, "qr");
+        if (!qrEnabled) throw new AppError("QR_ENCODER_UNAVAILABLE", "QR generation is disabled on this deployment.");
         const credentialId = String(url.searchParams.get("credentialId") ?? "").trim();
         if (!credentialId || credentialId.length > 256) throw new AppError("CREDENTIAL_ID_INVALID", "credentialId is required.");
         const record = loadLedger(config.DATA_DIR).credentials[credentialId];
@@ -458,16 +485,17 @@ export function createInspectorServer(options) {
         const body = await readJsonBody(request, Math.min(maxBodyBytes, 128 * 1024));
         const result = await runAgentService(request.headers, body, config, {
           rootDir: config.ROOT_DIR ?? path.resolve(publicDir, ".."), fetchImpl: options.aiFetchImpl ?? fetch, toolFetchImpl: options.toolFetchImpl ?? fetch,
-          timeoutMs: options.aiTimeoutMs, toolTimeoutMs: options.aiToolTimeoutMs
+          timeoutMs: options.aiTimeoutMs, toolTimeoutMs: options.aiToolTimeoutMs, identityDataDir: agentRuntimeDataDir
         });
-        const access = result.receipt ? recordAgentJob(config.DATA_DIR, { objective: body.objective ?? body.task, result }) : null;
+        const access = agentJobStoreEnabled && result.receipt ? recordAgentJob(agentRuntimeDataDir, { objective: body.objective ?? body.task, result }) : null;
         sendJson(response, 200, access ? { ...result, jobAccess: access } : result, requestId); return;
       }
 
       if (request.method === "GET" && /^\/api\/agent-commerce\/jobs\/[^/]+$/.test(url.pathname)) {
         rateLimit(request, "agent-commerce-job");
+        if (!agentJobStoreEnabled) throw new AppError("AGENT_JOB_STORAGE_UNAVAILABLE", "Persistent agent job lookup is not enabled on this deployment.");
         const jobId = decodeURIComponent(url.pathname.split("/")[4]);
-        sendJson(response, 200, getAgentJob(config.DATA_DIR, jobId, url.searchParams.get("token")), requestId); return;
+        sendJson(response, 200, getAgentJob(agentRuntimeDataDir, jobId, url.searchParams.get("token")), requestId); return;
       }
 
       if (request.method === "POST" && url.pathname === "/api/agent-commerce/verify-receipt") {
@@ -532,7 +560,12 @@ export function createInspectorServer(options) {
       if (request.method === "POST" && url.pathname === "/api/inspect") {
         rateLimit(request, "inspect");
         const body = await readJsonBody(request, maxBodyBytes);
-        const proof = await inspectFromRequest({ body, config, inspectCredential, maxDocumentBytes });
+        const proof = await inspectFromRequest({
+          body: { ...body, skipChain: body.skipChain === true || !chainInspectionEnabled },
+          config,
+          inspectCredential,
+          maxDocumentBytes
+        });
         sendJson(response, 200, proof, requestId);
         return;
       }

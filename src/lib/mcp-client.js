@@ -4,7 +4,7 @@ import { AppError } from "./errors.js";
 
 export const MCP_PROTOCOL_CURRENT = "2026-07-28";
 const LEGACY_PROTOCOL = "2025-11-25";
-const CLIENT_INFO = { name: "ckbuilder-passport", version: "10.0.1" };
+const CLIENT_INFO = { name: "ckbuilder-passport", version: "10.1.0" };
 const MAX_RESPONSE_CHARS = 1024 * 1024;
 
 function isLocalHost(hostname) {

@@ -77,6 +77,74 @@ const BUILTIN_SERVICES = Object.freeze([
     payment: { rail: "Fiber-ready", mode: "receipt-first", autonomousSpend: false },
     evaluation: { minSuccessfulToolCalls: 1, anyEvidenceFrom: ["ckb-docs", "ckb-github", "ckb-community"] }
   }
+  ,{
+    id: "ckb-production-incident-team",
+    title: "CKB Production Incident Team",
+    category: "operations",
+    kind: "team",
+    audience: "CKB application operators, backend teams, wallet services, on-call engineers",
+    description: "Coordinate RPC/network triage, transaction-impact review, and security/trust analysis for a CKB production incident using only read-only evidence.",
+    outcome: "Incident severity + evidence timeline + ranked hypotheses + containment/recovery actions + verification checklist.",
+    requires: ["CKB_RPC_URL"],
+    optionalConfig: ["CKB_AGENT_WORKSPACE", "FIBER_RPC_URL"],
+    payment: { rail: "none", mode: "operations", autonomousSpend: false },
+    evaluation: { minSuccessfulToolCalls: 1, anyEvidenceFrom: ["ckb-rpc", "fiber-rpc", "ckb-docs", "ckb-workspace"] },
+    workflow: ["Scope impact and network", "Collect read-only node/application evidence", "Run parallel RPC, transaction, and security triage", "Synthesize containment and recovery plan", "Define recovery verification checks"],
+    synthesisPrompt: "Act as incident commander. Produce a severity assessment, observed facts, ranked hypotheses, immediate non-destructive containment actions, recovery steps, and explicit verification criteria. Never mark the incident resolved without evidence.",
+    roles: [
+      { id: "rpc-operator", name: "RPC & Network Operator", agent: "ckb-rpc-debugger", plugins: ["ckb-rpc", "fiber-rpc", "ckb-docs"], prompt: "Collect read-only CKB/Fiber operational evidence and distinguish network, sync, indexer, and upstream RPC symptoms." },
+      { id: "transaction-impact", name: "Transaction Impact Reviewer", agent: "ckb-transaction-reviewer", plugins: ["ckb-rpc", "ckb-docs"], prompt: "Assess transaction/Cell impact, failed or stale reads, confirmation assumptions, and whether application transaction flows are affected." },
+      { id: "trust-review", name: "Security & Trust Reviewer", agent: "ckb-security-reviewer", plugins: ["ckb-workspace", "ckb-docs"], prompt: "Check whether the incident could come from unsafe fallback behavior, secret exposure, network confusion, stale cache trust, or validation bypass assumptions." }
+    ]
+  },
+  {
+    id: "ckb-credential-trust-auditor",
+    title: "CKBuilder Credential Trust Auditor",
+    category: "credentials",
+    kind: "single",
+    audience: "credential issuers, community programs, verifier operators",
+    description: "Audit the separation between human evidence review, credential signatures, issuer identity, CKB records, revocation state, public proofs, and passport presentation.",
+    outcome: "Trust-boundary audit + verification matrix + privacy findings + revocation/tamper test plan + signed service receipt.",
+    agent: "ckbuilder-credential-reviewer",
+    plugins: ["ckb-docs", "ckb-rpc"],
+    requires: [],
+    optionalConfig: ["CKB_RPC_URL"],
+    payment: { rail: "Fiber-ready", mode: "receipt-first", autonomousSpend: false },
+    evaluation: { minSuccessfulToolCalls: 1, anyEvidenceFrom: ["ckb-docs", "ckb-rpc"] },
+    workflow: ["Map authorities and trust boundaries", "Trace issuance evidence and signatures", "Check on-chain/off-chain verification separation", "Review revocation and stale proof behavior", "Produce lifecycle abuse/tamper test cases"]
+  },
+  {
+    id: "ckb-wallet-flow-reviewer",
+    title: "CKB Wallet & Transaction Flow Reviewer",
+    category: "wallet",
+    kind: "single",
+    audience: "CCC dApps, wallets, frontend/backend integration teams",
+    description: "Review a user transaction journey from wallet connection and network selection through intent construction, explicit signing, submission, confirmation, cancellation, and retries.",
+    outcome: "Wallet state machine + signing boundary + transaction risk review + UX failure paths + integration test matrix.",
+    agent: "ckb-transaction-reviewer",
+    plugins: ["ckb-docs", "ckb-workspace", "ckb-rpc"],
+    requires: [],
+    optionalConfig: ["CKB_AGENT_WORKSPACE", "CKB_RPC_URL"],
+    payment: { rail: "none", mode: "review", autonomousSpend: false },
+    evaluation: { minSuccessfulToolCalls: 1, anyEvidenceFrom: ["ckb-docs", "ckb-workspace", "ckb-rpc"] },
+    workflow: ["Map wallet/network/account states", "Inspect transaction intent construction", "Verify explicit human signing boundary", "Review submit/confirm/retry paths", "Produce browser + wallet regression tests"]
+  },
+  {
+    id: "ckb-asset-launch-reviewer",
+    title: "CKB Asset Launch Reviewer",
+    category: "assets",
+    kind: "single",
+    audience: "xUDT, Spore/DOB, RGB++ application teams",
+    description: "Review an asset launch for Cell/state modeling, protocol identity, provenance claims, wallet/indexer discovery, transfer semantics, and failure/recovery behavior.",
+    outcome: "Asset trust/state map + launch blockers + protocol-fit evidence + transfer/provenance tests + signed review receipt.",
+    agent: "ckb-cell-debugger",
+    plugins: ["ckb-docs", "ckb-community", "ckb-rpc"],
+    requires: [],
+    optionalConfig: ["CKB_RPC_URL"],
+    payment: { rail: "Fiber-ready", mode: "review", autonomousSpend: false },
+    evaluation: { minSuccessfulToolCalls: 1, anyEvidenceFrom: ["ckb-docs", "ckb-community", "ckb-rpc"] },
+    workflow: ["Identify asset protocol and chain-of-record claims", "Map Cells, Scripts, data, and ownership", "Review issuance/create and transfer paths", "Check wallet/indexer/provenance behavior", "Produce Testnet launch and failure-case tests"]
+  }
 ]);
 
 function boundedString(value, label, max = 6000) {
@@ -92,11 +160,19 @@ function configStatus(service, config = {}) {
   return { ready: missing.length === 0, missingConfig: missing, optionalEvidenceReady: optionalReady };
 }
 
+function serviceWorkflow(service) {
+  const steps = Array.isArray(service.workflow) && service.workflow.length
+    ? service.workflow
+    : ["Scope objective", "Collect allowed evidence", "Analyze evidence and gaps", "Produce reviewable output"];
+  return steps.map((step, index) => ({ id: `stage-${index + 1}`, order: index + 1, title: String(step) }));
+}
+
 function publicService(service, config = {}) {
   return {
     id: service.id, title: service.title, category: service.category, kind: service.kind, audience: service.audience,
     description: service.description, outcome: service.outcome, payment: service.payment, evaluation: service.evaluation ?? { minSuccessfulToolCalls: 0, anyEvidenceFrom: [] },
     roles: service.roles?.map(({ id, name }) => ({ id, name })) ?? [],
+    workflow: serviceWorkflow(service),
     ...configStatus(service, config)
   };
 }
@@ -115,6 +191,7 @@ function communityServices(config = {}, rootDir = process.cwd()) {
       agent: "ckb-developer", plugins: [plugin.id, "ckb-docs"], requires: [], optionalConfig: [],
       payment: { rail: "external/Fiber-ready", mode: "service-defined", autonomousSpend: false },
       evaluation: { minSuccessfulToolCalls: 1, anyEvidenceFrom: [plugin.id] },
+      workflow: ["Discover MCP capabilities", "Confirm permission/risk boundaries", "Execute approved bounded tools", "Return traceable result and receipt"],
       communityPluginId: plugin.id,
       ...configStatus({ requires: [] }, config)
     }));
@@ -249,7 +326,7 @@ export function createAgentJobReceipt({ service, objective, result, paymentQuote
 }
 
 function serviceTask(service, objective, context) {
-  return `Execute the CKBuilder agent service: ${service.title}.\n\nSERVICE PURPOSE\n${service.description}\n\nUSER OBJECTIVE\n${objective}\n\nEXPECTED OUTCOME\n${service.outcome}\n\nSERVICE RULES\n- Use live/read-only tools when they can verify a claim.\n- Clearly separate observed evidence from inference.\n- Do not sign, broadcast, open/close channels, or send a payment.\n- If payment is relevant, describe the human approval boundary and use only supplied dry-run quote evidence.\n\nUSER CONTEXT\n${context}`;
+  return `Execute the CKBuilder agent service: ${service.title}.\n\nSERVICE PURPOSE\n${service.description}\n\nUSER OBJECTIVE\n${objective}\n\nWORKFLOW STAGES\n${serviceWorkflow(service).map((stage) => `${stage.order}. ${stage.title}`).join("\n")}\n\nEXPECTED OUTCOME\n${service.outcome}\n\nSERVICE RULES\n- Use live/read-only tools when they can verify a claim.\n- Clearly separate observed evidence from inference.\n- Do not sign, broadcast, open/close channels, or send a payment.\n- If payment is relevant, describe the human approval boundary and use only supplied dry-run quote evidence.\n\nUSER CONTEXT\n${context}`;
 }
 
 async function runSingleService(headers, service, objective, context, config, input, options) {
@@ -280,7 +357,7 @@ async function runTeamService(headers, service, objective, context, config, inpu
     const startedAt = new Date().toISOString();
     const report = await runCkbAgent(headers, {
       agent: role.agent,
-      task: `${role.prompt}\n\nRelease objective: ${objective}\n\nShared context: ${context}`,
+      task: `${role.prompt}\n\nObjective: ${objective}\n\nShared context: ${context}`,
       context: { serviceId: service.id, role: role.id },
       plugins: role.plugins,
       maxSteps: Math.max(2, Math.min(4, Number(input.roleMaxSteps) || 3)),
@@ -315,7 +392,7 @@ async function runTeamService(headers, service, objective, context, config, inpu
   const synthesisStartedAt = new Date().toISOString();
   const final = await runCkbAgent(headers, {
     agent: "ckb-security-reviewer",
-    task: `Act as release chair. Produce one GO / CONDITIONAL GO / NO-GO decision for this CKB release objective: ${objective}. Reconcile the specialist reports below, rank blockers by severity, list evidence gaps, and assign the smallest next validation steps. Never upgrade an unverified claim into a fact.\n\nSPECIALIST REPORTS\n${synthesisContext}`,
+    task: `${service.synthesisPrompt ?? `Act as release chair. Produce one GO / CONDITIONAL GO / NO-GO decision for this CKB release objective: ${objective}. Reconcile the specialist reports, rank blockers by severity, list evidence gaps, and assign the smallest next validation steps. Never upgrade an unverified claim into a fact.`}\n\nOBJECTIVE\n${objective}\n\nSPECIALIST REPORTS\n${synthesisContext}`,
     context: { serviceId: service.id, specialistCount: reports.length },
     plugins: ["ckb-docs"], maxSteps: 2
   }, config.AI_DEFAULT_MODEL, config.AI_DEFAULT_PROVIDER, {
@@ -352,7 +429,12 @@ export async function runAgentService(headers, input, config = {}, options = {})
   const result = rawResult.workflow ? rawResult : { ...rawResult, workflow: { schema: "ckbuilder-agent-workflow/v1", mode: "single-agent", nodes: [{ id: "agent", type: "agent", dependsOn: [], status: rawResult.approvalRequired ? "waiting-approval" : "completed", steps: rawResult.steps ?? null }] } };
   const fulfillment = evaluateAgentServiceFulfillment({ service, result, agreement });
   if (result.approvalRequired) return { service: publicService(service, config), agreement, fulfillment, ...result };
-  const identity = config.DATA_DIR ? loadOrCreateAgentServiceIdentity(config.DATA_DIR) : null;
+  // Serverless deployments can keep signed receipts without writing into the
+  // bundled read-only DATA_DIR. Callers may provide a scratch identity
+  // directory (for example Vercel's /tmp). The public key is embedded in each
+  // receipt, so verification does not depend on that scratch directory later.
+  const identityDataDir = options.identityDataDir ?? config.DATA_DIR;
+  const identity = identityDataDir ? loadOrCreateAgentServiceIdentity(identityDataDir) : null;
   const receipt = createAgentJobReceipt({ service, objective, result, paymentQuote: input?.paymentQuote ?? null, agreement, fulfillment, identity });
   return { service: publicService(service, config), agreement, fulfillment, ...result, receipt };
 }
