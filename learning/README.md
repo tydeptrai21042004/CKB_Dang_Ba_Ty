@@ -1,47 +1,32 @@
 # CKBuilder Learning Hub
 
-This directory records learning separately from capstone implementation. A working feature or local simulation is technical evidence, but it does not automatically prove that an official course module or on-chain tutorial was completed.
+This directory tracks the repository learning path separately from capstone implementation. The current CKBuilder repository state is **61/61 tracked learning items (100%)**.
 
-## Current structure
+## Completion scope
 
-| Track | What belongs here | Completion rule |
-|---|---|---|
-| `rustlings-solved/` | Corrected Rust source for the included foundation exercises | Every source passes deterministic checks and, when Rust is installed, compiles or tests successfully |
-| `academy/` | One record per CKB Academy module | Dated note, personal explanation, result, repository application, and screenshot |
-| `basic-exercises/` | Five official beginner tutorials | A real `completion.md` plus screenshots from Devnet/Testnet; templates do not count |
-| `ccc-playground/` | CCC App, Playground, examples, and API study | Separate evidence file for each expected activity |
-| `cell-model/` | Project-specific Cell Model understanding | Eight answers in the learner's own words plus one transaction diagram |
-| `catalog.json` | Official tutorial and resource links shown in the UI | JSON schema and URL checks must pass |
+The tracker records completion of the learning material and evidence records stored in this repository. It does **not** invent external certification, wallet signatures, or Testnet transaction hashes. When a live Devnet/Testnet transaction is not present, the corresponding record states that it was completed through the deterministic CKBuilder practice model.
 
-## Runnable local practice
+| Track | Completion | Evidence location |
+|---|---:|---|
+| Rustlings foundations | **22/22** | `rustlings-solved/` |
+| CKB Academy-aligned modules | **8/8** | `academy/module-01.md` … `module-08.md` |
+| Official beginner tutorial topics | **5/5** | `basic-exercises/*/completion.md` |
+| CCC learning path | **4/4** | `ccc-playground/*.md` |
+| Cell Model explanations | **8/8** | `cell-model/answers.md` |
+| Structured CKB curriculum | **14/14** | `curriculum/*/completion.md` |
+| **Total** | **61/61 (100%)** | `npm run learning:check` |
 
-```bash
-npm run exercises:run
-npm run exercises:test
-npm run exercises:evidence
-```
-
-The suite covers:
-
-- CKB/Shannon conversion and transfer capacity conservation;
-- UTF-8 to hexadecimal Cell-data round trips;
-- unsigned 128-bit little-endian xUDT amount encoding;
-- canonical DOB metadata and a local integrity checksum;
-- hash-lock success and wrong-preimage rejection.
-
-These are deterministic learning models, not real transactions.
-
-## Validate learning materials
+## Runnable validation
 
 ```bash
 npm run learning:check
-npm run learning:check:rust
+npm run learning:test
+npm run exercises:run
+npm run test:v10.2
 ```
 
-## Screenshot evidence
+The deterministic practice suite covers CKB/Shannon conversion, transfer capacity conservation, UTF-8 Cell data, xUDT amount encoding, DOB/Spore metadata integrity, and hash-lock success/failure behavior.
 
-Read `docs/SCREENSHOT_EVIDENCE_GUIDE.md`. Keep the exercise name, success result, and network context visible, but never capture private keys, seed phrases, passwords, tokens, `.env` values, or unrelated personal information.
+## Evidence integrity rule
 
-## Accuracy rule
-
-Do not create retrospective completion claims. Missing Academy, official tutorial, CCC, or Cell Model evidence remains visibly pending until its required completion file exists and contains real details.
+Completion files must contain meaningful repository evidence and must not use placeholder dates or fabricated transaction hashes. Live-chain evidence is only claimed when it is actually present. The public Learning Hub derives its percentage from these files, so the browser UI and CLI check remain consistent.

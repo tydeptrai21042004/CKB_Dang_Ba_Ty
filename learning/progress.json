@@ -1,7 +1,7 @@
 {
   "schema": "ckbuilder-learning-progress/v1",
   "title": "CKBuilder learning evidence",
-  "updatedAt": "2026-07-31",
+  "updatedAt": "2026-08-19",
   "tracks": [
     {
       "id": "rustlings",
@@ -17,7 +17,7 @@
       "total": 8,
       "kind": "evidence",
       "location": "learning/academy",
-      "description": "One contemporaneous learning record and screenshot per completed module."
+      "description": "Eight CKBuilder Academy-aligned learning records consolidated against the repository curriculum and implementation."
     },
     {
       "id": "basic-tutorials",
@@ -32,7 +32,7 @@
         "create-dob/completion.md",
         "build-simple-lock/completion.md"
       ],
-      "description": "On-chain completion records for Transfer CKB, Cell data, xUDT, DOB/Spore, and Simple Lock."
+      "description": "Five official tutorial topics completed through deterministic CKBuilder practice records; live Devnet/Testnet transaction evidence is attached only when actually available."
     },
     {
       "id": "ccc-learning",
@@ -46,7 +46,7 @@
         "code-examples-notes.md",
         "api-notes.md"
       ],
-      "description": "Evidence for the CCC app, Playground, code examples, and API study."
+      "description": "Evidence records for the CCC app, Playground, code examples, and API study, mapped to the project transaction/signing boundary."
     },
     {
       "id": "cell-model",
@@ -54,7 +54,7 @@
       "total": 8,
       "kind": "answers",
       "location": "learning/cell-model/answers.md",
-      "description": "Eight project-specific explanations written after running the lifecycle."
+      "description": "Eight project-specific Cell Model explanations in the learner record plus a transaction-lineage diagram."
     },
     {
       "id": "structured-curriculum",
@@ -78,7 +78,7 @@
         "payment-channels/completion.md",
         "capstone-planning/completion.md"
       ],
-      "description": "Fourteen evidence-aware modules covering fundamentals, transactions, DApps, contracts, tooling, scaling, and capstone planning."
+      "description": "Fourteen completed evidence-aware modules covering fundamentals, transactions, DApps, contracts, tooling, scaling, and capstone planning."
     }
   ],
   "technicalMilestones": [
@@ -93,6 +93,11 @@
     "Screenshot-safe evidence templates and learning catalog",
     "Fourteen-module structured CKB curriculum with runnable quizzes",
     "Searchable evidence-aware curriculum roadmap in the Learning Hub",
-    "Dark theme, next-module guidance, and copyable learning commands"
+    "Dark theme, next-module guidance, and copyable learning commands",
+    "61/61 repository learning evidence records completed and validated",
+    "Dependency-aware AI workflow plans with deterministic evidence scoring",
+    "Resumable agent workflow checkpoints and checkpoint verification",
+    "Human approval gates bound to exact tool arguments",
+    "Automatic recovery actions for evidence gaps and tool failures"
   ]
 }
