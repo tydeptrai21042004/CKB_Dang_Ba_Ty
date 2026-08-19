@@ -934,6 +934,9 @@ async function loadProductConfig() {
   try {
     productConfig = await getJson("/api/config"); sessionAi.provider = productConfig.aiDefaultProvider ?? "openai"; sessionAi.model = productConfig.aiDefaultModel ?? "gpt-4.1-mini";
     document.querySelector("#directory-nav")?.classList.toggle("hidden", productConfig.publicDirectoryEnabled !== true);
+    const submitNav = document.querySelector('[data-view="submit"]');
+    submitNav?.classList.toggle("hidden", productConfig.submissionEnabled !== true);
+    if (productConfig.submissionEnabled !== true && location.hash === "#submit") activateView("overview");
     if (productConfig.publicDirectoryEnabled === true) { setFormStatus(document.querySelector("#directory-status-text"), "Public directory enabled by this deployment.", "neutral"); }
     else { setFormStatus(document.querySelector("#directory-status-text"), "Public directory is disabled by this deployment.", "neutral"); }
     try { const remembered = JSON.parse(sessionStorage.getItem("ckbuilder-ai-settings") ?? "null"); if (remembered) sessionAi = { ...sessionAi, ...remembered, apiKey: "" }; } catch {}
