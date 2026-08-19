@@ -20,8 +20,10 @@ services:
       CKBUILDER_PROCESS_ENV_ONLY: "1"
       INSPECTOR_HOST: 0.0.0.0
       INSPECTOR_PORT: 4173
+      # Safe only because the published backend port below is loopback-only.
+      TRUST_PROXY: "1"
     ports:
-      - "4173:4173"
+      - "127.0.0.1:4173:4173"
     volumes:
       - ckbuilder-data:/app/data
       - ./deployment:/app/deployment:ro
