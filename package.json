@@ -1,9 +1,9 @@
 {
   "name": "ckbuilder-passport",
-  "version": "10.1.0",
+  "version": "10.2.0",
   "private": true,
   "type": "module",
-  "description": "CKBuilder v10 AgentOS: signed service identity/receipts, SQLite agent jobs, exact-argument approvals, hardened MCP 2026 transport, CKB transaction intents + preflight, Fiber quote/settlement verification, Mission Control, credentials, and BYOK AI.",
+  "description": "CKBuilder v10.2 AgentOS: checkpointed CKB agent workflows, deterministic evidence scoring, dependency-aware plans, signed receipts, SQLite agent jobs, exact-argument approvals, CKB transaction intents/preflight, Fiber verification, Mission Control, credentials, learning hub, and BYOK AI.",
   "engines": {
     "node": "22.x"
   },
@@ -58,7 +58,7 @@
     "attachments:audit": "node src/cli/audit-attachments.js",
     "backup:export:full": "node src/cli/export-full-backup.js",
     "test:v5": "node --test --test-reporter=spec test/v5-document.test.js test/v5-http.test.js test/v5-issuer.test.js test/v5-ui.test.js test/v5-storage.test.js",
-    "test:ai": "node --test --test-reporter=spec test/v4-ai.test.js test/v5-ai-agents.test.js test/v6-agent-runtime.test.js test/v6-http-ui.test.js test/v4-http.test.js test/v7-application-service.test.js test/v7-plugin-runtime.test.js test/v7-http-ui.test.js test/v8-agent-commerce.test.js test/v8-http-ui.test.js test/v9-agent-ops.test.js test/v9-http-ui.test.js test/v10-agentos.test.js",
+    "test:ai": "node --test --test-reporter=spec test/v4-ai.test.js test/v5-ai-agents.test.js test/v6-agent-runtime.test.js test/v6-http-ui.test.js test/v4-http.test.js test/v7-application-service.test.js test/v7-plugin-runtime.test.js test/v7-http-ui.test.js test/v8-agent-commerce.test.js test/v8-http-ui.test.js test/v9-agent-ops.test.js test/v9-http-ui.test.js test/v10-agentos.test.js test/v10.2-agent-workflow.test.js",
     "test:v6": "node --test --test-reporter=spec test/v6-agent-runtime.test.js test/v6-http-ui.test.js",
     "plugins:check": "node scripts/check-ai-plugins.js",
     "test:v7": "node --test --test-reporter=spec test/v7-application-service.test.js test/v7-plugin-runtime.test.js test/v7-http-ui.test.js",
@@ -70,7 +70,8 @@
     "test:workflows": "node --test --test-reporter=spec test/v10-expanded-workflows.test.js",
     "agent:tx:build": "node src/cli/build-ckb-transaction.js",
     "vercel:check": "node scripts/check-vercel-deploy.js",
-    "test:ui:production": "node --test --test-reporter=spec test/v10-production-ui.test.js"
+    "test:ui:production": "node --test --test-reporter=spec test/v10-production-ui.test.js",
+    "test:v10.2": "node --test --test-reporter=spec test/v10.2-agent-workflow.test.js"
   },
   "dependencies": {
     "@ckb-ccc/core": "1.16.1"

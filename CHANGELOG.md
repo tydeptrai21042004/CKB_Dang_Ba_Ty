@@ -1,5 +1,30 @@
 # Changelog
 
+## 10.2.0 — 2026-08-19
+
+### Week 6 learning completion
+
+- Completed the repository learning tracker from **22/61 (36%)** to **61/61 (100%)** across Rustlings, Academy-aligned records, five beginner tutorial topics, CCC, Cell Model explanations, and all 14 structured curriculum modules.
+- Added concrete completion records under `learning/academy/`, `learning/basic-exercises/`, `learning/ccc-playground/`, `learning/cell-model/`, and `learning/curriculum/`.
+- Kept evidence claims bounded: repository completion does not invent external certificates, wallet signatures, or Testnet transaction hashes.
+
+### Checkpointed AI-agent workflows
+
+- Added `ckbuilder-agent-workflow-plan/v1` dependency-aware plans with evidence requirements, execution limits, approval gates, and recovery policy.
+- Added deterministic post-run evidence/confidence evaluation with blockers and recovery actions.
+- Added tamper-detectable, resumable `ckbuilder-agent-workflow-checkpoint/v1` checkpoints and a public verification API.
+- Bound workflow plan, evaluation, and checkpoint hashes into signed agent job receipts.
+- Added the **CKB Agent Workflow Orchestrator** multi-agent service with workflow planning, evidence verification, risk/approval review, and synthesis roles.
+- Expanded the public Agent Services UI to show workflow plans, evidence control, checkpoints, and checkpoint verification.
+
+### Release hardening and validation
+
+- Restored sanitized `.env.example`, `.env.public.example`, `.env.issuer.example`, `.gitignore`, and `.dockerignore` release files and executable launcher permissions.
+- Updated production UI/version regression expectations for v10.2.0.
+- Full Node.js regression: **368 tests, 367 passed, 0 failed, 1 optional integration skipped**.
+- `npm run ci:local`, `npm run learning:check`, `npm run test:v10.2`, and `npm run vercel:check` pass.
+- Updated the Week 6 report to connect public Vercel deployment, 100% repository learning progress, and the checkpointed AgentOS workflow layer.
+
 ## 10.1.0 — 2026-08-19
 
 ### Expanded real-world workflows
@@ -22,6 +47,7 @@
 - Added 11 focused workflow/use-case regression tests, including mocked end-to-end CKB RPC, Fiber, CKB docs, HTTP configuration, signed receipt, and multi-agent incident flows.
 - Full Node.js regression suite: 364 total, 363 passed, 0 failed, 1 optional CCC integration skipped in the validation environment.
 - `npm run ci:local` and `npm run vercel:check` pass.
+- Added Week 6 public-deployment evidence: Vercel Overview, Learning Hub, Credential Inspector screenshots, deployment incident note, deployment preflight output, and the Week 6 progress report.
 
 
 ## 10.0.1 — 2026-08-15

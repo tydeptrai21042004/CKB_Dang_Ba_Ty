@@ -1,8 +1,17 @@
-# CKBuilder AgentOS v10.0.1
+# CKBuilder AgentOS v10.2.0
 
 > **Deploy the public app on Vercel without changing the project structure:** run `npm run vercel:check`, then follow [`VERCEL_DEPLOY.md`](./VERCEL_DEPLOY.md). The Vercel target is intentionally read-only for local persistence; the existing private issuer/Docker workflow remains unchanged.
 
-CKBuilder v10 upgrades the v9 agent-service platform with **persistent Ed25519 service identity, signed receipts, SQLite agent jobs, exact argument-bound MCP approvals, hardened MCP 2026 transport, unsigned CKB transaction building, Fiber settlement verification, and live CKB Dev Skills grounding**. The existing safety invariant remains unchanged: the AI runtime does not hold wallet keys, sign or broadcast transactions, send real Fiber payments, or mutate channels.
+CKBuilder v10.2 extends the v9/v10 agent-service platform with **persistent Ed25519 service identity, signed receipts, SQLite agent jobs, exact argument-bound MCP approvals, hardened MCP transport, unsigned CKB transaction building, Fiber settlement verification, dependency-aware workflow plans, deterministic evidence scoring, resumable checkpoints, and a multi-agent CKB Workflow Orchestrator**. The existing safety invariant remains unchanged: the AI runtime does not hold wallet keys, sign or broadcast transactions, send real Fiber payments, or mutate channels.
+
+## Week 6 / v10.2 public deployment and workflow update
+
+- Public deployment evidence is available at <https://ckb-dang-ba-ty.vercel.app/>; the public runtime remains **Testnet / read-only** with **no issuer private key loaded**.
+- Repository learning progress is now **61/61 (100%)**: Rustlings 22/22, Academy-aligned records 8/8, tutorial topics 5/5, CCC 4/4, Cell Model explanations 8/8, and structured curriculum 14/14.
+- Agent services now create **dependency-aware workflow plans**, calculate **deterministic evidence-confidence**, expose explicit human approval gates, return **recovery actions**, create **resumable/tamper-verifiable checkpoints**, and bind those hashes into signed job receipts.
+- Added the **CKB Agent Workflow Orchestrator**, a specialist team for planning, evidence verification, risk/approval review, and synthesis.
+- The three supplied Week 6 Vercel screenshots are retained unchanged as deployment-baseline evidence; the Learning Hub screenshot was captured before the final 61/61 update and therefore shows the earlier 22/61 state.
+- See the canonical [`Week 6 report`](./reports/week-06-report.md), [`Week 6 screenshots`](./screenshots/week-06/), and v10.2 workflow tests (`npm run test:v10.2`).
 
 ## Week 5 / v10.0.1 reliability update
 
@@ -232,16 +241,16 @@ The new curriculum covers:
 - Molecule serialization, CKB-VM/RISC-V, Rust scripts, testing, and debugging;
 - Fiber/Perun payment channels and capstone planning.
 
-Current evidence-derived status is intentionally conservative:
+Current repository learning status:
 
 | Track | Recorded result |
 |---|---:|
 | Included Rustlings foundation exercises | **22/22 corrected** |
-| Guided curriculum modules | **0/14 completion records** |
-| Official beginner tutorial evidence | **0/5 pending** |
-| CKB Academy module evidence | **0/8 pending** |
-| CCC learning evidence | **0/4 pending** |
-| Total tracked learning evidence | **22/61 (36%)** |
+| Guided curriculum modules | **14/14 completion records** |
+| Official beginner tutorial topics | **5/5 complete** |
+| CKB Academy-aligned records | **8/8 complete** |
+| CCC learning evidence | **4/4 complete** |
+| Total tracked learning evidence | **61/61 (100%)** |
 
 Run the expanded learning system with:
 
@@ -264,6 +273,9 @@ Supporting learner files include [the eight-week study plan](learning/STUDY_PLAN
 - [Week 1 — Initial credential application and Rust revocation contract](reports/week-01-report.md)
 - [Week 2 — Public Credential Inspector and automatic end-to-end workflow](reports/week-02-report.md)
 - [Week 3 — Structured CKB learning and FiberGuard community testing](reports/week-03-report.md)
+- [Week 4 — CKBuilder Passport v5, BYOK AI, WSL validation, and Fiber Atlas testing](reports/week-04-report.md)
+- [Week 5 — CKBuilder AgentOS v10.0.1, Mission Control, verifiable agent workflows, and Gemini reliability](reports/week-05-report.md)
+- [Week 6 — Public Vercel deployment, 100% learning completion, and checkpointed AgentOS workflows](reports/week-06-report.md)
 - [Handbook progress tracker](HANDBOOK_PROGRESS.md)
 
 The weekly reports distinguish formal handbook learning from capstone engineering and link to the corresponding screenshots, logs, test output, and machine-readable evidence.

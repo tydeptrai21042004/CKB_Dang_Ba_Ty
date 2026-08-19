@@ -25,6 +25,11 @@
 - [x] Read-only Fiber payment-status verification after external execution
 - [x] Gemini 3 stateless function-call/thought-signature compatibility regression coverage
 - [x] Runtime CI separated from clean-release audit
+- [x] Public read-only Vercel deployment with no issuer private key loaded
+- [x] Repository learning tracker complete at 61/61 (100%)
+- [x] Dependency-aware AI workflow plans with deterministic evidence scoring
+- [x] Tamper-detectable resumable workflow checkpoints and verification endpoint
+- [x] CKB Agent Workflow Orchestrator multi-agent service
 - [x] `.gitignore`, `.env.example`, `LICENSE`, and security notes
 
 ## Community contribution
@@ -42,11 +47,14 @@
 
 ## Handbook evidence
 
-- [x] Prepare Week 1 through Week 5 evidence-linked reports
-- [ ] Record exact CKB Academy modules and scores
-- [ ] Record CCC Playground exercises with screenshots
-- [ ] Explain Cell Model concepts in the participant's own words
-- [ ] Distinguish OffCKB devnet from a synchronized CKB full node
+- [x] Prepare Week 1 through Week 6 evidence-linked reports
+- [x] Complete the repository learning tracker at 61/61 across all six tracked categories
+- [x] Record eight Academy-aligned repository learning records
+- [x] Record four CCC learning-path records
+- [x] Record eight project-specific Cell Model explanations
+- [x] Complete all 14 structured curriculum records
+- [ ] Attach external Academy scores/certificates only if separately obtained
+- [ ] Add live Testnet transaction evidence only after a real Testnet run
 - [ ] Add the final GitHub repository URL
 
 For a running local workspace:
