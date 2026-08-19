@@ -154,7 +154,7 @@ export function agentRuntimeDoctor(config = {}, rootDir = process.cwd()) {
     schema: "ckbuilder-agent-runtime-doctor/v1", aiEnabled: config.AI_ENABLED !== false, network: config.APP_NETWORK ?? "unknown",
     summary: { plugins: plugins.length, ready: plugins.filter((p) => p.status === "ready").length, needsAttention: plugins.filter((p) => p.status !== "ready").length },
     plugins,
-    capabilities: { signedServiceReceipts: Boolean(config.DATA_DIR), sqliteAgentJobs: Boolean(config.DATA_DIR), transactionIntentBuilder: true, transactionDryRun: Boolean(config.CKB_RPC_URL), fiberSettlementVerification: Boolean(config.FIBER_RPC_URL), exactArgumentApprovals: true, workflowDag: true, parallelSpecialists: true },
+    capabilities: { signedServiceReceipts: Boolean(config.DATA_DIR), sqliteAgentJobs: Boolean(config.DATA_DIR), transactionIntentBuilder: true, transactionDryRun: Boolean(config.CKB_RPC_URL), fiberSettlementVerification: Boolean(config.FIBER_RPC_URL), exactArgumentApprovals: true, workflowDag: true, parallelSpecialists: true, deterministicEvidenceScoring: true, resumableWorkflowCheckpoints: true, workflowRecoveryActions: true },
     safety: { signingAuthority: false, broadcastAuthority: false, autonomousSpend: false }
   };
 }

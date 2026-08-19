@@ -3,6 +3,7 @@ import { AppError } from "./errors.js";
 import { runCkbAgent } from "./ai-service.js";
 import { aiPluginCatalog, quoteFiberPayment, verifyFiberPayment } from "./plugin-service.js";
 import { loadOrCreateAgentServiceIdentity, publicAgentServiceIdentity, signAgentReceiptHash, verifyAgentReceiptSignature } from "./agent-identity.js";
+import { buildAgentWorkflowPlan, evaluateAgentWorkflow, createAgentWorkflowCheckpoint } from "./agent-workflow-service.js";
 
 const BUILTIN_SERVICES = Object.freeze([
   {
@@ -144,6 +145,26 @@ const BUILTIN_SERVICES = Object.freeze([
     payment: { rail: "Fiber-ready", mode: "review", autonomousSpend: false },
     evaluation: { minSuccessfulToolCalls: 1, anyEvidenceFrom: ["ckb-docs", "ckb-community", "ckb-rpc"] },
     workflow: ["Identify asset protocol and chain-of-record claims", "Map Cells, Scripts, data, and ownership", "Review issuance/create and transfer paths", "Check wallet/indexer/provenance behavior", "Produce Testnet launch and failure-case tests"]
+  },
+  {
+    id: "ckb-agent-workflow-orchestrator",
+    title: "CKB Agent Workflow Orchestrator",
+    category: "automation",
+    kind: "team",
+    audience: "CKB teams delegating multi-step research, release, incident, and integration work to AI agents",
+    description: "Plan a dependency-aware CKB workflow, collect evidence in parallel specialist lanes, apply deterministic evidence and human-approval gates, then produce a checkpointed result that can be verified or safely resumed.",
+    outcome: "Workflow DAG + evidence coverage score + risk/approval gates + recovery actions + resumable checkpoint + signed job receipt.",
+    requires: [],
+    optionalConfig: ["CKB_AGENT_WORKSPACE", "CKB_RPC_URL", "FIBER_RPC_URL"],
+    payment: { rail: "Fiber-ready", mode: "checkpointed-review", autonomousSpend: false },
+    evaluation: { minSuccessfulToolCalls: 1, anyEvidenceFrom: ["ckb-docs", "ckb-rpc", "fiber-rpc", "ckb-workspace", "ckb-github"] },
+    workflow: ["Decompose the objective into a dependency-aware plan", "Collect read-only protocol, repository, and network evidence", "Run specialist analysis in parallel where safe", "Apply evidence-confidence and human-approval gates", "Synthesize the result and create a resumable checkpoint"],
+    synthesisPrompt: "Act as CKB workflow coordinator. Reconcile the specialist reports into one dependency-aware execution result. Separate observed evidence from inference, score remaining evidence gaps, identify exact human approval gates, and provide a safe retry/resume path. Never sign, broadcast, spend, or claim missing live evidence was checked.",
+    roles: [
+      { id: "workflow-planner", name: "Workflow Planner", agent: "ckb-developer", plugins: ["ckb-docs", "ckb-github"], prompt: "Decompose the objective into CKB-specific stages, dependencies, deliverables, and the smallest useful evidence queries. Keep write/sign/spend operations outside the AI runtime." },
+      { id: "evidence-verifier", name: "Evidence Verifier", agent: "ckb-rpc-debugger", plugins: ["ckb-rpc", "fiber-rpc", "ckb-docs"], prompt: "Collect read-only live evidence when configured, name unavailable evidence explicitly, and rank which observations materially change the workflow decision." },
+      { id: "risk-gatekeeper", name: "Risk & Approval Gatekeeper", agent: "ckb-security-reviewer", plugins: ["ckb-workspace", "ckb-docs"], prompt: "Review signing, spending, plugin-write, secret, trust, and rollback boundaries. Define exact human approval gates and safe failure/retry behavior." }
+    ]
   }
 ]);
 
@@ -300,6 +321,9 @@ export function createAgentJobReceipt({ service, objective, result, paymentQuote
     agreementHash: agreement?.agreementHash ?? null,
     fulfillmentHash: fulfillment ? `sha256:${digest(fulfillment)}` : null,
     workflowHash: result?.workflow ? `sha256:${digest(result.workflow)}` : null,
+    workflowPlanHash: result?.workflowPlan?.planHash ?? null,
+    workflowControlHash: result?.workflowControl?.evaluationHash ?? null,
+    workflowCheckpointHash: result?.workflowCheckpoint?.checkpointHash ?? null,
     execution: { agent: result?.agent ?? null, provider: result?.provider ?? null, model: result?.model ?? null, steps: result?.steps ?? null },
     evidence
   };
@@ -423,20 +447,24 @@ export async function runAgentService(headers, input, config = {}, options = {})
   if (context.length > 24000) throw new AppError("AGENT_SERVICE_CONTEXT_TOO_LONG", "context must be at most 24000 characters.");
   const agreement = input?.agreement ?? createAgentServiceAgreement({ service, objective, input });
   if (input?.agreement) verifyAgentServiceAgreement(agreement, { service, objective });
+  const workflowPlan = buildAgentWorkflowPlan({ service, objective, agreement });
   const rawResult = service.kind === "team"
     ? await runTeamService(headers, service, objective, context, config, input, options)
     : await runSingleService(headers, service, objective, context, config, input, options);
   const result = rawResult.workflow ? rawResult : { ...rawResult, workflow: { schema: "ckbuilder-agent-workflow/v1", mode: "single-agent", nodes: [{ id: "agent", type: "agent", dependsOn: [], status: rawResult.approvalRequired ? "waiting-approval" : "completed", steps: rawResult.steps ?? null }] } };
   const fulfillment = evaluateAgentServiceFulfillment({ service, result, agreement });
-  if (result.approvalRequired) return { service: publicService(service, config), agreement, fulfillment, ...result };
+  const workflowControl = evaluateAgentWorkflow({ plan: workflowPlan, result, fulfillment });
+  const workflowCheckpoint = createAgentWorkflowCheckpoint({ plan: workflowPlan, evaluation: workflowControl, result });
+  const controlledResult = { ...result, workflowPlan, workflowControl, workflowCheckpoint };
+  if (result.approvalRequired) return { service: publicService(service, config), agreement, fulfillment, ...controlledResult };
   // Serverless deployments can keep signed receipts without writing into the
   // bundled read-only DATA_DIR. Callers may provide a scratch identity
   // directory (for example Vercel's /tmp). The public key is embedded in each
   // receipt, so verification does not depend on that scratch directory later.
   const identityDataDir = options.identityDataDir ?? config.DATA_DIR;
   const identity = identityDataDir ? loadOrCreateAgentServiceIdentity(identityDataDir) : null;
-  const receipt = createAgentJobReceipt({ service, objective, result, paymentQuote: input?.paymentQuote ?? null, agreement, fulfillment, identity });
-  return { service: publicService(service, config), agreement, fulfillment, ...result, receipt };
+  const receipt = createAgentJobReceipt({ service, objective, result: controlledResult, paymentQuote: input?.paymentQuote ?? null, agreement, fulfillment, identity });
+  return { service: publicService(service, config), agreement, fulfillment, ...controlledResult, receipt };
 }
 
 export function verifyAgentJobReceipt(receipt, { agreement = null, fulfillment = null } = {}) {

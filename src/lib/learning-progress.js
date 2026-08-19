@@ -165,6 +165,8 @@ export function buildLearningOverview(rootDir = process.cwd()) {
     studyPlan: catalog.studyPlan ?? null,
     resourceGroups: catalog.resourceGroups,
     screenshotPolicy: catalog.screenshotPolicy,
-    accuracyNote: "Official tutorials and curriculum modules remain pending until a completed evidence record exists. Reading, quizzes, and local practice are intentionally tracked separately."
+    accuracyNote: completed >= total
+      ? "All repository-tracked learning items have completion records. This is a CKBuilder repository progress state; live Testnet transactions or external course certificates are only claimed when the corresponding evidence record actually contains them."
+      : "Official tutorials and curriculum modules remain pending until a completed evidence record exists. Reading, quizzes, and local practice are intentionally tracked separately."
   };
 }

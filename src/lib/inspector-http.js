@@ -14,6 +14,7 @@ import { ckbApplicationCatalog, runCkbApplication } from "./application-service.
 import { agentServiceCatalog, createAgentServiceAgreement, createFiberPaymentQuote, getAgentService, runAgentService, verifyAgentJobReceipt, verifyFiberPaymentSettlement } from "./agent-commerce-service.js";
 import { getAgentJob, recordAgentJob, serviceReputation } from "./agent-job-store.js";
 import { agentRuntimeDoctor, runCkbCapacityTransferBuilder, runCkbTransactionPreflight } from "./agent-ops-service.js";
+import { buildAgentWorkflowPlan, verifyAgentWorkflowCheckpoint } from "./agent-workflow-service.js";
 import { createSubmission, getTrackedSubmission, getTrackedSubmissionWithTimeline, resubmitTrackedSubmission, cancelTrackedSubmission } from "./product-db.js";
 import { getPassport } from "./passport-service.js";
 import { loadLedger } from "./ledger.js";
@@ -232,7 +233,7 @@ export function createInspectorServer(options) {
         sendJson(response, 200, {
           ok: true,
           service: "CKBuilder Passport Public Verifier",
-          version: "10.1.0",
+          version: "10.2.0",
           network: config.APP_NETWORK,
           readOnly: true,
           privateKeyRequired: false,
@@ -295,6 +296,7 @@ export function createInspectorServer(options) {
           qrEnabled,
           chainInspectionEnabled,
           agentJobStoreEnabled,
+          agentWorkflowFeatures: { dependencyAwarePlans: true, deterministicEvidenceScoring: true, exactArgumentApprovalGates: true, resumableCheckpoints: true, recoveryActions: true, signedWorkflowReceipts: true },
           deploymentTarget,
           storageMode: productDb ? "persistent" : "read-only"
         }, requestId); return;
@@ -467,7 +469,8 @@ export function createInspectorServer(options) {
         const service = getAgentService(body.serviceId ?? body.service, config, config.ROOT_DIR ?? path.resolve(publicDir, ".."));
         const objective = cleanText(body.objective ?? body.task, "objective", 6000);
         const agreement = createAgentServiceAgreement({ service, objective, input: body });
-        sendJson(response, 200, { service: { id: service.id, title: service.title, outcome: service.outcome }, agreement }, requestId); return;
+        const workflowPlan = buildAgentWorkflowPlan({ service, objective, agreement });
+        sendJson(response, 200, { service: { id: service.id, title: service.title, outcome: service.outcome }, agreement, workflowPlan }, requestId); return;
       }
 
       if (request.method === "POST" && url.pathname === "/api/agent-commerce/fiber-quote") {
@@ -496,6 +499,12 @@ export function createInspectorServer(options) {
         if (!agentJobStoreEnabled) throw new AppError("AGENT_JOB_STORAGE_UNAVAILABLE", "Persistent agent job lookup is not enabled on this deployment.");
         const jobId = decodeURIComponent(url.pathname.split("/")[4]);
         sendJson(response, 200, getAgentJob(agentRuntimeDataDir, jobId, url.searchParams.get("token")), requestId); return;
+      }
+
+      if (request.method === "POST" && url.pathname === "/api/agent-commerce/verify-checkpoint") {
+        rateLimit(request, "agent-commerce-checkpoint-verify");
+        const body = await readJsonBody(request, Math.min(maxBodyBytes, 256 * 1024));
+        sendJson(response, 200, verifyAgentWorkflowCheckpoint(body.checkpoint ?? body), requestId); return;
       }
 
       if (request.method === "POST" && url.pathname === "/api/agent-commerce/verify-receipt") {
