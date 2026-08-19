@@ -31,7 +31,7 @@ test("v7 config exposes mission readiness but never server-only connection secre
 }));
 
 test("v7 health identifies Mission Control release", async () => withInspector(async (base) => {
-  const body = await (await fetch(`${base}/api/health`)).json(); assert.equal(body.version, "10.1.0"); assert.equal(body.readOnly, true);
+  const body = await (await fetch(`${base}/api/health`)).json(); assert.equal(body.version, "10.2.0"); assert.equal(body.readOnly, true);
 }));
 
 test("v7 HTTP mission endpoint performs transaction evidence call then returns an audit trail", async () => {
@@ -63,7 +63,7 @@ test("v7 workflow endpoint rejects an empty objective before any model or tool c
   assert.equal(calls, 0);
 });
 
- test("v10.1.0 HTTP exposes sanitized Gemini upstream errors as gateway failures", async () => {
+ test("v10.2.0 HTTP exposes sanitized Gemini upstream errors as gateway failures", async () => {
   const key = "AIzaSy012345678901234567890123456789";
   await withInspector(async (base) => {
     const response = await fetch(`${base}/api/ai/application`, { method: "POST", headers: { "content-type": "application/json", "x-ai-api-key": key, "x-ai-provider": "gemini", "x-ai-model": "gemini-3.7-flash" }, body: JSON.stringify({ applicationId: "research-brief", objective: "Summarize current CKB architecture" }) });

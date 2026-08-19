@@ -12,7 +12,7 @@ const app = fs.readFileSync(path.join(repoRoot, "public", "app.js"), "utf8");
 test("production UI uses restrained product copy instead of generated marketing language", () => {
   assert.match(html, /Verify credentials and inspect CKB-backed builder activity/);
   assert.match(html, /Run a defined CKB workflow/);
-  assert.match(html, /Run bounded CKB analysis with verifiable receipts/);
+  assert.match(html, /Run checkpointed CKB agent workflows with verifiable receipts/);
   for (const stale of [
     "Agent Economy + Mission Control",
     "Start with a CKB job, not an empty chatbot",
@@ -30,7 +30,7 @@ test("production UI ships explicit browser metadata and a final visual override 
   assert.match(html, /<meta name="theme-color" content="#111915">/);
   assert.match(html, /<meta name="color-scheme" content="light dark">/);
   assert.match(html, /<title>CKBuilder Passport — CKB Credential Verification<\/title>/);
-  const marker = css.indexOf("v10.1 production UI pass");
+  const marker = css.indexOf("v10.2 production UI pass");
   assert.ok(marker > 0);
   const productionCss = css.slice(marker);
   assert.match(productionCss, /\.hero-card\s*\{[\s\S]*background:\s*#fff;/);

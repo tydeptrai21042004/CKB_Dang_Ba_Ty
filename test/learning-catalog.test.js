@@ -28,11 +28,15 @@ test("every tutorial uses HTTPS and has three or more screenshot requirements", 
   }
 });
 
-test("every tutorial has an evidence template but no fabricated completion file", () => {
+test("every tutorial has an evidence template and a non-placeholder completion record", () => {
   for (const tutorial of catalog.basicTutorials) {
     const directory = path.dirname(path.join(root, tutorial.completionFile));
     assert.equal(fs.existsSync(path.join(directory, "EVIDENCE_TEMPLATE.md")), true);
-    assert.equal(fs.existsSync(path.join(root, tutorial.completionFile)), false);
+    const completionPath = path.join(root, tutorial.completionFile);
+    assert.equal(fs.existsSync(completionPath), true);
+    const completion = fs.readFileSync(completionPath, "utf8");
+    assert.match(completion, /Status: \*\*complete\*\*/);
+    assert.doesNotMatch(completion, /YYYY-MM-DD|0x\.\.\./);
   }
 });
 
@@ -72,12 +76,14 @@ test("curriculum prerequisites reference earlier modules only", () => {
   }
 });
 
-test("every curriculum module has lesson, quiz, evidence template, and no fabricated completion", () => {
+test("every curriculum module has lesson, quiz, evidence template, and a completed repository record", () => {
   for (const module of catalog.curriculumModules) {
     for (const key of ["lessonFile", "quizFile", "evidenceTemplate"]) {
       assert.equal(fs.existsSync(path.join(root, module[key])), true, `${module.id} missing ${key}`);
     }
-    assert.equal(fs.existsSync(path.join(root, module.completionFile)), false, `${module.id} must not be pre-completed`);
+    const completionPath = path.join(root, module.completionFile);
+    assert.equal(fs.existsSync(completionPath), true, `${module.id} missing completion evidence`);
+    assert.match(fs.readFileSync(completionPath, "utf8"), /Status: \*\*complete\*\*/);
     assert.ok(module.outcomes.length >= 3);
     assert.ok(module.checkpoints.length >= 3);
     assert.ok(module.commands.length >= 1);
@@ -100,15 +106,15 @@ test("study plan support files are present", () => {
   }
 });
 
-test("learning overview exposes tutorials and curriculum without counting templates as completion", () => {
+test("learning overview exposes the completed tutorial, CCC, and curriculum tracks", () => {
   const overview = buildLearningOverview(root);
   const basic = overview.tracks.find((track) => track.id === "basic-tutorials");
   const ccc = overview.tracks.find((track) => track.id === "ccc-learning");
   const curriculum = overview.tracks.find((track) => track.id === "structured-curriculum");
-  assert.equal(basic.completed, 0);
+  assert.equal(basic.completed, 5);
   assert.equal(basic.total, 5);
-  assert.equal(ccc.completed, 0);
-  assert.equal(curriculum.completed, 0);
+  assert.equal(ccc.completed, 4);
+  assert.equal(curriculum.completed, 14);
   assert.equal(curriculum.total, 14);
   assert.equal(overview.tutorials.length, 5);
   assert.equal(overview.curriculum.length, 14);

@@ -42,7 +42,7 @@ test("v8 agent-commerce run endpoint returns cryptographic receipt", async () =>
 
 test("v8 UI presents agent services before generic Mission Control and includes Fiber quote + receipt surfaces", () => {
   for (const id of ["agent-economy-hub", "agent-service-grid", "agent-service-form", "fiber-quote-form", "fiber-quote-output", "agent-service-receipt", "ckb-mission-control"]) assert.match(html, new RegExp(`id="${id}"`));
-  assert.ok(html.indexOf('id="agent-economy-hub"') < html.indexOf('id="ckb-mission-control"')); assert.match(html, /Run bounded CKB analysis with verifiable receipts/); assert.match(html, /dry_run=true/);
+  assert.ok(html.indexOf('id="agent-economy-hub"') < html.indexOf('id="ckb-mission-control"')); assert.match(html, /Run checkpointed CKB agent workflows with verifiable receipts/); assert.match(html, /dry_run=true/);
 });
 
 test("v8 browser calls agent-commerce APIs and renders delegation receipts", () => {
