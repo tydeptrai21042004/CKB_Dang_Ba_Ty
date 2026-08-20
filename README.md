@@ -1,5 +1,5 @@
 # CKBuilder AgentOS v10.2.0
-
+# Stop from week 6 
 > **Deploy the public app on Vercel without changing the project structure:** run `npm run vercel:check`, then follow [`VERCEL_DEPLOY.md`](./VERCEL_DEPLOY.md). The Vercel target is intentionally read-only for local persistence; the existing private issuer/Docker workflow remains unchanged.
 
 CKBuilder v10.2 extends the v9/v10 agent-service platform with **persistent Ed25519 service identity, signed receipts, SQLite agent jobs, exact argument-bound MCP approvals, hardened MCP transport, unsigned CKB transaction building, Fiber settlement verification, dependency-aware workflow plans, deterministic evidence scoring, resumable checkpoints, and a multi-agent CKB Workflow Orchestrator**. The existing safety invariant remains unchanged: the AI runtime does not hold wallet keys, sign or broadcast transactions, send real Fiber payments, or mutate channels.
